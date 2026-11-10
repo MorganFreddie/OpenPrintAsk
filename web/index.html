@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>得师傅·外脑 | 元宝搜索增强的 3D 打印诊断</title>
+  <meta name="description" content="把 3D 打印新手的抱怨编译成有类型的检索计划，用元宝 SearchPro 补私域知识缺口，输出带引用的诊断。">
+  <link rel="stylesheet" href="/assets/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo" aria-hidden="true">得</div>
+      <div class="brand-text">
+        <h1>得师傅<span>·外脑</span></h1>
+        <p>把「打不好」翻译成可检索的问题</p>
+      </div>
+    </div>
+    <div class="top-actions">
+      <span id="modeBadge" class="mode-badge is-pending">连接中</span>
+      <a class="ghost-link" href="#about">工作方式</a>
+    </div>
+  </header>
+
+  <div id="replayBanner" class="replay-banner hidden" role="status">
+    <span class="replay-dot"></span>
+    <strong>演示回放</strong>
+    <span>本次结果为已录制的元宝 SearchPro 响应，未产生实时调用；界面仍走完整链路。</span>
+  </div>
+
+  <main class="layout">
+    <section class="left panel">
+      <div class="panel-head">
+        <span class="step">01</span>
+        <h2>描述你遇到的问题</h2>
+      </div>
+      <p class="lede">不用先想术语。把机型、材料、现象、已经试过什么写出来，编译器会先找缺口，再决定搜什么。</p>
+
+      <div class="composer">
+        <textarea id="question" maxlength="1200" spellcheck="false"
+          placeholder="例如：A1 mini 打 PLA，首层老翘边，热床 60℃ 还加了胶水也没用，是不是机器坏了？"></textarea>
+        <div class="composer-meta">
+          <span id="charCount">0 / 1200</span>
+          <span class="key-hint">Ctrl + Enter 提交</span>
+        </div>
+        <button id="askBtn" class="primary-btn" type="button">
+          <span class="btn-label">编译并检索</span>
+          <span class="spinner hidden" aria-hidden="true"></span>
+        </button>
+      </div>
+
+      <div class="examples">
+        <div class="section-label">试试这些真实抱怨</div>
+        <div id="caseList" class="case-list"></div>
+      </div>
+
+      <div id="compiler" class="compiler hidden">
+        <div class="section-head">
+          <span class="step">02</span>
+          <h2>问题编译器</h2>
+          <span id="gapSummary" class="muted"></span>
+        </div>
+        <div id="slots" class="slot-grid"></div>
+
+        <div class="section-label gap-label">识别出的检索缺口</div>
+        <div id="gaps" class="gap-list"></div>
+      </div>
+
+      <div class="side-note" id="about">
+        <strong>它不是「再搜一下」。</strong>
+        <p>先看私域笔记覆盖了什么、缺什么，再把缺口变成一条条有 Mode / Site / Freshness 的查询。证据不足时，它会追问，而不是编答案。</p>
+      </div>
+    </section>
+
+    <section class="right panel">
+      <div class="tabs" role="tablist" aria-label="结果视图">
+        <button class="tab active" data-tab="answer" role="tab" aria-selected="true">诊断回答</button>
+        <button class="tab" data-tab="evidence" role="tab" aria-selected="false">证据 <span id="evidenceCount" class="tab-count">0</span></button>
+        <button class="tab" data-tab="plan" role="tab" aria-selected="false">检索计划 <span id="queryCount" class="tab-count">0</span></button>
+        <button class="tab" data-tab="trace" role="tab" aria-selected="false">运行轨迹</button>
+      </div>
+
+      <div id="emptyState" class="empty-state">
+        <div class="empty-kicker">元宝搜索 · SearchPro</div>
+        <h2>一句抱怨，四步变成可验证的答案</h2>
+        <div class="flow">
+          <div class="flow-step"><span>1</span><strong>拆</strong><p>机型、材料、现象、已尝试</p></div>
+          <div class="flow-arrow" aria-hidden="true">→</div>
+          <div class="flow-step"><span>2</span><strong>找缺口</strong><p>私域有什么、还缺什么</p></div>
+          <div class="flow-arrow" aria-hidden="true">→</div>
+          <div class="flow-step"><span>3</span><strong>编查询</strong><p>Mode / Site / Freshness</p></div>
+          <div class="flow-arrow" aria-hidden="true">→</div>
+          <div class="flow-step"><span>4</span><strong>给证据</strong><p>带编号、能点开、敢说不足</p></div>
+        </div>
+        <p class="empty-hint">从左侧选一个案例，或直接输入你的问题。</p>
+      </div>
+
+      <div id="loadingState" class="loading hidden">
+        <div class="loading-title"><span class="spinner dark"></span><span id="loadingText">正在编译问题…</span></div>
+        <div class="loading-steps">
+          <div class="load-step" data-stage="0">拆解槽位与检索缺口</div>
+          <div class="load-step" data-stage="1">检索私域笔记</div>
+          <div class="load-step" data-stage="2">并行调用元宝 SearchPro</div>
+          <div class="load-step" data-stage="3">融合证据与数值冲突</div>
+          <div class="load-step" data-stage="4">生成带引用的回答</div>
+        </div>
+      </div>
+
+      <div id="answerPane" class="pane hidden" role="tabpanel"></div>
+      <div id="evidencePane" class="pane hidden" role="tabpanel"></div>
+      <div id="planPane" class="pane hidden" role="tabpanel"></div>
+      <div id="tracePane" class="pane hidden" role="tabpanel"></div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <span>得师傅·外脑 · 元宝搜索开发者征文大赛参赛原型</span>
+    <span class="footer-sep">|</span>
+    <span>本地优先 · 私域笔记不出机 · 公开证据带 RequestId</span>
+  </footer>
+
+  <script src="/assets/app.js"></script>
+</body>
+</html>

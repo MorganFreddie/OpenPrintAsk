@@ -1,0 +1,123 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN"><head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>得师傅·外脑 | 元宝搜索增强的 3D 打印诊断</title>
+  <meta name="description" content="把 3D 打印新手的抱怨编译成有类型的检索计划，用元宝 SearchPro 补私域知识缺口，输出带引用的诊断。">
+  <link rel="stylesheet" href="/assets/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo" aria-hidden="true">得</div>
+      <div class="brand-text">
+        <h1>得师傅<span>·外脑</span></h1>
+        <p>把「打不好」翻译成可检索的问题</p>
+      </div>
+    </div>
+    <div class="top-actions">
+      <span id="modeBadge" class="mode-badge is-replay" title="mode=replay, credential=none, fixtures=28, notes=8">回放 · 已录制</span>
+      <a class="ghost-link" href="#about">工作方式</a>
+    </div>
+  </header>
+
+  <div id="replayBanner" class="replay-banner" role="status">
+    <span class="replay-dot"></span>
+    <strong>演示回放</strong>
+    <span>本次结果为已录制的元宝 SearchPro 响应，未产生实时调用；界面仍走完整链路。</span>
+  </div>
+
+  <main class="layout">
+    <section class="left panel">
+      <div class="panel-head">
+        <span class="step">01</span>
+        <h2>描述你遇到的问题</h2>
+      </div>
+      <p class="lede">不用先想术语。把机型、材料、现象、已经试过什么写出来，编译器会先找缺口，再决定搜什么。</p>
+
+      <div class="composer">
+        <textarea id="question" maxlength="1200" spellcheck="false" placeholder="例如：A1 mini 打 PLA，首层老翘边，热床 60℃ 还加了胶水也没用，是不是机器坏了？"></textarea>
+        <div class="composer-meta">
+          <span id="charCount">44 / 1200</span>
+          <span class="key-hint">Ctrl + Enter 提交</span>
+        </div>
+        <button id="askBtn" class="primary-btn" type="button">
+          <span class="btn-label">编译并检索</span>
+          <span class="spinner hidden" aria-hidden="true"></span>
+        </button>
+      </div>
+
+      <div class="examples">
+        <div class="section-label">试试这些真实抱怨</div>
+        <div id="caseList" class="case-list"><button class="case-btn" type="button" title="点击填入并直接运行"><span class="case-tag">A1 mini</span><span class="case-title">PLA 首层翘边，60℃ + 胶水也没用</span></button><button class="case-btn" type="button" title="点击填入并直接运行"><span class="case-tag">P1S</span><span class="case-title">PETG 拉丝，回抽 0.8→1.2 仍无效</span></button><button class="case-btn" type="button" title="点击填入并直接运行"><span class="case-tag">K1</span><span class="case-title">升级固件后首层变薄，要不要回滚</span></button><button class="case-btn" type="button" title="点击填入并直接运行"><span class="case-tag">光敏树脂</span><span class="case-title">树脂机放卧室，气味与防护边界</span></button></div>
+      </div>
+
+      <div id="compiler" class="compiler">
+        <div class="section-head">
+          <span class="step">02</span>
+          <h2>问题编译器</h2>
+          <span id="gapSummary" class="muted">5 个缺口 · 3 条查询</span>
+        </div>
+        <div id="slots" class="slot-grid"><div class="slot is-filled"><span class="slot-label">机型</span><span class="slot-value">A1 mini</span></div><div class="slot is-filled"><span class="slot-label">材料</span><span class="slot-value">PLA</span></div><div class="slot is-filled"><span class="slot-label">现象</span><span class="slot-value">翘边 / 首层脱落</span></div><div class="slot is-filled"><span class="slot-label">已尝试</span><span class="slot-value">热床 60℃、胶水/胶棒</span></div><div class="slot is-missing"><span class="slot-label">环境</span><span class="slot-value">未识别</span></div></div>
+
+        <div class="section-label gap-label">识别出的检索缺口</div>
+        <div id="gaps" class="gap-list"><div class="gap is-covered"><div class="gap-top"><span class="gap-id">G1</span><span class="gap-q">PLA 的官方基线是什么：热床/喷嘴温度、首层速度、调平要求分别是什么？</span><span class="status status-covered">已覆盖</span></div><p class="gap-why">私域笔记只有个人经验值，缺厂家基线；没有基线就无法判断你现在的参数是偏高还是偏低。</p></div><div class="gap is-covered"><div class="gap-top"><span class="gap-id">G2</span><span class="gap-q">A1 mini 的旧笔记（2024-11-02）里的数值还成立吗？</span><span class="status status-covered">已覆盖</span></div><p class="gap-why">私域库里同时有新旧两条经验，旧的那条可能把你带偏。</p></div><div class="gap is-covered"><div class="gap-top"><span class="gap-id">G3</span><span class="gap-q">你怀疑「是不是机器坏了」，这个方向成立吗？需要哪些证据才能排除它？</span><span class="status status-covered">已覆盖</span></div><p class="gap-why">先验证怀疑，避免直接换件或回滚固件。</p></div><div class="gap is-covered"><div class="gap-top"><span class="gap-id">G4</span><span class="gap-q">私域笔记里的数值（60℃、22℃、55℃、65℃）与公开资料是否一致？</span><span class="status status-covered">已覆盖</span></div><p class="gap-why">私域笔记可能过期，也可能只适用于旧版本或特定平台。</p></div><div class="gap is-covered"><div class="gap-top"><span class="gap-id">G5</span><span class="gap-q">环境温度、空调直吹或湿度，是否足以解释这个现象？</span><span class="status status-covered">已覆盖</span></div><p class="gap-why">这是成本最低、最容易被忽略的变量，先用一条检索排除。</p></div></div>
+      </div>
+
+      <div class="side-note" id="about">
+        <strong>它不是「再搜一下」。</strong>
+        <p>先看私域笔记覆盖了什么、缺什么，再把缺口变成一条条有 Mode / Site / Freshness 的查询。证据不足时，它会追问，而不是编答案。</p>
+      </div>
+    </section>
+
+    <section class="right panel">
+      <div class="tabs" role="tablist" aria-label="结果视图">
+        <button class="tab active" data-tab="answer" role="tab" aria-selected="true">诊断回答</button>
+        <button class="tab" data-tab="evidence" role="tab" aria-selected="false">证据 <span id="evidenceCount" class="tab-count">4</span></button>
+        <button class="tab" data-tab="plan" role="tab" aria-selected="false">检索计划 <span id="queryCount" class="tab-count">3</span></button>
+        <button class="tab" data-tab="trace" role="tab" aria-selected="false">运行轨迹</button>
+      </div>
+
+      <div id="emptyState" class="empty-state hidden">
+        <div class="empty-kicker">元宝搜索 · SearchPro</div>
+        <h2>一句抱怨，四步变成可验证的答案</h2>
+        <div class="flow">
+          <div class="flow-step"><span>1</span><strong>拆</strong><p>机型、材料、现象、已尝试</p></div>
+          <div class="flow-arrow" aria-hidden="true">→</div>
+          <div class="flow-step"><span>2</span><strong>找缺口</strong><p>私域有什么、还缺什么</p></div>
+          <div class="flow-arrow" aria-hidden="true">→</div>
+          <div class="flow-step"><span>3</span><strong>编查询</strong><p>Mode / Site / Freshness</p></div>
+          <div class="flow-arrow" aria-hidden="true">→</div>
+          <div class="flow-step"><span>4</span><strong>给证据</strong><p>带编号、能点开、敢说不足</p></div>
+        </div>
+        <p class="empty-hint">从左侧选一个案例，或直接输入你的问题。</p>
+      </div>
+
+      <div id="loadingState" class="loading hidden">
+        <div class="loading-title"><span class="spinner dark"></span><span id="loadingText">正在编译问题…</span></div>
+        <div class="loading-steps">
+          <div class="load-step is-active" data-stage="0">拆解槽位与检索缺口</div>
+          <div class="load-step" data-stage="1">检索私域笔记</div>
+          <div class="load-step" data-stage="2">并行调用元宝 SearchPro</div>
+          <div class="load-step" data-stage="3">融合证据与数值冲突</div>
+          <div class="load-step" data-stage="4">生成带引用的回答</div>
+        </div>
+      </div>
+
+      <div id="answerPane" class="pane" role="tabpanel"><div class="answer-head"><div><h2>先洗板，再升温，最后挡风</h2><p class="answer-sub">A1 mini · PLA · 翘边 / 首层脱落</p></div><div class="answer-badges"><span class="badge conf-medium">中等置信</span><span class="badge">缺口覆盖 5/5</span><span class="badge replay">回放</span></div></div><p class="summary">先说结论：这更像首层附着失效，不像机器故障。 你的私域库里已经有一条「A1 mini 首层总翘边，最后发现是平台没洗净」，平台清洁这条线你其实走过； 但「A1 mini 热床温度记录（旧）」是旧版（2024-11-02），热床数值偏保守，不能直接当现行参数。 公开资料把 PLA 的热床区间给到 60–65℃（官方），你试的 热床 60℃ 可能刚好在区间下沿。</p><div class="block"><div class="block-title">下一步，按这个顺序</div><div class="steps"><div class="step-row"><div class="step-num">1</div><div class="step-body"><div class="step-title">洗板</div><p class="step-text">用温水 + 中性洗洁精把 PEI 板洗一遍，冲净、晾干。油污会让胶水和升温同时失效。</p><div class="step-sids"><button class="cite" type="button" title="查看 S1 证据">S1</button><button class="cite" type="button" title="查看 S2 证据">S2</button></div></div></div><div class="step-row"><div class="step-num">2</div><div class="step-body"><div class="step-title">升温</div><p class="step-text">把热床设到 60–65℃（官方），一次只改这一个变量。</p><div class="step-sids"><button class="cite" type="button" title="查看 S1 证据">S1</button><button class="cite" type="button" title="查看 S2 证据">S2</button></div></div></div><div class="step-row"><div class="step-num">3</div><div class="step-body"><div class="step-title">挡风</div><p class="step-text">关掉空调直吹，或给机器加个罩；环境温度低于 22℃ 时边角翘得更明显。</p><div class="step-sids"><button class="cite" type="button" title="查看 S1 证据">S1</button><button class="cite" type="button" title="查看 S2 证据">S2</button></div></div></div><div class="step-row"><div class="step-num">4</div><div class="step-body"><div class="step-title">压首层</div><p class="step-text">首层速度降到 50mm/s，观察第一层是否被压扁；如果仍然翘，再动 Z 偏移。</p><div class="step-sids"><button class="cite" type="button" title="查看 S1 证据">S1</button><button class="cite" type="button" title="查看 S2 证据">S2</button></div></div></div><div class="step-row"><div class="step-num">5</div><div class="step-body"><div class="step-title">复测</div><p class="step-text">打一个 20mm 方片，只看四角。不要同时换耗材、温度和速度，否则无法判断是哪一项起了作用。</p><div class="step-sids"><button class="cite" type="button" title="查看 S1 证据">S1</button><button class="cite" type="button" title="查看 S2 证据">S2</button></div></div></div></div></div><div class="block"><div class="block-title">需要你知道的分歧</div><div class="conflict-card">热床温度说法不一致：官方 60–65℃；其他来源 60℃；其他来源 45℃。 建议先采用 62.5℃ 这一侧，并记录复测结果。<div class="step-sids"><button class="cite" type="button" title="查看 S1 证据">S1</button></div></div></div><div class="block"><div class="block-title">还需要你确认</div><div class="followup-card"><p class="q">你的 PEI 板是纹理板还是光滑板？打印时空调是否直吹？这两个信息会改变下一步。</p><p class="why">补上这条信息，下一轮检索才能收敛；现在给的是保守结论。</p></div></div><div class="block"><div class="block-title">边界与不确定</div><ul class="uncertainty-list"><li>如果洗板 + 升温 + 挡风后仍然翘边，下一步才查 Z 偏移或平台变形；不要继续加胶水。</li></ul></div><div class="block"><div class="kb-note"><strong>私域笔记</strong><div class="kb-items"><div class="kb-item"><span>A1 mini 首层总翘边，最后发现是平台没洗净</span><span class="muted">2026-03-12</span></div><div class="kb-item"><span>A1 mini 热床温度记录（旧）</span><span class="muted">2024-11-02 · 旧笔记</span></div></div></div></div><div class="answer-footer"><span>run 20261109-155717-5921</span><span>耗时 10ms</span><span>证据 4 条</span><span>调用 3 次</span><span>数值断言 4 条</span><span>冲突 1 处</span></div></div>
+      <div id="evidencePane" class="pane hidden" role="tabpanel"><div class="evidence-head"><h2>公开证据</h2><span>4 条 · 按权威度 / 新鲜度 / 相关度排序</span></div><article class="evidence-card" id="ev-S1"><div class="ev-top"><span class="rank">S1</span><div class="ev-title"><a href="https://wiki.bambulab.com/en/a1-mini/manual/bed-temperature" target="_blank" rel="noopener noreferrer">A1 mini 热床温度与首层附着</a></div></div><div class="ev-meta"><span class="tier tier-official">官方/权威</span><span>wiki.bambulab.com</span><span>2025-08-12</span><span>相关度 94%</span><span>新鲜度 43%</span><span>权威 5/5</span></div><p class="ev-passage">PLA 的热床温度建议 60–65℃，首层速度 50 mm/s。PEI 打印板每完成 10 次打印，用中性洗洁精和温水清洗，冲净后晾干；不要用手直接触摸板面。</p><div class="ev-foot"><span class="mini-chip">Q1</span><span class="mini-chip g1">G1</span><span class="mini-chip g1">G2</span><span class="mini-chip g1">G4</span></div></article><article class="evidence-card" id="ev-S2"><div class="ev-top"><span class="rank">S2</span><div class="ev-title"><a href="https://www.reddit.com/r/BambuLab/comments/1a1mini_warping/" target="_blank" rel="noopener noreferrer">A1 mini 首层翘边，先别换机器：我踩过的 4 个坑</a></div></div><div class="ev-meta"><span class="tier tier-community">社区</span><span>reddit.com</span><span>2025-10-20</span><span>相关度 82%</span><span>新鲜度 49%</span><span>权威 3/5</span></div><p class="ev-passage">热床 60℃ 并不总能救翘边。把 PEI 板用洗洁精洗干净、预热 5 分钟、关掉空调直吹，我的 A1 mini 首层附着明显变好；胶水反而会污染板面。这不是机器坏了，先排除板面油污和气流问题。</p><div class="ev-foot"><span class="mini-chip">Q1</span><span class="mini-chip">Q2</span><span class="mini-chip">Q3</span><span class="mini-chip g1">G1</span><span class="mini-chip g1">G2</span><span class="mini-chip g1">G3</span><span class="mini-chip g1">G4</span><span class="mini-chip g1">G5</span></div></article><article class="evidence-card" id="ev-S3"><div class="ev-top"><span class="rank">S3</span><div class="ev-title"><a href="https://www.printables.com/model/xxxx-draft-test" target="_blank" rel="noopener noreferrer">空调直吹导致 3D 打印翘边的实测</a></div></div><div class="ev-meta"><span class="tier tier-community">社区</span><span>printables.com</span><span>2025-07-03</span><span>相关度 70%</span><span>新鲜度 40%</span><span>权威 2/5</span></div><p class="ev-passage">环境温度每下降 5℃，PLA 边缘收缩应力明显增加；把打印机从空调出风口移开，翘边概率下降。</p><div class="ev-foot"><span class="mini-chip">Q3</span><span class="mini-chip g1">G5</span></div></article><article class="evidence-card" id="ev-S4"><div class="ev-top"><span class="rank">S4</span><div class="ev-title"><a href="https://blog.example-3d.com/pla-low-temp-bed" target="_blank" rel="noopener noreferrer">PLA 热床 45℃ 也能打印？低温省电方案</a></div></div><div class="ev-meta"><span class="tier tier-general">一般网页</span><span>blog.example-3d.com</span><span>2024-02-11</span><span>相关度 55%</span><span>新鲜度 20%</span><span>权威 1/5</span></div><p class="ev-passage">把 PLA 热床降到 45℃，配合固体胶，首层也能粘住，还能减少耗材底部变形。</p><div class="ev-foot"><span class="mini-chip">Q2</span><span class="mini-chip g1">G3</span></div></article></div>
+      <div id="planPane" class="pane hidden" role="tabpanel"><div class="plan-hero"><span class="k">编译器改写后的问题</span><p>A1 mini 打 PLA 时出现「翘边 / 首层脱落」；已经试过 热床 60℃、胶水/胶棒。想知道最可能的原因，以及下一步按什么顺序处理。</p><div class="strategy">先补私域缺口，再拿官方基线，最后用社区案例交叉验证；私域笔记与公开资料冲突时，以官方和更新时间更近者为准。</div></div><div class="block"><div class="block-title">对照：如果只把原话丢给搜索</div><div class="plan-hero"><p style="font-family:ui-monospace,Consolas,monospace;font-size:12px">A1 mini 打 PLA，首层老翘边，热床 60℃ 还加了胶水也没用，是不是机器坏了？</p></div></div><div class="block"><div class="block-title">检索任务书 · 3 条</div><div class="query-card"><div class="query-top"><span class="qid">Q1</span><span class="query-purpose">拿厂家基线，校准私域里的经验值</span></div><p class="query-text">A1 mini PLA 官方 参数 热床 喷嘴 温度</p><div class="params"><span class="param" title="Mode 2 · 混合"><b>Mode</b> 2</span><span class="param" title="Cnt=10"><b>Cnt</b> 10</span><span class="param" title="Site=wiki.bambulab.com"><b>Site</b> wiki.bambulab.com</span></div><div class="params"><span class="mini-chip g1">G1</span><span class="mini-chip g1">G2</span><span class="mini-chip g1">G4</span><span class="mini-chip">w=1.3</span></div></div><div class="query-card"><div class="query-top"><span class="qid">Q2</span><span class="query-purpose">验证已经试过的方向为什么无效，避免继续加码</span></div><p class="query-text">A1 mini PLA 首层 翘边 附着 原因 热床 60℃ 胶水/胶棒 无效 其他原因</p><div class="params"><span class="param" title="Mode 2 · 混合"><b>Mode</b> 2</span><span class="param" title="Cnt=10"><b>Cnt</b> 10</span></div><div class="params"><span class="mini-chip g1">G3</span><span class="mini-chip">w=0.95</span></div></div><div class="query-card"><div class="query-top"><span class="qid">Q3</span><span class="query-purpose">用一条低成本检索排除环境变量</span></div><p class="query-text">3D打印 翘边 / 首层脱落 环境 温度 空调 直吹</p><div class="params"><span class="param" title="Mode 2 · 混合"><b>Mode</b> 2</span><span class="param" title="Cnt=10"><b>Cnt</b> 10</span></div><div class="params"><span class="mini-chip g1">G5</span><span class="mini-chip">w=0.7</span></div></div></div></div>
+      <div id="tracePane" class="pane hidden" role="tabpanel"><div class="trace-summary"><div class="metric"><span class="num">10ms</span><span class="lbl">总耗时</span></div><div class="metric"><span class="num">3</span><span class="lbl">SearchPro 调用</span></div><div class="metric"><span class="num">4</span><span class="lbl">证据</span></div><div class="metric"><span class="num">4</span><span class="lbl">数值断言</span></div></div><div class="block"><div class="block-title">链路耗时</div><div class="timeline"><div class="stage"><div class="stage-dot"></div><div class="stage-body"><div class="stage-name">问题编译</div><div class="stage-detail">5 个缺口 / 4 条查询</div></div><div class="stage-ms">0ms</div></div><div class="stage"><div class="stage-dot"></div><div class="stage-body"><div class="stage-name">私域检索</div><div class="stage-detail">5 条笔记</div></div><div class="stage-ms">5ms</div></div><div class="stage"><div class="stage-dot"></div><div class="stage-body"><div class="stage-name">元宝搜索</div><div class="stage-detail">3 次调用 / 6 条原始结果</div></div><div class="stage-ms">2ms</div></div><div class="stage"><div class="stage-dot"></div><div class="stage-body"><div class="stage-name">证据融合</div><div class="stage-detail">4 条证据 / 4 条数值 / 1 处冲突</div></div><div class="stage-ms">1ms</div></div><div class="stage"><div class="stage-dot"></div><div class="stage-body"><div class="stage-name">回答生成</div><div class="stage-detail">先洗板，再升温，最后挡风</div></div><div class="stage-ms">0ms</div></div></div></div><div class="block"><div class="block-title">调用明细</div><div class="trace-table"><div class="trace-row head"><span>Q</span><span>查询</span><span>页数</span><span>耗时</span><span>RequestId</span></div><div class="trace-row"><span class="mono">Q1</span><div><div class="q-text">A1 mini PLA 官方 参数 热床 喷嘴 温度</div><div class="mono" style="margin-top:3px">Mode=2 · Cnt=10 · Site=wiki.bambulab.com</div></div><span class="mono">2</span><span class="mono">0ms</span><span class="mono">replay-5e468a44</span></div><div class="trace-row"><span class="mono">Q2</span><div><div class="q-text">A1 mini PLA 首层 翘边 附着 原因 热床 60℃ 胶水/胶棒 无效 其他原因</div><div class="mono" style="margin-top:3px">Mode=2 · Cnt=10</div></div><span class="mono">2</span><span class="mono">0ms</span><span class="mono">replay-722163a0</span></div><div class="trace-row"><span class="mono">Q3</span><div><div class="q-text">3D打印 翘边 / 首层脱落 环境 温度 空调 直吹</div><div class="mono" style="margin-top:3px">Mode=2 · Cnt=10</div></div><span class="mono">2</span><span class="mono">0ms</span><span class="mono">replay-0d74d4a3</span></div></div></div><div class="trace-actions"><a href="/api/runs/20261109-155717-5921?download=1">下载本次 trace JSON ↗</a><span class="muted">official 1 · community 2 · 冲突 1 · none</span></div></div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <span>得师傅·外脑 · 元宝搜索开发者征文大赛参赛原型</span>
+    <span class="footer-sep">|</span>
+    <span>本地优先 · 私域笔记不出机 · 公开证据带 RequestId</span>
+  </footer>
+
+  <script src="/assets/app.js"></script>
+
+
+</body></html>

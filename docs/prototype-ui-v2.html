@@ -1,0 +1,800 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>得师傅·外脑 · 界面 v2 原型</title>
+<style>
+  :root{
+    --bg:#f5f1e8; --card:#fffdf8; --ink:#1d2329; --soft:#3f4752; --muted:#6f7883;
+    --faint:#959ca5; --line:#e6ded1; --line-strong:#d5c9b7;
+    --accent:#e2570c; --accent-deep:#bc4306; --accent-soft:#fff1e6; --accent-line:#f2c6a8;
+    --green:#2c7a58; --green-soft:#eaf5ee; --blue:#2f6498; --blue-soft:#eaf1f8;
+    --amber:#a86412; --amber-soft:#fdf3df; --red:#b3372f; --red-soft:#fbeceb;
+    --shadow:0 1px 2px rgba(45,35,20,.05),0 18px 44px -32px rgba(45,35,20,.35);
+    --radius:18px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;min-width:340px;color:var(--ink);
+    background:
+      radial-gradient(1000px 480px at 6% -8%,#fff9f0 0%,rgba(255,249,240,0) 62%),
+      radial-gradient(820px 420px at 100% 0%,#f4ecdd 0%,rgba(244,236,221,0) 58%),
+      var(--bg);
+    font-family:"Segoe UI","PingFang SC","Microsoft YaHei","Noto Sans CJK SC",sans-serif;
+    font-size:15px;line-height:1.65;-webkit-font-smoothing:antialiased;
+  }
+  button,textarea,input{font:inherit}
+  button{cursor:pointer}
+  a{color:var(--accent-deep);text-decoration:none}
+  .hidden{display:none!important}
+
+  /* ---------------------------------------------------------------- top */
+  .topbar{width:min(1480px,calc(100% - 48px));margin:0 auto;padding:20px 0 14px;display:flex;align-items:center;justify-content:space-between;gap:20px}
+  .brand{display:flex;align-items:center;gap:13px}
+  .logo{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(145deg,#f2711c,#d64c05);color:#fff;font-size:22px;font-weight:800;box-shadow:0 10px 20px -12px rgba(226,87,12,.9)}
+  .brand h1{margin:0;font-size:22px;line-height:1.1;letter-spacing:.01em}
+  .brand h1 span{color:var(--accent)}
+  .brand p{margin:4px 0 0;color:var(--muted);font-size:13px}
+  .top-actions{display:flex;align-items:center;gap:12px}
+  .proto-pill{padding:5px 10px;border:1px dashed var(--line-strong);border-radius:999px;color:var(--muted);font-size:12px;background:rgba(255,253,248,.6)}
+  .mode-badge{display:inline-flex;align-items:center;gap:7px;padding:6px 12px;border-radius:999px;border:1px solid #cfe4d8;background:var(--green-soft);color:var(--green);font-size:12.5px;font-weight:700;white-space:nowrap}
+  .mode-badge::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 0 3px rgba(44,122,88,.14)}
+  .ghost{color:var(--muted);font-size:13px}
+
+  /* --------------------------------------------------------------- shell */
+  .layout{width:min(1480px,calc(100% - 48px));margin:0 auto;display:grid;grid-template-columns:482px minmax(0,1fr);gap:20px;align-items:start}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+  .left{padding:24px 24px 22px}
+  .panel-head{display:flex;align-items:center;gap:10px}
+  .step{display:inline-grid;place-items:center;width:27px;height:27px;border-radius:9px;background:var(--ink);color:#fff;font-size:11.5px;font-weight:800;flex:0 0 auto}
+  .panel-head h2{margin:0;font-size:17px;letter-spacing:.01em}
+  .head-note{margin-left:auto;color:var(--faint);font-size:12px}
+  .lede{margin:10px 0 16px;color:var(--muted);font-size:13.5px;line-height:1.75}
+
+  /* ------------------------------------------------------------- template */
+  .template{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+  .tpl{display:inline-flex;align-items:center;gap:5px;padding:4px 9px 4px 5px;border:1px solid var(--line);border-radius:999px;background:#fdfaf3;color:var(--soft);font-size:12.5px}
+  .tpl b{display:inline-grid;place-items:center;width:17px;height:17px;border-radius:50%;background:var(--accent-soft);color:var(--accent-deep);font-size:10px;font-weight:800}
+  .tpl.hot{border-color:var(--accent-line);background:var(--accent-soft);color:var(--accent-deep)}
+  .tpl.hot b{background:#ffe3cf}
+  .tpl.miss{border-style:dashed;color:var(--faint);background:transparent}
+  .tpl.miss b{background:#f1ece2;color:var(--faint)}
+
+  /* ------------------------------------------------------------- composer */
+  .composer{border:1px solid var(--line-strong);border-radius:14px;background:#fdfaf4;padding:4px;transition:border-color .15s,box-shadow .15s}
+  .composer:focus-within{border-color:var(--accent-line);box-shadow:0 0 0 3px rgba(226,87,12,.08)}
+  #question{display:block;width:100%;min-height:104px;resize:vertical;border:0;outline:0;padding:11px 12px 2px;background:transparent;color:var(--ink);font-size:14.5px;line-height:1.75}
+  .composer-meta{display:flex;justify-content:space-between;gap:10px;padding:0 12px 8px;color:var(--faint);font-size:11.5px}
+  .primary-btn{width:100%;height:46px;border:0;border-radius:11px;background:linear-gradient(135deg,#ef6a1c,#d94d06);color:#fff;font-size:14.5px;font-weight:800;letter-spacing:.04em;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 12px 24px -16px rgba(217,77,6,.95);transition:transform .12s,filter .12s}
+  .primary-btn:hover{filter:brightness(1.04);transform:translateY(-1px)}
+  .primary-btn small{font-size:12px;font-weight:500;opacity:.82;letter-spacing:0}
+
+  .toast{position:fixed;left:50%;bottom:30px;transform:translate(-50%,12px);max-width:min(520px,calc(100% - 32px));padding:10px 16px;border-radius:10px;background:#1d2329;color:#fff;font-size:13px;line-height:1.55;box-shadow:0 16px 30px -18px rgba(0,0,0,.55);opacity:0;pointer-events:none;transition:opacity .18s,transform .18s;z-index:9}
+  .toast.show{opacity:1;transform:translate(-50%,0)}
+
+  /* ------------------------------------------------------------- quickfill */
+  .quick{margin-top:18px;border-top:1px solid var(--line);padding-top:14px}
+  .quick-head{display:flex;align-items:baseline;gap:8px;margin-bottom:4px}
+  .quick-head strong{font-size:13.5px}
+  .quick-head span{font-size:12px;color:var(--faint)}
+  .qrow{display:flex;gap:10px;align-items:flex-start;padding:6px 0}
+  .qrow + .qrow{border-top:1px dashed #eee6d8}
+  .qlabel{flex:0 0 52px;padding-top:4px;color:var(--muted);font-size:12px;font-weight:700;letter-spacing:.02em}
+  .chips{display:flex;flex-wrap:wrap;gap:6px;min-width:0}
+  .chip{padding:4px 9px;border:1px solid var(--line);border-radius:8px;background:#fffdf9;color:var(--soft);font-size:12.5px;line-height:1.4;transition:all .12s}
+  .chip:hover{border-color:var(--accent-line);background:var(--accent-soft)}
+  .chip.is-on{border-color:var(--accent-line);background:var(--accent-soft);color:var(--accent-deep);font-weight:700}
+  .chip.is-on::before{content:"✓ ";font-size:10px;font-weight:800}
+  .quick-tip{margin:8px 0 0;color:var(--faint);font-size:12px;line-height:1.6}
+  .quick-tip b{color:var(--amber)}
+
+  /* -------------------------------------------------------------- preview */
+  .preview{margin-top:16px;padding:14px 15px;border:1px solid var(--line);border-radius:14px;background:#fcf8f0}
+  .pv-head{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+  .pv-head strong{font-size:13px;letter-spacing:.02em}
+  .pv-status{margin-left:auto;display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:800;color:var(--green)}
+  .pv-status::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--green)}
+  .pv-status.warn{color:var(--amber)}
+  .pv-status.warn::before{background:var(--amber)}
+  .pv-grid{display:flex;flex-wrap:wrap;gap:6px}
+  .pv-chip{flex:1 1 108px;padding:7px 9px;border:1px solid var(--line);border-radius:9px;background:#fffdf9;min-width:0}
+  .pv-chip .k{display:block;color:var(--faint);font-size:10.5px;letter-spacing:.08em}
+  .pv-chip .v{display:block;font-size:12.5px;font-weight:700;color:var(--soft);overflow-wrap:anywhere}
+  .pv-chip.empty{border-style:dashed;background:#fbf7ef}
+  .pv-chip.empty .v{color:var(--faint);font-weight:500}
+  .pv-rewrite{margin-top:11px;padding-top:10px;border-top:1px dashed var(--line-strong)}
+  .pv-rewrite .k{color:var(--faint);font-size:10.5px;letter-spacing:.1em;font-weight:800}
+  .pv-rewrite p{margin:4px 0 0;color:var(--soft);font-size:12.5px;line-height:1.7}
+  .pv-next{margin-top:8px;color:var(--muted);font-size:12px}
+  .pv-next b{color:var(--accent-deep)}
+  .demo-link{margin-top:9px;border:0;background:none;padding:0;color:var(--accent-deep);font-size:12px;text-decoration:underline;text-underline-offset:3px}
+
+  /* ------------------------------------------------------------- examples */
+  .examples{margin-top:20px;border-top:1px solid var(--line);padding-top:14px}
+  .eyebrow{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:9px}
+  .eyebrow strong{font-size:13.5px}
+  .eyebrow span{color:var(--faint);font-size:12px}
+  .case{display:block;width:100%;text-align:left;padding:10px 11px;border:1px solid var(--line);border-radius:11px;background:#fffdf9;color:var(--soft);transition:all .14s}
+  .case + .case{margin-top:7px}
+  .case:hover{border-color:var(--accent-line);background:var(--accent-soft)}
+  .case-top{display:flex;align-items:center;gap:7px}
+  .case-tag{padding:1px 6px;border-radius:5px;background:#f1ece3;color:#7d7467;font-size:10.5px;font-weight:800;letter-spacing:.02em;flex:0 0 auto}
+  .case-title{font-size:13px;line-height:1.45;font-weight:600}
+  .case-why{margin:4px 0 0;color:var(--muted);font-size:11.5px;line-height:1.55}
+
+  /* ---------------------------------------------------------------- howto */
+  .howto{margin-top:16px;border:1px solid var(--line);border-radius:12px;background:#fdfaf4;overflow:hidden}
+  .howto summary{list-style:none;cursor:pointer;padding:10px 13px;font-size:13px;font-weight:700;color:var(--soft);display:flex;align-items:center;gap:7px}
+  .howto summary::-webkit-details-marker{display:none}
+  .howto summary::before{content:"?";display:inline-grid;place-items:center;width:18px;height:18px;border-radius:50%;background:var(--accent-soft);color:var(--accent-deep);font-size:11px;font-weight:800}
+  .howto summary::after{content:"展开";margin-left:auto;color:var(--faint);font-size:11.5px;font-weight:500}
+  .howto[open] summary::after{content:"收起"}
+  .howto-body{padding:0 13px 13px;border-top:1px dashed var(--line)}
+  .cmp{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+  .cmp-card{padding:9px 10px;border-radius:9px;font-size:12px;line-height:1.65}
+  .cmp-card.bad{background:var(--red-soft);border:1px solid #efcbc7;color:#7c3a33}
+  .cmp-card.good{background:var(--green-soft);border:1px solid #cfe6d9;color:#275f45}
+  .cmp-card b{display:block;font-size:10.5px;letter-spacing:.1em;margin-bottom:3px;opacity:.8}
+  .howto ul{margin:10px 0 0;padding-left:18px;color:var(--muted);font-size:12px;line-height:1.75}
+
+  /* ---------------------------------------------------------------- right */
+  .right{min-height:0;overflow:hidden;position:sticky;top:14px;max-height:calc(100vh - 28px);display:flex;flex-direction:column}
+  .tabs{display:flex;gap:2px;padding:0 14px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,#fffdf9,#fdfaf3);overflow-x:auto;scrollbar-width:none;flex:0 0 auto}
+  .tabs::-webkit-scrollbar{display:none}
+  .tab{position:relative;border:0;background:transparent;color:var(--muted);padding:15px 12px 13px;font-size:13.5px;font-weight:700;white-space:nowrap}
+  .tab::after{content:"";position:absolute;left:10px;right:10px;bottom:-1px;height:2px;border-radius:2px;background:transparent}
+  .tab:hover{color:var(--soft)}
+  .tab.active{color:var(--ink)}
+  .tab.active::after{background:var(--accent)}
+  .tab-count{display:inline-block;min-width:18px;padding:0 5px;margin-left:3px;border-radius:999px;background:#efe9de;color:#786f62;font-size:11px;line-height:18px;text-align:center}
+  .tab.active .tab-count{background:var(--accent-soft);color:var(--accent-deep)}
+  .pane{padding:26px 30px 30px;animation:fade .18s ease-out;flex:1 1 auto;min-height:0;overflow-y:auto}
+  @keyframes fade{from{opacity:0;transform:translateY(2px)}to{opacity:1;transform:none}}
+  .pane-inner{max-width:860px}
+
+  /* --------------------------------------------------------------- answer */
+  .answer-head{display:flex;gap:18px;align-items:flex-start;justify-content:space-between}
+  .answer-head h2{margin:0;font-size:31px;line-height:1.3;letter-spacing:-.02em}
+  .answer-sub{margin:7px 0 0;color:var(--muted);font-size:13px}
+  .badges{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+  .badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:999px;border:1px solid var(--line);background:#fbf8f2;color:var(--muted);font-size:11.5px;font-weight:700;white-space:nowrap}
+  .badge.high{background:var(--green-soft);border-color:#cfe6d9;color:var(--green)}
+  .badge.live{background:var(--green-soft);border-color:#cfe6d9;color:var(--green)}
+  .summary{margin:20px 0 0;padding:16px 18px;border-left:3px solid var(--accent);border-radius:0 12px 12px 0;background:#fbf6ec;color:var(--soft);font-size:14px;line-height:1.9}
+  .summary b{color:var(--accent-deep)}
+
+  .steps{margin:24px 0 0;display:grid}
+  .step-row{position:relative;display:flex;gap:13px;padding-bottom:19px}
+  .step-row:last-child{padding-bottom:0}
+  .step-row::before{content:"";position:absolute;left:13px;top:29px;bottom:0;width:1px;background:var(--line)}
+  .step-row:last-child::before{display:none}
+  .step-num{flex:0 0 auto;width:27px;height:27px;border-radius:50%;display:grid;place-items:center;background:var(--ink);color:#fff;font-size:11.5px;font-weight:800;z-index:1}
+  .step-body{min-width:0;flex:1;padding-top:2px}
+  .step-title{font-size:14.5px;font-weight:800}
+  .step-text{margin:3px 0 0;color:var(--soft);font-size:13.5px;line-height:1.75}
+  .sids{margin-top:6px;display:flex;gap:5px;flex-wrap:wrap}
+  .cite{border:1px solid var(--accent-line);border-radius:5px;background:var(--accent-soft);color:var(--accent-deep);padding:1px 7px;font-size:10.5px;font-weight:800;letter-spacing:.03em}
+  .cite:hover{background:#ffe2cc}
+
+  .block{margin-top:24px}
+  .block-title{display:flex;align-items:center;gap:7px;font-size:11px;font-weight:800;letter-spacing:.12em;color:var(--faint);text-transform:uppercase;margin-bottom:9px}
+  .block-title::before{content:"";width:12px;height:2px;background:var(--accent);border-radius:2px}
+  .conflict{padding:12px 14px;border:1px solid #ecd3a8;border-left:3px solid #d99a2b;border-radius:3px 11px 11px 3px;background:#fffaf0;color:#6f4a12;font-size:13px;line-height:1.75}
+  .followup{padding:14px 15px;border:1px solid #c9dced;border-radius:11px;background:#f6fafd}
+  .followup .q{margin:0;font-size:13.5px;color:#234a6d;line-height:1.7}
+  .followup .why{margin:5px 0 0;font-size:12px;color:#67839c}
+  .answer-foot{margin-top:26px;padding-top:12px;border-top:1px dashed var(--line);display:flex;flex-wrap:wrap;gap:13px;color:var(--faint);font-size:11.5px}
+
+  /* -------------------------------------------------------------- evidence */
+  .ev-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:13px}
+  .ev-head h2{margin:0;font-size:18px}
+  .ev-head span{color:var(--muted);font-size:12px}
+  .ev-card{padding:13px 15px;border:1px solid var(--line);border-radius:12px;background:#fffdf9}
+  .ev-card + .ev-card{margin-top:9px}
+  .ev-top{display:flex;gap:8px;align-items:flex-start}
+  .rank{flex:0 0 auto;display:inline-grid;place-items:center;min-width:31px;height:22px;padding:0 6px;border-radius:6px;background:var(--ink);color:#fff;font-size:10.5px;font-weight:800}
+  .ev-title{font-size:13.5px;font-weight:700;line-height:1.5;min-width:0}
+  .ev-title a{color:var(--ink)}
+  .ev-meta{display:flex;flex-wrap:wrap;gap:5px 10px;margin-top:6px;color:var(--faint);font-size:11.5px}
+  .tier{padding:1px 6px;border-radius:4px;font-size:10.5px;font-weight:800}
+  .tier.official{background:var(--green-soft);color:var(--green)}
+  .tier.community{background:var(--blue-soft);color:var(--blue)}
+  .tier.general{background:#f1eee8;color:var(--muted)}
+  .ev-passage{margin:8px 0 0;color:var(--soft);font-size:13px;line-height:1.75}
+  .ev-foot{margin-top:8px;display:flex;flex-wrap:wrap;gap:5px}
+  .mini{padding:1px 6px;border-radius:4px;background:#f4f0e8;color:#7a7368;font-size:10.5px}
+
+  /* ------------------------------------------------------------------ plan */
+  .plan-hero{padding:15px 16px;border:1px solid var(--line);border-radius:12px;background:#fbf8f2}
+  .plan-hero .k{color:var(--faint);font-size:10.5px;letter-spacing:.1em;font-weight:800}
+  .plan-hero p{margin:5px 0 0;font-size:13.5px;line-height:1.75;color:var(--soft)}
+  .plan-hero .strategy{margin-top:10px;padding-top:9px;border-top:1px dashed var(--line-strong);color:var(--muted);font-size:12.5px}
+  .gaps{display:grid;gap:7px}
+  .gap{padding:9px 11px;border:1px solid var(--line);border-left:3px solid var(--line-strong);border-radius:3px 9px 9px 3px;background:#fffdf9}
+  .gap.covered{border-left-color:var(--green)}
+  .gap.partial{border-left-color:var(--amber)}
+  .gap.need{border-left-color:var(--blue);background:#f8fbfe}
+  .gap-top{display:flex;align-items:center;gap:8px}
+  .gid{color:var(--faint);font-size:10.5px;font-weight:800;letter-spacing:.06em}
+  .gap-q{color:var(--soft);font-size:12.5px;line-height:1.55;flex:1;min-width:0}
+  .status{flex:0 0 auto;padding:2px 7px;border-radius:999px;font-size:10.5px;font-weight:800;white-space:nowrap}
+  .status.covered{background:var(--green-soft);color:var(--green)}
+  .status.partial{background:var(--amber-soft);color:var(--amber)}
+  .status.need{background:var(--blue-soft);color:var(--blue)}
+  .gap-why{margin:3px 0 0;color:var(--muted);font-size:11.5px;line-height:1.55}
+  .query-card{padding:12px 14px;border:1px solid var(--line);border-radius:11px;background:#fffdf9}
+  .query-card + .query-card{margin-top:8px}
+  .query-top{display:flex;align-items:center;gap:7px}
+  .qid{padding:1px 6px;border-radius:5px;background:var(--ink);color:#fff;font-size:10px;font-weight:800}
+  .query-purpose{color:var(--muted);font-size:12px}
+  .query-text{margin:7px 0 0;font-family:ui-monospace,"Cascadia Mono",Consolas,monospace;font-size:12px;line-height:1.65;color:#333b45;overflow-wrap:anywhere}
+  .params{margin-top:7px;display:flex;flex-wrap:wrap;gap:5px}
+  .param{padding:2px 6px;border:1px solid var(--line);border-radius:5px;background:#f8f5ef;color:#6e675d;font-family:ui-monospace,Consolas,monospace;font-size:10px}
+  .param b{color:var(--accent-deep)}
+
+  /* ----------------------------------------------------------------- trace */
+  .trace-note{padding:10px 13px;border:1px dashed var(--line-strong);border-radius:10px;background:#fcfaf5;color:var(--muted);font-size:12px;line-height:1.65;margin-bottom:16px}
+  .metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:18px}
+  .metric{padding:11px 12px;border:1px solid var(--line);border-radius:10px;background:#fbf8f2}
+  .metric .num{display:block;font-size:21px;font-weight:800;letter-spacing:-.02em}
+  .metric .lbl{display:block;color:var(--faint);font-size:11px;margin-top:1px}
+  .timeline{display:grid}
+  .stage{display:flex;gap:10px;padding-bottom:11px;position:relative}
+  .stage::before{content:"";position:absolute;left:7px;top:17px;bottom:0;width:1px;background:var(--line)}
+  .stage:last-child::before{display:none}
+  .stage-dot{flex:0 0 auto;width:15px;height:15px;margin-top:3px;border-radius:50%;border:3px solid var(--accent-soft);background:var(--accent);z-index:1}
+  .stage-body{flex:1;min-width:0}
+  .stage-name{font-size:12.5px;font-weight:700}
+  .stage-detail{color:var(--muted);font-size:12px}
+  .stage-ms{flex:0 0 auto;color:var(--faint);font-family:ui-monospace,Consolas,monospace;font-size:11px}
+  .trace-table{margin-top:8px;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+  .tr{display:grid;grid-template-columns:38px minmax(0,1fr) 56px 62px 86px;gap:8px;padding:8px 10px;font-size:11.5px;align-items:start}
+  .tr + .tr{border-top:1px solid var(--line)}
+  .tr.head{background:#f7f3eb;color:var(--faint);font-size:10px;font-weight:800;letter-spacing:.06em}
+  .tr .mono{font-family:ui-monospace,Consolas,monospace;color:var(--muted);overflow-wrap:anywhere}
+  .tr .q{color:var(--soft);line-height:1.5;overflow-wrap:anywhere}
+
+  /* ---------------------------------------------------------------- footer */
+  .footer{width:min(1480px,calc(100% - 48px));margin:20px auto 32px;display:flex;flex-wrap:wrap;gap:8px;color:#9b9489;font-size:11.5px}
+
+  @media (max-width:1180px){
+    .layout{grid-template-columns:1fr}
+    .right{position:static;min-height:0;max-height:none}
+    .pane{overflow:visible}
+    .pane-inner{max-width:none}
+  }
+  @media (max-width:700px){
+    .topbar,.layout,.footer{width:calc(100% - 24px)}
+    .left{padding:18px 16px}
+    .pane{padding:18px 16px 24px}
+    .answer-head{display:block}
+    .badges{justify-content:flex-start;margin-top:9px}
+    .answer-head h2{font-size:24px}
+    .metrics{grid-template-columns:1fr 1fr}
+    .cmp{grid-template-columns:1fr}
+    .proto-pill{display:none}
+  }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <div class="logo" aria-hidden="true">得</div>
+    <div>
+      <h1>得师傅<span>·外脑</span></h1>
+      <p>把「打不好」翻译成可检索的问题</p>
+    </div>
+  </div>
+  <div class="top-actions">
+    <span class="proto-pill">原型 v2 · 静态预览</span>
+    <span class="mode-badge">实时 · SearchPro</span>
+    <a class="ghost" href="#">工作方式</a>
+  </div>
+</header>
+
+<main class="layout">
+  <!-- ============================================================ left -->
+  <section class="left panel">
+    <div class="panel-head">
+      <span class="step">01</span>
+      <h2>你遇到什么问题</h2>
+      <span class="head-note">写得越具体，检索越准</span>
+    </div>
+    <p class="lede">不用先想术语。按下面五样写，缺哪样就点一下补上——尤其是<strong>环境</strong>，它最容易被漏掉。</p>
+
+    <div class="template" aria-label="五要素">
+      <span class="tpl" data-tpl="model"><b>1</b>机型</span>
+      <span class="tpl" data-tpl="material"><b>2</b>材料</span>
+      <span class="tpl" data-tpl="symptom"><b>3</b>现象</span>
+      <span class="tpl" data-tpl="tried"><b>4</b>已尝试</span>
+      <span class="tpl hot" data-tpl="env"><b>5</b>环境</span>
+    </div>
+
+    <div class="composer">
+      <textarea id="question" spellcheck="false">A1 mini 打 PLA，首层老翘边，热床 60℃ 还加了胶水也没用，工位空调直吹，是不是机器坏了？</textarea>
+      <div class="composer-meta">
+        <span id="count">0 / 1200</span>
+        <span>Ctrl + Enter 提交</span>
+      </div>
+    </div>
+
+    <button class="primary-btn" id="askBtn" type="button" style="margin-top:10px">开始诊断 <small>先补缺口，再检索</small></button>
+
+    <div class="quick" aria-label="快速补充槽位">
+      <div class="quick-head">
+        <strong>没写到的，点一下补上</strong>
+        <span>会直接进入检索式</span>
+      </div>
+
+      <div class="qrow">
+        <div class="qlabel">机型</div>
+        <div class="chips">
+          <button class="chip is-on" data-group="model" data-value="A1 mini">A1 mini</button>
+          <button class="chip" data-group="model" data-value="P1S">P1S</button>
+          <button class="chip" data-group="model" data-value="K1">K1</button>
+          <button class="chip" data-group="model" data-value="Ender-3 V3">Ender-3 V3</button>
+          <button class="chip" data-group="model" data-value="拓竹 A1">拓竹 A1</button>
+        </div>
+      </div>
+
+      <div class="qrow">
+        <div class="qlabel">材料</div>
+        <div class="chips">
+          <button class="chip is-on" data-group="material" data-value="PLA">PLA</button>
+          <button class="chip" data-group="material" data-value="PETG">PETG</button>
+          <button class="chip" data-group="material" data-value="ABS">ABS</button>
+          <button class="chip" data-group="material" data-value="TPU">TPU</button>
+          <button class="chip" data-group="material" data-value="光敏树脂">光敏树脂</button>
+        </div>
+      </div>
+
+      <div class="qrow">
+        <div class="qlabel">现象</div>
+        <div class="chips">
+          <button class="chip is-on" data-group="symptom" data-value="翘边 / 首层脱落">翘边</button>
+          <button class="chip" data-group="symptom" data-value="拉丝 / 渗料">拉丝</button>
+          <button class="chip" data-group="symptom" data-value="堵头 / 挤出不足">堵头</button>
+          <button class="chip" data-group="symptom" data-value="错层 / 位移">错层</button>
+          <button class="chip" data-group="symptom" data-value="表面粗糙 / 气泡">表面粗糙</button>
+          <button class="chip" data-group="symptom" data-value="多色 / AMS 换料异常">多色换料</button>
+        </div>
+      </div>
+
+      <div class="qrow">
+        <div class="qlabel">已尝试</div>
+        <div class="chips">
+          <button class="chip is-on" data-group="tried" data-value="热床 60℃">热床 60℃</button>
+          <button class="chip is-on" data-group="tried" data-value="胶水/胶棒">胶水/胶棒</button>
+          <button class="chip" data-group="tried" data-value="洗板">洗板</button>
+          <button class="chip" data-group="tried" data-value="烘干">烘干</button>
+          <button class="chip" data-group="tried" data-value="调平 / Z 偏移">调平</button>
+          <button class="chip" data-group="tried" data-value="降速">降速</button>
+        </div>
+      </div>
+
+      <div class="qrow">
+        <div class="qlabel">环境</div>
+        <div class="chips">
+          <button class="chip is-on" data-group="env" data-value="空调直吹">空调直吹</button>
+          <button class="chip" data-group="env" data-value="窗边 / 有风">窗边</button>
+          <button class="chip" data-group="env" data-value="南方 / 沿海潮湿">南方潮湿</button>
+          <button class="chip" data-group="env" data-value="低温（<22℃）">低温</button>
+          <button class="chip" data-group="env" data-value="卧室 / 居住空间">卧室</button>
+          <button class="chip" data-group="env" data-value="封闭箱 / 加罩">封闭箱</button>
+        </div>
+      </div>
+
+      <p class="quick-tip">环境是最便宜的一条排除项：<b>空调、窗边、潮湿、低温、封闭箱</b>，有一样点一样。</p>
+    </div>
+
+    <div class="preview" id="preview">
+      <div class="pv-head">
+        <strong>编译器读到的</strong>
+        <span class="pv-status" id="pvStatus">5 / 5 已识别</span>
+      </div>
+      <div class="pv-grid" id="pvGrid">
+        <div class="pv-chip"><span class="k">机型</span><span class="v">A1 mini</span></div>
+        <div class="pv-chip"><span class="k">材料</span><span class="v">PLA</span></div>
+        <div class="pv-chip"><span class="k">现象</span><span class="v">翘边 / 首层脱落</span></div>
+        <div class="pv-chip"><span class="k">已尝试</span><span class="v">热床 60℃、胶水/胶棒</span></div>
+        <div class="pv-chip"><span class="k">环境</span><span class="v">空调直吹</span></div>
+      </div>
+      <div class="pv-rewrite">
+        <span class="k">改写后的问题</span>
+        <p id="pvRewrite">A1 mini 打 PLA 时出现「翘边 / 首层脱落」；已经试过 热床 60℃、胶水/胶棒；环境里有 空调直吹。想知道最可能的原因，以及下一步按什么顺序处理。</p>
+      </div>
+      <p class="pv-next" id="pvNext">这句会变成 <b>3 条查询</b>：官方基线 / 社区处理顺序 / 环境排除。</p>
+      <button class="demo-link" id="demoToggle" type="button">试试：去掉环境，看会发生什么</button>
+    </div>
+
+    <div class="examples">
+      <div class="eyebrow"><strong>真实说法示例</strong><span>点一下填进去</span></div>
+
+      <button class="case" type="button" data-q="A1 mini 打 PLA，首层老翘边，热床 60℃ 还加了胶水也没用，工位空调直吹，是不是机器坏了？">
+        <div class="case-top"><span class="case-tag">A1 mini</span><span class="case-title">首层老翘边，60℃ + 胶水也没用</span></div>
+        <p class="case-why">旧笔记写 50–60℃，官方给到 60℃——冲突会被单独标出来。</p>
+      </button>
+
+      <button class="case" type="button" data-q="P1S 打 PETG，拉丝很重，回抽从 0.8 调到 1.2 还是没用，是不是耗材受潮了？">
+        <div class="case-top"><span class="case-tag">P1S</span><span class="case-title">PETG 拉丝，回抽 0.8→1.2 仍无效</span></div>
+        <p class="case-why">回抽这条线已经试错，先查含水率，不再加码。</p>
+      </button>
+
+      <button class="case" type="button" data-q="拓竹 A1 打印多色时，喷头时常会堵料，让其他颜色耗材无法进入，需要我频繁清理，请问如何改善？我人在浙江，耗材 PLA。">
+        <div class="case-top"><span class="case-tag">拓竹 A1</span><span class="case-title">多色换料时堵头，反复清理</span></div>
+        <p class="case-why">品牌 + 型号 + 场景都能识别，多色换料单独成一条查询。</p>
+      </button>
+
+      <button class="case" type="button" data-q="光敏树脂打印机放在卧室，气味很大，需要哪些防护？">
+        <div class="case-top"><span class="case-tag">光敏树脂</span><span class="case-title">机器放卧室，气味与防护边界</span></div>
+        <p class="case-why">安全类先要厂家边界，不能只靠社区经验。</p>
+      </button>
+    </div>
+
+    <details class="howto">
+      <summary>怎么写才有用：好例子 vs 坏例子</summary>
+      <div class="howto-body">
+        <div class="cmp">
+          <div class="cmp-card bad"><b>坏例子</b>“我的打印机打不好，怎么办？”<br>缺 4 项，只能泛搜。</div>
+          <div class="cmp-card good"><b>好例子</b>“拓竹 A1 打 PLA，换色时喷头堵料，清理后能打但反复；机器在窗边，南方潮湿。”</div>
+        </div>
+        <ul>
+          <li><b>先写现象，再写猜测。</b>“是不是固件坏了”可以写，但要让它明显是猜测。</li>
+          <li><b>已尝试要带数值。</b>“调过温度”没用，“热床 60℃ 还是翘”才有用。</li>
+          <li><b>环境别省。</b>空调、窗边、地区、房间，至少写一个。</li>
+          <li><b>一次只问一个问题。</b>把“堵头 + 拉丝 + 该买哪台”拆开问。</li>
+        </ul>
+      </div>
+    </details>
+  </section>
+
+  <!-- =========================================================== right -->
+  <section class="right panel">
+    <div class="tabs" role="tablist">
+      <button class="tab active" data-tab="answer">诊断回答</button>
+      <button class="tab" data-tab="evidence">依据 <span class="tab-count">10</span></button>
+      <button class="tab" data-tab="plan">任务书 <span class="tab-count">3</span></button>
+      <button class="tab" data-tab="trace">这次怎么查的</button>
+    </div>
+
+    <!-- answer -->
+    <div class="pane" id="pane-answer">
+      <div class="pane-inner">
+        <div class="answer-head">
+          <div>
+            <h2>先洗板，再挡风，最后复测</h2>
+            <p class="answer-sub">A1 mini · PLA · 翘边 / 首层脱落</p>
+          </div>
+          <div class="badges">
+            <span class="badge high">高置信</span>
+            <span class="badge">缺口覆盖 5/5</span>
+            <span class="badge live">实时</span>
+          </div>
+        </div>
+
+        <p class="summary">先说结论：这更像<b>首层附着失效</b>，不像机器故障。你的私域库里已经有一条「A1 mini 首层总翘边，最后发现是平台没洗净」——平台清洁这条线你其实走过。但「A1 mini 热床温度记录（旧）」是旧版，只记了区间，不能直接当现行排序。公开资料把 PLA 热床给到 50–60℃（官方），你试的 60℃ 已经到区间上沿，继续加温收益有限；先查板面清洁和气流。</p>
+
+        <div class="block" style="margin-top:22px">
+          <div class="block-title">下一步，按这个顺序</div>
+          <div class="steps">
+            <div class="step-row">
+              <div class="step-num">1</div>
+              <div class="step-body">
+                <div class="step-title">洗板</div>
+                <p class="step-text">温水 + 中性洗洁精把 PEI 板洗一遍，冲净、晾干。油污会让胶水和升温同时失效。</p>
+                <div class="sids"><button class="cite">S1</button><button class="cite">S2</button></div>
+              </div>
+            </div>
+            <div class="step-row">
+              <div class="step-num">2</div>
+              <div class="step-body">
+                <div class="step-title">先别继续加温</div>
+                <p class="step-text">你已经到 50–60℃ 的上沿。洗板、挡风后复测；若仍翘，再降到 55℃ 做对比。</p>
+                <div class="sids"><button class="cite">S1</button><button class="cite">S3</button></div>
+              </div>
+            </div>
+            <div class="step-row">
+              <div class="step-num">3</div>
+              <div class="step-body">
+                <div class="step-title">挡风</div>
+                <p class="step-text">关掉空调直吹，或给机器加个罩；环境温度低于 22℃ 时边角翘得更明显。</p>
+                <div class="sids"><button class="cite">S1</button><button class="cite">S2</button></div>
+              </div>
+            </div>
+            <div class="step-row">
+              <div class="step-num">4</div>
+              <div class="step-body">
+                <div class="step-title">压首层</div>
+                <p class="step-text">首层速度降到 50mm/s，观察第一层是否被压扁；仍翘再动 Z 偏移。</p>
+                <div class="sids"><button class="cite">S1</button><button class="cite">S2</button></div>
+              </div>
+            </div>
+            <div class="step-row">
+              <div class="step-num">5</div>
+              <div class="step-body">
+                <div class="step-title">复测</div>
+                <p class="step-text">打一个 20mm 方片，只看四角。不要同时换耗材、温度和速度，否则无法判断是哪一项起作用。</p>
+                <div class="sids"><button class="cite">S1</button><button class="cite">S2</button></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="block">
+          <div class="block-title">需要你知道的分歧</div>
+          <div class="conflict">热床温度说法不一致：官方 60℃；官方 50℃；其他来源 60℃；其他来源 50–60℃。建议先采用 60℃ 这一侧，并记录复测结果。<span style="margin-left:6px"><button class="cite">S6</button></span></div>
+        </div>
+
+        <div class="block">
+          <div class="block-title">还需要你确认</div>
+          <div class="followup">
+            <p class="q">你的 PEI 板是纹理板还是光滑板？打印时空调是否直吹？这两个信息会改变下一步。</p>
+            <p class="why">补上这条信息，下一轮检索才能收敛；现在给的是保守结论。</p>
+          </div>
+        </div>
+
+        <div class="answer-foot">
+          <span>run 20261110-153012-9f2c</span><span>耗时 4.2s</span><span>证据 10 条</span><span>调用 3 次</span><span>冲突 1 处</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- evidence -->
+    <div class="pane hidden" id="pane-evidence">
+      <div class="pane-inner">
+        <div class="ev-head"><h2>公开依据</h2><span>10 条 · 按权威度 / 新鲜度 / 相关度排序</span></div>
+
+        <article class="ev-card">
+          <div class="ev-top"><span class="rank">S1</span><span class="ev-title"><a href="#">A1 mini 首层附着与热床温度（官方 Wiki）</a></span></div>
+          <div class="ev-meta"><span class="tier official">官方</span><span>wiki.bambulab.com</span><span>2026-08-14</span><span>相关度 92%</span><span>新鲜度 88%</span></div>
+          <p class="ev-passage">PLA 首层推荐热床 50–60℃，PEI 板需保持清洁；油污和气流是首层翘边的常见原因。若边角翘起，先清洁板面并避免直吹。</p>
+          <div class="ev-foot"><span class="mini">Q1</span><span class="mini">G1</span><span class="mini">G3</span></div>
+        </article>
+
+        <article class="ev-card">
+          <div class="ev-top"><span class="rank">S2</span><span class="ev-title"><a href="#">首层翘边排查顺序：清洁 → 温度 → 气流 → Z 偏移</a></span></div>
+          <div class="ev-meta"><span class="tier community">社区</span><span>makerworld.com.cn</span><span>2026-06-02</span><span>相关度 81%</span><span>新鲜度 72%</span></div>
+          <p class="ev-passage">先洗板再谈参数：洗洁精温水清洗、晾干；其次挡风；最后才动 Z 偏移。多数“加胶水也没用”的案例是板面油污。</p>
+          <div class="ev-foot"><span class="mini">Q2</span><span class="mini">G2</span></div>
+        </article>
+
+        <article class="ev-card">
+          <div class="ev-top"><span class="rank">S3</span><span class="ev-title"><a href="#">环境温度对 PLA 首层的影响</a></span></div>
+          <div class="ev-meta"><span class="tier general">网页</span><span>3dprintbeginner.com</span><span>2025-11-20</span><span>相关度 68%</span><span>新鲜度 55%</span></div>
+          <p class="ev-passage">环境温度低于 22℃、或空调直吹时，PLA 边角收缩更明显；加罩或挡风比继续升温更有效。</p>
+          <div class="ev-foot"><span class="mini">Q3</span><span class="mini">G4</span></div>
+        </article>
+      </div>
+    </div>
+
+    <!-- plan -->
+    <div class="pane hidden" id="pane-plan">
+      <div class="pane-inner">
+        <div class="plan-hero">
+          <span class="k">编译器改写后的问题</span>
+          <p>A1 mini 打 PLA 时出现「翘边 / 首层脱落」；已经试过 热床 60℃、胶水/胶棒；环境里有 空调直吹。想知道最可能的原因，以及下一步按什么顺序处理。</p>
+          <div class="strategy">先补私域缺口，再拿官方基线，最后用社区案例交叉验证；私域笔记与公开资料冲突时，以官方和更新时间更近者为准。</div>
+        </div>
+
+        <div class="block">
+          <div class="block-title">识别出的缺口 · 5 个</div>
+          <div class="gaps">
+            <div class="gap covered">
+              <div class="gap-top"><span class="gid">G1</span><span class="gap-q">A1 mini 的 PLA 官方基线是什么：热床/喷嘴温度、首层速度、调平要求？</span><span class="status covered">已覆盖</span></div>
+              <p class="gap-why">私域笔记只有个人经验值，缺厂家基线；没有基线就无法判断你现在的参数是偏高还是偏低。</p>
+            </div>
+            <div class="gap covered">
+              <div class="gap-top"><span class="gid">G2</span><span class="gap-q">「翘边 / 首层脱落」通常由哪些机制造成？按可能性怎么排序？</span><span class="status covered">已覆盖</span></div>
+              <p class="gap-why">私域库里没有这个现象的直接记录，需要外部案例补齐。</p>
+            </div>
+            <div class="gap partial">
+              <div class="gap-top"><span class="gid">G3</span><span class="gap-q">旧笔记里的 50–60℃ 与公开资料是否一致？</span><span class="status partial">部分覆盖</span></div>
+              <p class="gap-why">私域笔记可能过期，也可能只适用于旧版本或特定平台。</p>
+            </div>
+            <div class="gap covered">
+              <div class="gap-top"><span class="gid">G4</span><span class="gap-q">环境温度、空调直吹或湿度，是否足以解释这个现象？</span><span class="status covered">已覆盖</span></div>
+              <p class="gap-why">这是成本最低、最容易被忽略的变量，先用一条检索排除。</p>
+            </div>
+            <div class="gap need">
+              <div class="gap-top"><span class="gid">G5</span><span class="gap-q">PEI 板是纹理板还是光滑板？</span><span class="status need">需要你补充</span></div>
+              <p class="gap-why">板面类型决定清洁方式和首层压缩量，信息缺失会让建议失焦。</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="block">
+          <div class="block-title">检索任务书 · 3 条</div>
+          <div class="query-card">
+            <div class="query-top"><span class="qid">Q1</span><span class="query-purpose">拿厂家基线，校准私域里的经验值</span></div>
+            <p class="query-text">A1 mini PLA 首层 翘边 附着 原因 官方 参数 热床 喷嘴 温度</p>
+            <div class="params"><span class="param"><b>Mode</b> 2</span><span class="param"><b>Cnt</b> 10</span><span class="param"><b>Site</b> wiki.bambulab.com</span><span class="param"><b>w</b> 1.3</span></div>
+          </div>
+          <div class="query-card">
+            <div class="query-top"><span class="qid">Q2</span><span class="query-purpose">找同机型/同材料的真实案例，补齐处理顺序</span></div>
+            <p class="query-text">3D打印 A1 mini PLA 首层 翘边 附着 原因</p>
+            <div class="params"><span class="param"><b>Mode</b> 2</span><span class="param"><b>Cnt</b> 10</span><span class="param"><b>w</b> 1.0</span></div>
+          </div>
+          <div class="query-card">
+            <div class="query-top"><span class="qid">Q3</span><span class="query-purpose">用一条低成本检索排除环境变量</span></div>
+            <p class="query-text">3D打印 翘边 / 首层脱落 环境 温度 空调 直吹</p>
+            <div class="params"><span class="param"><b>Mode</b> 2</span><span class="param"><b>Cnt</b> 10</span><span class="param"><b>w</b> 0.7</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- trace -->
+    <div class="pane hidden" id="pane-trace">
+      <div class="pane-inner">
+        <div class="trace-note">这一页给评委和排错用。日常只看「诊断回答」就够了；每个结论都能回到这里的 RequestId。</div>
+        <div class="metrics">
+          <div class="metric"><span class="num">4.2s</span><span class="lbl">总耗时</span></div>
+          <div class="metric"><span class="num">3</span><span class="lbl">SearchPro 调用</span></div>
+          <div class="metric"><span class="num">10</span><span class="lbl">证据</span></div>
+          <div class="metric"><span class="num">1</span><span class="lbl">冲突</span></div>
+        </div>
+
+        <div class="block" style="margin-top:0">
+          <div class="block-title">链路耗时</div>
+          <div class="timeline">
+            <div class="stage"><div class="stage-dot"></div><div class="stage-body"><div class="stage-name">问题编译</div><div class="stage-detail">5 个缺口 / 3 条查询</div></div><div class="stage-ms">18ms</div></div>
+            <div class="stage"><div class="stage-dot"></div><div class="stage-body"><div class="stage-name">私域检索</div><div class="stage-detail">2 条笔记</div></div><div class="stage-ms">6ms</div></div>
+            <div class="stage"><div class="stage-dot"></div><div class="stage-body"><div class="stage-name">元宝搜索</div><div class="stage-detail">3 次调用 / 28 条原始结果</div></div><div class="stage-ms">3.6s</div></div>
+            <div class="stage"><div class="stage-dot"></div><div class="stage-body"><div class="stage-name">证据融合</div><div class="stage-detail">10 条证据 / 9 条数值 / 1 处冲突</div></div><div class="stage-ms">42ms</div></div>
+            <div class="stage"><div class="stage-dot"></div><div class="stage-body"><div class="stage-name">回答生成</div><div class="stage-detail">先洗板，再挡风，最后复测</div></div><div class="stage-ms">9ms</div></div>
+          </div>
+        </div>
+
+        <div class="block">
+          <div class="block-title">调用明细</div>
+          <div class="trace-table">
+            <div class="tr head"><span>Q</span><span>查询</span><span>页数</span><span>耗时</span><span>RequestId</span></div>
+            <div class="tr"><span class="mono">Q1</span><div class="q">A1 mini PLA 首层 翘边 官方 参数</div><span class="mono">10</span><span class="mono">1.4s</span><span class="mono">7f3c…a91d</span></div>
+            <div class="tr"><span class="mono">Q2</span><div class="q">3D打印 A1 mini PLA 首层 翘边 附着</div><span class="mono">10</span><span class="mono">1.1s</span><span class="mono">b82e…4c07</span></div>
+            <div class="tr"><span class="mono">Q3</span><div class="q">3D打印 翘边 环境 温度 空调 直吹</div><span class="mono">8</span><span class="mono">1.1s</span><span class="mono">e41a…9f63</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <span>得师傅·外脑 · 界面 v2 原型</span><span>·</span><span>静态数据，仅用于版式与文案评审</span><span>·</span><span>本地优先 · 私域笔记不出机 · 公开证据带 RequestId</span>
+</footer>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+  // ------------------------------------------------------------- tabs
+  const tabs = document.querySelectorAll(".tab");
+  const panes = {answer:"pane-answer", evidence:"pane-evidence", plan:"pane-plan", trace:"pane-trace"};
+  tabs.forEach(tab => tab.addEventListener("click", () => {
+    tabs.forEach(t => t.classList.toggle("active", t === tab));
+    Object.entries(panes).forEach(([key,id]) => document.getElementById(id).classList.toggle("hidden", key !== tab.dataset.tab));
+  }));
+
+  // ------------------------------------------------------- char count
+  const questionEl = document.getElementById("question");
+  const countEl = document.getElementById("count");
+  function updateCount() { countEl.textContent = `${questionEl.value.length} / 1200`; }
+  questionEl.addEventListener("input", updateCount);
+  updateCount();
+
+  // ------------------------------------------------------- prototype feedback
+  const toastEl = document.getElementById("toast");
+  let toastTimer = null;
+  function showToast(msg) {
+    toastEl.textContent = msg;
+    toastEl.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toastEl.classList.remove("show"), 2600);
+  }
+
+  document.getElementById("askBtn").addEventListener("click", () => {
+    showToast("原型演示：真实版本会在这里发起检索，并在右栏生成诊断。");
+  });
+  questionEl.addEventListener("keydown", (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === "Enter") document.getElementById("askBtn").click();
+  });
+  document.querySelectorAll(".case").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      questionEl.value = btn.dataset.q || "";
+      updateCount();
+      showToast("已填入示例。改完点「开始诊断」。");
+    });
+  });
+
+  // ------------------------------------------------------- compile demo
+  const DEMO = {
+    model: "A1 mini", material: "PLA", symptom: "翘边 / 首层脱落",
+    tried: ["热床 60℃", "胶水/胶棒"], env: ["空调直吹"]
+  };
+  const state = {
+    model: DEMO.model, material: DEMO.material, symptom: DEMO.symptom,
+    tried: [...DEMO.tried], env: [...DEMO.env]
+  };
+  const LABEL = {model:"机型", material:"材料", symptom:"现象", tried:"已尝试", env:"环境"};
+
+  const grid = document.getElementById("pvGrid");
+  const status = document.getElementById("pvStatus");
+  const rewrite = document.getElementById("pvRewrite");
+  const next = document.getElementById("pvNext");
+
+  function renderCompile() {
+    const chips = [
+      {key:"model", value: state.model ? [state.model] : []},
+      {key:"material", value: state.material ? [state.material] : []},
+      {key:"symptom", value: state.symptom ? [state.symptom] : []},
+      {key:"tried", value: state.tried},
+      {key:"env", value: state.env},
+    ];
+    grid.innerHTML = chips.map(c => `
+      <div class="pv-chip ${c.value.length ? "" : "empty"}">
+        <span class="k">${LABEL[c.key]}</span>
+        <span class="v">${c.value.length ? c.value.join("、") : "未识别"}</span>
+      </div>`).join("");
+
+    const filled = chips.filter(c => c.value.length).length;
+    status.textContent = filled === 5 ? "5 / 5 已识别" : `${filled} / 5 已识别`;
+    status.classList.toggle("warn", filled < 5);
+
+    document.querySelectorAll(".tpl").forEach(t => {
+      const g = t.dataset.tpl;
+      const on = Array.isArray(state[g]) ? state[g].length > 0 : Boolean(state[g]);
+      t.classList.toggle("miss", !on);
+    });
+
+    const head = state.model && state.material
+      ? `${state.model} 打 ${state.material} 时出现「${state.symptom || "打印异常"}」`
+      : (state.model || state.material || "3D 打印") + ` 出现「${state.symptom || "打印异常"}」`;
+    const parts = [];
+    if (state.tried.length) parts.push("已经试过 " + state.tried.join("、"));
+    if (state.env.length) parts.push("环境里有 " + state.env.join("、"));
+    rewrite.textContent = head + (parts.length ? "；" + parts.join("；") : "") + "。想知道最可能的原因，以及下一步按什么顺序处理。";
+
+    if (filled === 5) {
+      next.innerHTML = '这句会变成 <b>3 条查询</b>：官方基线 / 社区处理顺序 / 环境排除。';
+    } else if (!state.env.length) {
+      next.innerHTML = '还差环境：<b>空调、窗边、潮湿、低温</b>，点一个就能多一条排除查询。';
+    } else {
+      next.innerHTML = `还差 ${5 - filled} 项；补齐后编译器才能锁定检索方向。`;
+    }
+  }
+
+  document.querySelectorAll(".chip").forEach(chip => {
+    chip.addEventListener("click", () => {
+      const group = chip.dataset.group;
+      const value = chip.dataset.value;
+      if (group === "model" || group === "material" || group === "symptom") {
+        state[group] = state[group] === value ? "" : value;
+      } else {
+        const arr = state[group];
+        const i = arr.indexOf(value);
+        if (i >= 0) arr.splice(i, 1); else arr.push(value);
+      }
+      document.querySelectorAll(`.chip[data-group="${group}"]`).forEach(c =>
+        c.classList.toggle("is-on", Array.isArray(state[group]) ? state[group].includes(c.dataset.value) : state[group] === c.dataset.value)
+      );
+      renderCompile();
+    });
+  });
+
+  document.getElementById("demoToggle").addEventListener("click", () => {
+    state.env = state.env.length ? [] : [...DEMO.env];
+    document.querySelectorAll('.chip[data-group="env"]').forEach(c =>
+      c.classList.toggle("is-on", state.env.includes(c.dataset.value))
+    );
+    renderCompile();
+    document.getElementById("demoToggle").textContent = state.env.length
+      ? "试试：去掉环境，看会发生什么"
+      : "恢复：把环境补回来";
+  });
+
+  renderCompile();
+</script>
+</body>
+</html>

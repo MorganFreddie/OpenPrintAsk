@@ -1,0 +1,24 @@
+# secrets & local state
+.env
+*.sqlite3
+*.sqlite3-wal
+*.sqlite3-shm
+
+# python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# local browser profiles (screenshots)
+.edge-profile/
+.chrome-profile/
+.chrome-shot*/
+.chrome-dom*/
+.chrome-*/
+.edge-dshifu*/
+
+# generated traces: keep demo_check/bench if you want; ignore per-request runs
+runs/*.json
+!runs/demo_check.json
+!runs/bench.json
