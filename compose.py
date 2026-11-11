@@ -220,6 +220,51 @@ def _stringing(ctx: dict) -> dict:
     }
 
 
+def _clog(ctx: dict) -> dict:
+    slots, evidence, claims, conflicts, kb_hits = ctx["slots"], ctx["evidence"], ctx["claims"], ctx["conflicts"], ctx["kb_hits"]
+    multi = "multi_color" in (slots.get("symptom_ids") or [])
+    kb = _first_kb(kb_hits, slots.get("model"))
+    nozzle = (_range_text(claims, "nozzle_temp") or "").strip()
+    summary_parts = ["先说结论：这更像喷嘴或换料通道堵，不像主板/电机故障。"]
+    if kb:
+        summary_parts.append(f"你的病例「{kb.get('title', '')}」已经记录过一条可复现路径：先停打、退料，再加热到材料温度进料测试，必要时用通针疏通。")
+    if multi:
+        summary_parts.append("多色题要先分开「喷嘴本身堵」和「换料残留/冲刷不足」；先查 AMS Lite 的切料口、耗材头和废料塔，再决定要不要拆喷嘴。")
+    else:
+        summary_parts.append("单色题先分三种：喷嘴堵、挤出机打滑、热蠕变；三种的处理顺序不同，不要一上来就拆喷嘴。")
+    if nozzle:
+        summary_parts.append(f"公开资料给出的喷嘴温度基线是 {nozzle}，先按这个温度做手动挤出测试。")
+
+    steps = [
+        {"n": 1, "title": "先停打、退料", "text": "不要继续让它空转。停止打印，按机器提示退料；如果料已经卡死，不要硬拉，先加热到材料温度再退。",
+         "sids": _sids(evidence, "停止", "暂停", "退料", "堵头")},
+        {"n": 2, "title": "加热，判断堵在哪", "text": f"把喷嘴升到 {nozzle or '耗材建议温度'}，手动挤出 10 秒：料线连续、垂直下落，说明喷嘴通；料线细、卷曲或打滑，再查挤出机齿轮和耗材直径。",
+         "sids": _claim_sids(claims, "nozzle_temp") or _sids(evidence, "喷嘴", "温度", "挤出")},
+        {"n": 3, "title": "通针或冷拉", "text": "按官方手册从喷嘴口通针，或做一次冷拉；只处理可拆喷嘴，不要冷机硬捅，也不要用明火直接烧喷嘴/热敏电阻。",
+         "sids": _sids(evidence, "通针", "冷拉", "清理", "喷嘴")},
+    ]
+    if multi:
+        steps.append({"n": 4, "title": "查 AMS Lite 换料", "text": "看耗材头是否斜口/毛刺、缓冲器有没有卡料、废料塔是否堵；换料冲刷量不足时，残留会留在喷嘴口，下一卷料就堵。",
+                     "sids": _sids(evidence, "AMS", "换料", "冲刷", "废料塔", "多色")})
+    else:
+        steps.append({"n": 4, "title": "查热蠕变", "text": "如果打印前 20 分钟正常、后面才堵，摸一下散热片和热端风扇：风扇不转、散热片烫手、室温 30℃ 以上，优先降速和加强散热，而不是继续升温。",
+                     "sids": _sids(evidence, "散热", "热蠕变", "风扇", "挤出机")})
+    steps.append({"n": 5, "title": "复测", "text": "先空挤看料线，再打一个 20mm 小方片；一次只改一个变量。若通针后仍堵，再考虑换喷嘴或拆挤出机。",
+                 "sids": _sids(evidence, "复测", "测试", "喷嘴", "挤出")})
+
+    return {
+        "headline": "先查换料残留，再通喷嘴" if multi else "先停打，再分堵在哪",
+        "summary": " ".join(summary_parts),
+        "steps": steps,
+        "conflict_notes": _conflict_notes(conflicts),
+        "followup": "你的喷嘴是可拆的吗？多色的话，AMS Lite 切料口是否平整、废料塔有没有堵？",
+        "uncertainties": [
+            "公开证据没有覆盖你的具体喷嘴结构；拆喷嘴前先看机型官方手册。",
+            "通针/冷拉只处理可拆喷嘴，不要用明火直接烧喷嘴或热敏电阻。",
+        ],
+    }
+
+
 def _first_layer(ctx: dict) -> dict:
     slots, evidence, claims, conflicts, kb_hits = ctx["slots"], ctx["evidence"], ctx["claims"], ctx["conflicts"], ctx["kb_hits"]
     kb = _first_kb(kb_hits, slots.get("model"))
@@ -327,6 +372,8 @@ def compose(question: str, plan: dict, fused: dict, kb_hits: list[dict]) -> dict
         "stringing": _stringing,
         "first_layer": _first_layer,
         "safety": _safety,
+        "clog": _clog,
+        "multi_color": _clog,
     }
     answer = builders.get(symptom_id, _generic)(ctx)
 

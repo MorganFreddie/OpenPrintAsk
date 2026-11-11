@@ -3,122 +3,187 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>得师傅·外脑 | 元宝搜索增强的 3D 打印诊断</title>
-  <meta name="description" content="把 3D 打印新手的抱怨编译成有类型的检索计划，用元宝 SearchPro 补私域知识缺口，输出带引用的诊断。">
+  <title>得师傅·外脑 | 把「打不好」翻译成可检索的问题</title>
+  <meta name="description" content="3D 打印诊断外脑：先把一句抱怨编译成带缺口的检索计划，再用元宝搜索补公开证据。">
   <link rel="stylesheet" href="/assets/style.css">
 </head>
 <body>
   <header class="topbar">
-    <div class="brand">
-      <div class="logo" aria-hidden="true">得</div>
-      <div class="brand-text">
-        <h1>得师傅<span>·外脑</span></h1>
-        <p>把「打不好」翻译成可检索的问题</p>
-      </div>
-    </div>
+    <a class="brand" href="/">
+      <span class="logo">得</span>
+      <span>
+        <b>得师傅·外脑</b>
+        <small>把「打不好」翻译成可检索的问题</small>
+      </span>
+    </a>
     <div class="top-actions">
-      <span id="modeBadge" class="mode-badge is-pending">连接中</span>
-      <a class="ghost-link" href="#about">工作方式</a>
+      <span class="status"><span id="statusDot" class="dot"></span><span id="statusText">正在确认检索模式…</span></span>
+      <button class="ghost" id="exampleBtn" type="button">看一个完整例子</button>
+      <button class="ghost" id="guideBtn" type="button">输入手册</button>
     </div>
   </header>
 
-  <div id="replayBanner" class="replay-banner hidden" role="status">
-    <span class="replay-dot"></span>
-    <strong>演示回放</strong>
-    <span>本次结果为已录制的元宝 SearchPro 响应，未产生实时调用；界面仍走完整链路。</span>
-  </div>
-
   <main class="layout">
-    <section class="left panel">
-      <div class="panel-head">
-        <span class="step">01</span>
-        <h2>描述你遇到的问题</h2>
-      </div>
-      <p class="lede">不用先想术语。把机型、材料、现象、已经试过什么写出来，编译器会先找缺口，再决定搜什么。</p>
-
-      <div class="composer">
-        <textarea id="question" maxlength="1200" spellcheck="false"
-          placeholder="例如：A1 mini 打 PLA，首层老翘边，热床 60℃ 还加了胶水也没用，是不是机器坏了？"></textarea>
-        <div class="composer-meta">
-          <span id="charCount">0 / 1200</span>
-          <span class="key-hint">Ctrl + Enter 提交</span>
+    <section class="card left" aria-label="输入问题">
+      <div class="sec-head">
+        <span class="num">01</span>
+        <div>
+          <h2>你遇到什么问题</h2>
+          <p>不用先想术语。把机型、材料、现象、已经试过什么写出来，编译器会先找缺口，再决定搜什么。</p>
         </div>
-        <button id="askBtn" class="primary-btn" type="button">
-          <span class="btn-label">编译并检索</span>
-          <span class="spinner hidden" aria-hidden="true"></span>
+      </div>
+
+      <div class="slot-strip" id="slotStrip" aria-label="五个输入要素">
+        <span data-slot="model">机型</span>
+        <span data-slot="material">材料</span>
+        <span data-slot="symptom">现象</span>
+        <span data-slot="tried">已尝试</span>
+        <span data-slot="environment">环境</span>
+      </div>
+
+      <label for="question" class="sr-only" style="position:absolute;left:-9999px">描述你遇到的打印问题</label>
+      <textarea id="question" maxlength="1200" spellcheck="false"
+        placeholder="例如：拓竹 A1 打多色，换料时喷头堵料，PLA 和 PETG 混着用，已经退料、关机，室内 28 度。"></textarea>
+      <div class="editor-foot">
+        <span id="count">0 / 1200</span>
+        <span><kbd>Ctrl</kbd> + <kbd>Enter</kbd> 开始诊断</span>
+      </div>
+
+      <button class="primary" id="askBtn" type="button">
+        开始诊断
+        <small>先补缺口，再检索；证据不足会直接说</small>
+      </button>
+
+      <div class="examples" id="examples">
+        <h3>试试这些真实说法</h3>
+        <button class="example" type="button" data-q="拓竹 A1 打多色，换料时喷头堵料，PLA 和 PETG 混着用，已经退料、关机，室内 28 度。">
+          <span class="tag">多色</span><span class="txt">A1 多色换料时喷头堵料，PLA/PETG 混用</span>
+        </button>
+        <button class="example" type="button" data-q="A1 打龟壳模型，单色，PETG，喷头堵料，已经停止打印、退料、关机，室内 30 度。">
+          <span class="tag">堵料</span><span class="txt">A1 单色打龟壳，PETG 喷头堵料</span>
+        </button>
+        <button class="example" type="button" data-q="A1 打小船，首层不沾，底部不在热床，还在继续打成了炒面，室内 28 度。">
+          <span class="tag">首层</span><span class="txt">A1 首层不沾，模型被带着走成炒面</span>
+        </button>
+        <button class="example" type="button" data-q="A1 mini 打 PLA，首层老翘边，热床 60℃ 还加了胶水也没用，工位空调直吹，是不是机器坏了？">
+          <span class="tag">翘边</span><span class="txt">A1 mini 首层翘边，热床 60℃ + 胶水无效</span>
         </button>
       </div>
 
-      <div class="examples">
-        <div class="section-label">试试这些真实抱怨</div>
-        <div id="caseList" class="case-list"></div>
-      </div>
-
-      <div id="compiler" class="compiler hidden">
-        <div class="section-head">
-          <span class="step">02</span>
-          <h2>问题编译器</h2>
-          <span id="gapSummary" class="muted"></span>
+      <details class="guide" id="guide">
+        <summary>每个格子该怎么写（提高命中率）</summary>
+        <div class="guide-body">
+          <div class="guide-item">
+            <b>机型</b>
+            <p>写「品牌 + 型号」，不要只写品牌。例：<code>拓竹 A1</code>、<code>A1 mini</code>、<code>创想 K1</code>。多色机再加一句 <code>AMS Lite</code>。</p>
+          </div>
+          <div class="guide-item">
+            <b>材料</b>
+            <p>写具体材料，混用就一起写：<code>PLA</code>、<code>PETG</code>、<code>ABS</code>、<code>光敏树脂</code>。非官方耗材可带品牌，如 <code>创想三维 PETG</code>。</p>
+          </div>
+          <div class="guide-item">
+            <b>现象</b>
+            <p>写「看到的」+「发生在哪」：<code>首层翘边</code>、<code>换料时堵头</code>、<code>打小船底部不沾</code>、<code>炒面</code>。不要只写「打印不好」。</p>
+          </div>
+          <div class="guide-item">
+            <b>已尝试</b>
+            <p>温度、清洁、胶水、退料、撞针、固件都算，无效也写。例：<code>热床 60℃ + 胶水，还是翘</code>。</p>
+          </div>
+          <div class="guide-item">
+            <b>环境</b>
+            <p>空调直吹、室温、地区、湿度都会改变判断。例：<code>工位空调直吹</code>、<code>浙江，梅雨季</code>、<code>室内 30 度</code>。</p>
+          </div>
+          <div class="guide-example">
+            <b>好例子：</b>拓竹 A1 打多色，AMS Lite，PLA/PETG 混用，换料时喷头堵料；已经退料、关机，室内 28 度。
+          </div>
+          <div class="guide-example bad">
+            <b>坏例子：</b>我的打印机打不好，怎么办？—— 机型、材料、现象都没有，编译器只能先追问，检索也会发散。
+          </div>
         </div>
-        <div id="slots" class="slot-grid"></div>
-
-        <div class="section-label gap-label">识别出的检索缺口</div>
-        <div id="gaps" class="gap-list"></div>
-      </div>
-
-      <div class="side-note" id="about">
-        <strong>它不是「再搜一下」。</strong>
-        <p>先看私域笔记覆盖了什么、缺什么，再把缺口变成一条条有 Mode / Site / Freshness 的查询。证据不足时，它会追问，而不是编答案。</p>
-      </div>
+      </details>
     </section>
 
-    <section class="right panel">
-      <div class="tabs" role="tablist" aria-label="结果视图">
-        <button class="tab active" data-tab="answer" role="tab" aria-selected="true">诊断回答</button>
-        <button class="tab" data-tab="evidence" role="tab" aria-selected="false">证据 <span id="evidenceCount" class="tab-count">0</span></button>
-        <button class="tab" data-tab="plan" role="tab" aria-selected="false">检索计划 <span id="queryCount" class="tab-count">0</span></button>
-        <button class="tab" data-tab="trace" role="tab" aria-selected="false">运行轨迹</button>
+    <aside class="card right" aria-label="诊断结果">
+      <div class="tabs" role="tablist">
+        <button class="tab active" type="button" data-tab="answer">诊断回答</button>
+        <button class="tab" type="button" data-tab="evidence">依据 <span class="count" id="evidenceCount">0</span></button>
+        <button class="tab" type="button" data-tab="plan">检索任务书 <span class="count" id="planCount">0</span></button>
+        <button class="tab" type="button" data-tab="trace">这次怎么查的</button>
+        <span class="spacer"></span>
+        <span class="pill" id="modePill">待诊断</span>
       </div>
 
-      <div id="emptyState" class="empty-state">
-        <div class="empty-kicker">元宝搜索 · SearchPro</div>
-        <h2>一句抱怨，四步变成可验证的答案</h2>
-        <div class="flow">
-          <div class="flow-step"><span>1</span><strong>拆</strong><p>机型、材料、现象、已尝试</p></div>
-          <div class="flow-arrow" aria-hidden="true">→</div>
-          <div class="flow-step"><span>2</span><strong>找缺口</strong><p>私域有什么、还缺什么</p></div>
-          <div class="flow-arrow" aria-hidden="true">→</div>
-          <div class="flow-step"><span>3</span><strong>编查询</strong><p>Mode / Site / Freshness</p></div>
-          <div class="flow-arrow" aria-hidden="true">→</div>
-          <div class="flow-step"><span>4</span><strong>给证据</strong><p>带编号、能点开、敢说不足</p></div>
-        </div>
-        <p class="empty-hint">从左侧选一个案例，或直接输入你的问题。</p>
-      </div>
+      <div class="panes">
+        <section class="pane active" id="pane-answer" role="tabpanel">
+          <div id="preview">
+            <div class="preview-head">
+              <h2>编译器读到什么</h2>
+              <span class="coverage" id="coverage">0 / 5 格</span>
+            </div>
+            <div class="chips" id="chips">
+              <div class="chip miss"><small>机型</small><b>待补充</b></div>
+              <div class="chip miss"><small>材料</small><b>待补充</b></div>
+              <div class="chip miss"><small>现象</small><b>待补充</b></div>
+              <div class="chip miss"><small>已尝试</small><b>可留空</b></div>
+              <div class="chip miss"><small>环境</small><b>可留空</b></div>
+            </div>
+            <div class="rewrite" id="rewrite">
+              <small>编译器改写</small>
+              写下问题后，这里会显示它真正拿去检索的那句话。
+            </div>
+            <div class="preview-grid">
+              <div class="mini-card">
+                <h3>检索前要先补的缺口</h3>
+                <ul id="gapPreview"><li class="hint">还没有输入。</li></ul>
+              </div>
+              <div class="mini-card">
+                <h3>准备发出的查询</h3>
+                <div id="queryPreview"><div class="hint">还没有输入。</div></div>
+              </div>
+            </div>
+          </div>
 
-      <div id="loadingState" class="loading hidden">
-        <div class="loading-title"><span class="spinner dark"></span><span id="loadingText">正在编译问题…</span></div>
-        <div class="loading-steps">
-          <div class="load-step" data-stage="0">拆解槽位与检索缺口</div>
-          <div class="load-step" data-stage="1">检索私域笔记</div>
-          <div class="load-step" data-stage="2">并行调用元宝 SearchPro</div>
-          <div class="load-step" data-stage="3">融合证据与数值冲突</div>
-          <div class="load-step" data-stage="4">生成带引用的回答</div>
-        </div>
-      </div>
+          <div id="answerEmpty" hidden>
+            <div class="empty">
+              <h2>先写一句你真正会说的话</h2>
+              <p>左边不用写成「标准问题」。像跟同事抱怨一样写：什么机器、什么材料、看到什么、已经试过什么。编译器会把它拆成五格，再告诉你缺哪一格。</p>
+              <div class="sample">例：拓竹 A1 打多色，换料时喷头堵料，PLA/PETG 混用，已经退料、关机，室内 28 度。</div>
+            </div>
+          </div>
 
-      <div id="answerPane" class="pane hidden" role="tabpanel"></div>
-      <div id="evidencePane" class="pane hidden" role="tabpanel"></div>
-      <div id="planPane" class="pane hidden" role="tabpanel"></div>
-      <div id="tracePane" class="pane hidden" role="tabpanel"></div>
-    </section>
+          <div id="answerBody" hidden>
+            <div class="answer-head">
+              <div>
+                <h1 id="headline"></h1>
+                <p class="meta" id="metaLine"></p>
+              </div>
+              <span class="badge" id="confBadge">高置信</span>
+            </div>
+            <div class="summary" id="summary"></div>
+            <div class="section-label">下一步，按这个顺序</div>
+            <ol class="steps" id="steps"></ol>
+            <div id="conflicts"></div>
+            <div id="followup"></div>
+            <div id="uncertainties"></div>
+          </div>
+        </section>
+
+        <section class="pane" id="pane-evidence" role="tabpanel">
+          <div id="evidenceList"><div class="hint">诊断后，这里会列出每条结论背后的公开页面和 S 编号。</div></div>
+        </section>
+
+        <section class="pane" id="pane-plan" role="tabpanel">
+          <div id="planBox"><div class="hint">诊断后，这里会显示缺口 G、查询 Q、Mode/Site/Cnt 参数，以及每条查询覆盖哪个缺口。</div></div>
+        </section>
+
+        <section class="pane" id="pane-trace" role="tabpanel">
+          <div id="traceBox"><div class="hint">诊断后，这里会显示这次运行的耗时、检索条数、回放/实时状态和原始记录入口。</div></div>
+        </section>
+      </div>
+    </aside>
   </main>
 
-  <footer class="footer">
-    <span>得师傅·外脑 · 元宝搜索开发者征文大赛参赛原型</span>
-    <span class="footer-sep">|</span>
-    <span>本地优先 · 私域笔记不出机 · 公开证据带 RequestId</span>
-  </footer>
-
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
   <script src="/assets/app.js"></script>
 </body>
 </html>

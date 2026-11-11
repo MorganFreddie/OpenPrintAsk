@@ -1,643 +1,654 @@
-/* 得师傅·外脑 — no framework, no build step. */
-"use strict";
+/* 得师傅·外脑 v2 前端：无框架，所有用户/检索文本走 textContent。 */
+(() => {
+  "use strict";
 
-const $ = (selector, root = document) => root.querySelector(selector);
-const $$ = (selector, root = document) => Array.from(root.querySelectorAll(selector));
+  const $ = (sel, root = document) => root.querySelector(sel);
+  const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
 
-const STATUS = {
-  covered: ["已覆盖", "status-covered"],
-  partial: ["部分覆盖", "status-partial"],
-  insufficient: ["证据不足", "status-insufficient"],
-  need_user: ["需要你补充", "status-need_user"],
-  pending: ["待检索", "status-pending"],
-};
+  function el(tag, cls, text) {
+    const node = document.createElement(tag);
+    if (cls) node.className = cls;
+    if (text !== undefined && text !== null) node.textContent = String(text);
+    return node;
+  }
 
-const CONFIDENCE = {
-  high: ["高置信", "conf-high"],
-  medium: ["中等置信", "conf-medium"],
-  low: ["低置信", "conf-low"],
-};
+  function clear(node) {
+    while (node.firstChild) node.removeChild(node.firstChild);
+  }
 
-const MODE_TEXT = { 0: "公网", 1: "权威垂类", 2: "混合" };
-
-const state = {
-  data: null,
-  cases: [],
-  loading: false,
-  timer: null,
-  activeTab: "answer",
-};
-
-/* ------------------------------------------------------------------ DOM */
-function h(tag, attrs, ...children) {
-  const node = document.createElement(tag);
-  for (const [key, value] of Object.entries(attrs || {})) {
-    if (value === null || value === undefined || value === false) continue;
-    if (key === "class") node.className = value;
-    else if (key === "text") node.textContent = value;
-    else if (key === "dataset") Object.assign(node.dataset, value);
-    else if (key.startsWith("on") && typeof value === "function") {
-      node.addEventListener(key.slice(2).toLowerCase(), value);
-    } else {
-      node.setAttribute(key, value);
+  function getClientId() {
+    const key = "deshifu.client_id";
+    try {
+      let value = localStorage.getItem(key);
+      if (!value || value.length < 8) {
+        value = (crypto && crypto.randomUUID)
+          ? crypto.randomUUID()
+          : "c-" + Math.random().toString(36).slice(2) + Date.now().toString(36);
+        localStorage.setItem(key, value);
+      }
+      return value;
+    } catch (err) {
+      return "c-" + Math.random().toString(36).slice(2) + Date.now().toString(36);
     }
   }
-  for (const child of children.flat(Infinity)) {
-    if (child === null || child === undefined || child === false) continue;
-    node.append(child.nodeType ? child : document.createTextNode(String(child)));
+
+  const state = {
+    plan: null,
+    answer: null,
+    receipts: [],
+    busy: false,
+    seq: 0,
+    timer: 0,
+    clientId: getClientId(),
+  };
+
+  const question = $("#question");
+  const count = $("#count");
+  const askBtn = $("#askBtn");
+  const askHTML = askBtn.innerHTML;
+  const toastBox = $("#toast");
+
+  function toast(message, kind) {
+    toastBox.textContent = message;
+    toastBox.className = "toast show" + (kind ? " " + kind : "");
+    clearTimeout(toastBox._timer);
+    toastBox._timer = setTimeout(() => {
+      toastBox.className = "toast";
+    }, kind === "error" ? 5200 : 3200);
   }
-  return node;
-}
 
-function clear(node) {
-  while (node.firstChild) node.removeChild(node.firstChild);
-}
-
-function text(value, fallback = "—") {
-  if (value === null || value === undefined || value === "") return fallback;
-  return String(value);
-}
-
-function safeUrl(url) {
-  return /^https?:\/\//i.test(url || "") ? url : "#";
-}
-
-function fmtMs(ms) {
-  if (ms === null || ms === undefined) return "—";
-  return ms >= 1000 ? `${(ms / 1000).toFixed(2)}s` : `${ms}ms`;
-}
-
-function pct(value) {
-  if (typeof value !== "number" || Number.isNaN(value)) return "—";
-  return `${Math.round(value * 100)}%`;
-}
-
-function paramsRow(params) {
-  const wrap = h("div", { class: "params" });
-  for (const [key, value] of Object.entries(params || {})) {
-    const title = key === "Mode" ? `Mode ${value} · ${MODE_TEXT[value] || ""}` : `${key}=${value}`;
-    wrap.append(h("span", { class: "param", title }, h("b", null, key), " ", String(value)));
+  function seconds(ms) {
+    if (!Number.isFinite(Number(ms))) return "—";
+    return (Number(ms) / 1000).toFixed(1) + "s";
   }
-  return wrap;
-}
 
-/* --------------------------------------------------------------- health */
-async function loadHealth() {
-  const badge = $("#modeBadge");
-  try {
-    const response = await fetch("/api/health", { cache: "no-store" });
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    const info = await response.json();
-    const mode = info.mode || "auto";
-    const kind = info.credential_kind || "none";
-    badge.classList.remove("is-pending", "is-live", "is-replay", "is-error");
-    if (mode === "live") {
-      badge.classList.add("is-live");
-      badge.textContent = "实时 · SearchPro";
-    } else if (mode === "replay") {
-      badge.classList.add("is-replay");
-      badge.textContent = "回放 · 已录制";
-      showReplay("当前服务运行在回放模式；所有结果来自已录制的 SearchPro 响应，不产生实时调用。");
-    } else {
-      badge.classList.add("is-live");
-      badge.textContent = kind === "none" ? "自动 · 无凭证" : "自动 · SearchPro";
+  function safeUrl(url) {
+    try {
+      const parsed = new URL(String(url || ""), location.href);
+      return parsed.protocol === "http:" || parsed.protocol === "https:" ? parsed.href : "#";
+    } catch (err) {
+      return "#";
     }
-    badge.title = `mode=${mode}, credential=${kind}, fixtures=${info.fixtures ?? "?"}, notes=${info.kb_notes ?? "?"}`;
-  } catch (error) {
-    badge.classList.remove("is-pending", "is-replay");
-    badge.classList.add("is-error");
-    badge.textContent = "服务未连接";
-    badge.title = String(error);
   }
-}
 
-function showReplay(message) {
-  const banner = $("#replayBanner");
-  const span = banner.querySelector("span:last-child");
-  if (span) span.textContent = message;
-  banner.classList.remove("hidden");
-}
-
-/* ---------------------------------------------------------------- cases */
-async function loadCases() {
-  let cases = [];
-  try {
-    const response = await fetch("/api/cases", { cache: "no-store" });
-    if (response.ok) cases = (await response.json()).cases || [];
-  } catch (_) {
-    /* fall through to defaults */
-  }
-  if (!Array.isArray(cases) || cases.length === 0) {
-    cases = [
-      { id: "a1-warping", tag: "A1 mini", title: "PLA 首层翘边，60℃ + 胶水也没用",
-        question: "A1 mini 打 PLA，首层老翘边，热床 60℃ 还加了胶水也没用，是不是机器坏了？" },
-      { id: "p1s-stringing", tag: "P1S", title: "PETG 拉丝，回抽 0.8→1.2 仍无效",
-        question: "P1S 打 PETG 拉丝特别严重，回抽从 0.8 调到 1.2 了还是不行，是不是要换喷嘴？" },
-      { id: "k1-firmware", tag: "K1", title: "升级固件后首层变薄，要不要回滚",
-        question: "K1 升级最新固件以后首层压得很薄，是不是固件有问题？要不要回滚？" },
-      { id: "resin-safety", tag: "光敏树脂", title: "树脂机放卧室，气味与防护边界",
-        question: "光敏树脂打印机放在卧室里，味道很大，对人有毒吗？需要怎么防护？" },
-    ];
-  }
-  state.cases = cases;
-  const list = $("#caseList");
-  clear(list);
-  for (const item of cases) {
-    list.append(h("button", {
-      class: "case-btn", type: "button", title: "点击填入并直接运行",
-      onclick: () => {
-        $("#question").value = item.question;
-        updateCount();
-        ask();
-      },
-    }, h("span", { class: "case-tag" }, item.tag || "案例"), h("span", { class: "case-title" }, item.title || item.question)));
-  }
-}
-
-/* --------------------------------------------------------------- input */
-function updateCount() {
-  const value = $("#question").value;
-  $("#charCount").textContent = `${value.length} / 1200`;
-}
-
-function setLoading(active) {
-  state.loading = active;
-  const button = $("#askBtn");
-  button.disabled = active;
-  button.querySelector(".btn-label").textContent = active ? "正在检索…" : "编译并检索";
-  button.querySelector(".spinner").classList.toggle("hidden", !active);
-}
-
-function startStageAnimation() {
-  const steps = $$(".load-step");
-  steps.forEach((step) => step.classList.remove("is-active", "is-done"));
-  let index = 0;
-  if (state.timer) clearInterval(state.timer);
-  steps[0].classList.add("is-active");
-  $("#loadingText").textContent = "正在编译问题…";
-  state.timer = setInterval(() => {
-    if (index < steps.length) {
-      steps[index].classList.remove("is-active");
-      steps[index].classList.add("is-done");
-      index += 1;
+  /* ------------------------------------------------------------ health */
+  async function checkHealth() {
+    const dot = $("#statusDot");
+    const text = $("#statusText");
+    try {
+      const res = await fetch("/api/health", { cache: "no-store" });
+      const data = await res.json();
+      const replay = data.mode === "replay";
+      dot.className = "dot " + (replay ? "replay" : data.ok ? "live" : "off");
+      if (replay) {
+        text.textContent = "离线回放 · 不调用 API";
+        text.title = "当前使用本地 fixtles 回放，结果会明确标注。";
+      } else if (data.ok) {
+        text.textContent = "实时 · SearchPro";
+        text.title = data.detail || "SearchPro 凭证已配置。";
+      } else {
+        text.textContent = "检索不可用";
+        text.title = data.detail || "未配置检索凭证。";
+      }
+    } catch (err) {
+      dot.className = "dot off";
+      text.textContent = "服务未连接";
+      text.title = String(err);
     }
-    if (index < steps.length) {
-      steps[index].classList.add("is-active");
-      $("#loadingText").textContent = steps[index].textContent;
-    }
-  }, 480);
-}
-
-function stopStageAnimation() {
-  if (state.timer) clearInterval(state.timer);
-  state.timer = null;
-}
-
-/* ----------------------------------------------------------------- ask */
-async function ask() {
-  if (state.loading) return;
-  const question = $("#question").value.trim();
-  if (!question) {
-    $("#question").focus();
-    return;
   }
-  setLoading(true);
-  $("#emptyState").classList.add("hidden");
-  $("#answerPane").classList.add("hidden");
-  $("#evidencePane").classList.add("hidden");
-  $("#planPane").classList.add("hidden");
-  $("#tracePane").classList.add("hidden");
-  $("#loadingState").classList.remove("hidden");
-  startStageAnimation();
 
-  try {
-    const response = await fetch("/api/ask", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ question }),
+  /* ----------------------------------------------------------- preview */
+  const SLOT_KEYS = ["model", "material", "symptom", "tried", "environment"];
+  const SLOT_LABELS = { model: "机型", material: "材料", symptom: "现象", tried: "已尝试", environment: "环境" };
+
+  function resetPreview() {
+    const grid = $("#chips");
+    clear(grid);
+    SLOT_KEYS.forEach((key) => {
+      const chip = el("div", "chip miss");
+      chip.append(el("small", null, SLOT_LABELS[key]), el("b", null, key === "tried" || key === "environment" ? "可留空" : "待补充"));
+      grid.append(chip);
     });
-    const payload = await response.json().catch(() => ({}));
-    if (!response.ok) throw new Error(payload.detail || payload.error || `HTTP ${response.status}`);
-    state.data = payload;
-    $("#loadingState").classList.add("hidden");
-    renderAll(payload);
-    switchTab(initialTab(), true);
-    if (payload.replayed) {
-      showReplay("本次结果为已录制的元宝 SearchPro 响应，未产生实时调用；界面仍走完整链路。");
+    $$("#slotStrip span").forEach((node) => {
+      node.className = "";
+      node.removeAttribute("title");
+    });
+    $("#rewrite").textContent = "";
+    $("#rewrite").append(el("small", null, "编译器改写"), document.createTextNode(" 写下问题后，这里会显示它真正拿去检索的那句话。"));
+    $("#coverage").textContent = "0 / 5 格";
+    clear($("#gapPreview"));
+    $("#gapPreview").append(el("li", "hint", "还没有输入。"));
+    clear($("#queryPreview"));
+    $("#queryPreview").append(el("div", "hint", "还没有输入。"));
+    state.plan = null;
+  }
+
+  function setSlotStrip(plan) {
+    const chips = new Map((plan.chips || []).map((chip) => [chip.key, chip]));
+    $$("#slotStrip span").forEach((node) => {
+      const key = node.dataset.slot;
+      const chip = chips.get(key);
+      const filled = chip && chip.state === "filled";
+      node.className = filled ? "on" : (key === "tried" || key === "environment" ? "" : "miss");
+      node.title = filled ? chip.value : (key === "tried" || key === "environment" ? "可留空" : "建议补充");
+    });
+  }
+
+  function renderPreview(plan) {
+    const grid = $("#chips");
+    clear(grid);
+    (plan.chips || []).forEach((chip) => {
+      const node = el("div", "chip " + (chip.state === "filled" ? "on" : "miss"));
+      node.append(el("small", null, chip.label || SLOT_LABELS[chip.key] || chip.key));
+      node.append(el("b", null, chip.value || "待补充"));
+      grid.append(node);
+    });
+
+    setSlotStrip(plan);
+
+    const rewrite = $("#rewrite");
+    clear(rewrite);
+    rewrite.append(el("small", null, "编译器改写"));
+    rewrite.append(document.createTextNode(" " + (plan.rewritten_question || "—")));
+
+    const coverage = plan.coverage || {};
+    $("#coverage").textContent = (coverage.filled || 0) + " / " + (coverage.total || 5) + " 格";
+
+    const gaps = $("#gapPreview");
+    clear(gaps);
+    if (!plan.gaps || !plan.gaps.length) {
+      gaps.append(el("li", "hint", "五格都够了，直接检索。"));
+    } else {
+      plan.gaps.slice(0, 4).forEach((gap) => {
+        const li = el("li");
+        li.append(el("span", "tag", gap.id), document.createTextNode(gap.question || ""));
+        gaps.append(li);
+      });
+      if (plan.gaps.length > 4) gaps.append(el("li", "hint", "还有 " + (plan.gaps.length - 4) + " 个缺口，诊断后看任务书。"));
     }
-  } catch (error) {
-    $("#loadingState").classList.add("hidden");
-    renderError(error.message || String(error));
-    switchTab("answer");
-  } finally {
-    stopStageAnimation();
-    setLoading(false);
-  }
-}
 
-function renderError(message) {
-  const pane = $("#answerPane");
-  clear(pane);
-  pane.append(h("div", { class: "error-card" },
-    h("strong", null, "这次没有跑通"),
-    h("p", null, message),
-    h("p", { class: "muted" }, "检查服务日志；如果是实时模式，确认 WSA_API_KEY 或腾讯云 SecretId/SecretKey 已配置。"),
-  ));
-  pane.classList.remove("hidden");
-}
-
-/* ---------------------------------------------------------------- render */
-function renderAll(payload) {
-  renderCompiler(payload);
-  renderAnswer(payload);
-  renderEvidence(payload);
-  renderPlan(payload);
-  renderTrace(payload);
-  $("#evidenceCount").textContent = String((payload.evidence || []).length);
-  $("#queryCount").textContent = String((payload.plan || {}).queries?.length || 0);
-  const badge = $("#modeBadge");
-  if (payload.mode === "live") {
-    badge.classList.remove("is-pending", "is-replay");
-    badge.classList.add("is-live");
-    badge.textContent = "实时 · SearchPro";
-  } else if (payload.mode === "replay") {
-    badge.classList.remove("is-pending", "is-live");
-    badge.classList.add("is-replay");
-    badge.textContent = "回放 · 已录制";
-  }
-}
-
-function renderCompiler(payload) {
-  const plan = payload.plan || {};
-  const chips = plan.chips || [];
-  const gaps = plan.gaps || [];
-  const queries = plan.queries || [];
-  const compiler = $("#compiler");
-  compiler.classList.remove("hidden");
-  $("#gapSummary").textContent = `${gaps.length} 个缺口 · ${queries.length} 条查询`;
-
-  const slots = $("#slots");
-  clear(slots);
-  for (const chip of chips) {
-    const filled = chip.state === "filled" && chip.value;
-    slots.append(h("div", { class: `slot ${filled ? "is-filled" : "is-missing"}` },
-      h("span", { class: "slot-label" }, chip.label),
-      h("span", { class: "slot-value" }, filled ? chip.value : "未识别"),
-    ));
-  }
-  if (chips.length === 0) {
-    slots.append(h("div", { class: "slot is-missing" }, h("span", { class: "slot-value" }, "没有抽出结构化槽位")));
+    const queries = $("#queryPreview");
+    clear(queries);
+    (plan.queries || []).slice(0, 5).forEach((query) => {
+      const row = el("div", "query");
+      row.append(el("span", "qid", query.id), document.createTextNode(query.text || ""));
+      queries.append(row);
+    });
+    if (!plan.queries || !plan.queries.length) queries.append(el("div", "hint", "还没有生成查询。"));
   }
 
-  const gapList = $("#gaps");
-  clear(gapList);
-  for (const gap of gaps) {
-    const [label, cls] = STATUS[gap.status] || STATUS.pending;
-    const node = h("div", { class: `gap is-${gap.status || "pending"}` },
-      h("div", { class: "gap-top" },
-        h("span", { class: "gap-id" }, gap.id || "G?"),
-        h("span", { class: "gap-q" }, gap.question || ""),
-        h("span", { class: `status ${cls}` }, label),
-      ),
-      h("p", { class: "gap-why" }, gap.why || ""),
-    );
-    if (gap.note && gap.status !== "covered") {
-      node.append(h("p", { class: "gap-why", style: "color:#9a7418" }, gap.note));
+  async function compilePreview() {
+    const text = question.value.trim();
+    if (!text) {
+      resetPreview();
+      return;
     }
-    gapList.append(node);
+    const seq = ++state.seq;
+    try {
+      const res = await fetch("/api/compile", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ question: text }),
+      });
+      const data = await res.json();
+      if (seq !== state.seq) return;
+      if (!res.ok) throw new Error(data.detail || data.error || "编译失败");
+      state.plan = data.plan;
+      renderPreview(data.plan);
+    } catch (err) {
+      if (seq === state.seq) toast("编译器暂时不可用：" + err.message, "error");
+    }
   }
-  if (gaps.length === 0) {
-    gapList.append(h("p", { class: "muted" }, "没有识别出需要外部证据的缺口。"));
-  }
-}
 
-function renderAnswer(payload) {
-  const answer = payload.answer || {};
-  const pane = $("#answerPane");
-  clear(pane);
-
-  const head = h("div", { class: "answer-head" },
-    h("div", null,
-      h("h2", null, text(answer.headline, "诊断结果")),
-      h("p", { class: "answer-sub" },
-        [answer.model, answer.material, answer.symptom].filter(Boolean).join(" · ") || payload.question,
-      ),
-    ),
-    h("div", { class: "answer-badges" }),
-  );
-  const badges = head.querySelector(".answer-badges");
-  const [confLabel, confClass] = CONFIDENCE[answer.confidence] || CONFIDENCE.medium;
-  badges.append(h("span", { class: `badge ${confClass}` }, confLabel));
-  const coverage = answer.coverage || {};
-  const covered = coverage.covered || 0;
-  const total = covered + (coverage.partial || 0) + (coverage.insufficient || 0) + (coverage.need_user || 0);
-  if (total) badges.append(h("span", { class: "badge" }, `缺口覆盖 ${covered}/${total}`));
-  if (payload.replayed) badges.append(h("span", { class: "badge replay" }, "回放"));
-  pane.append(head);
-
-  pane.append(h("p", { class: "summary" }, text(answer.summary, "没有生成摘要。")));
-
-  if (Array.isArray(answer.steps) && answer.steps.length) {
-    const steps = h("div", { class: "steps" });
-    for (const step of answer.steps) {
-      const sids = h("div", { class: "step-sids" });
-      for (const sid of step.sids || []) {
-        sids.append(h("button", {
-          class: "cite", type: "button", title: `查看 ${sid} 证据`,
-          onclick: () => focusEvidence(sid),
-        }, sid));
+  /* ------------------------------------------------------------ answer */
+  function sidLink(sid) {
+    const link = el("a", "sid", sid);
+    link.href = "#ev-" + sid;
+    link.dataset.sid = sid;
+    link.addEventListener("click", (event) => {
+      event.preventDefault();
+      switchTab("evidence");
+      const target = document.getElementById("ev-" + sid);
+      if (target) {
+        target.scrollIntoView({ block: "center", behavior: "smooth" });
+        target.classList.add("flash");
+        setTimeout(() => target.classList.remove("flash"), 1200);
       }
-      steps.append(h("div", { class: "step-row" },
-        h("div", { class: "step-num" }, String(step.n || "")),
-        h("div", { class: "step-body" },
-          h("div", { class: "step-title" }, step.title || ""),
-          h("p", { class: "step-text" }, step.text || ""),
-          sids,
-        ),
-      ));
-    }
-    pane.append(h("div", { class: "block" }, h("div", { class: "block-title" }, "下一步，按这个顺序"), steps));
+    });
+    return link;
   }
 
-  if (Array.isArray(answer.conflict_notes) && answer.conflict_notes.length) {
-    const block = h("div", { class: "block" }, h("div", { class: "block-title" }, "需要你知道的分歧"));
-    for (const note of answer.conflict_notes) {
-      const textValue = typeof note === "string" ? note : (note && note.text) || "";
-      const sids = (typeof note === "object" && note && note.sids) || [];
-      const card = h("div", { class: "conflict-card" }, textValue);
-      if (sids.length) {
-        const row = h("div", { class: "step-sids" });
-        for (const sid of sids) {
-          row.append(h("button", {
-            class: "cite", type: "button", title: `查看 ${sid} 证据`,
-            onclick: () => focusEvidence(sid),
-          }, sid));
-        }
-        card.append(row);
+  function renderReceiptPanel(step) {
+    const box = el("div", "receipt");
+    box.dataset.step = step.title || "";
+    const line = el("div", "receipt-line");
+    line.append(el("b", null, "复现回执 · "), el("span", "hint", "同机型 / 同材料 / 同现象，试完再记，不猜。"));
+    box.append(line);
+    box.append(el("div", "receipt-summary hint", "还没有同机型/同材料的回执。"));
+
+    const actions = el("div", "receipt-actions");
+    [
+      ["fixed", "有效", "yes"],
+      ["not_fixed", "没解决", "no"],
+      ["not_tried", "还没试", "muted"],
+    ].forEach(([outcome, label, cls]) => {
+      const btn = el("button", cls, label);
+      btn.type = "button";
+      btn.addEventListener("click", () => submitReceipt(step.title || "", outcome, btn));
+      actions.append(btn);
+    });
+    box.append(actions);
+    return box;
+  }
+
+  function renderAnswer(payload) {
+    const answer = payload.answer || {};
+    const stats = (payload.search && payload.search.stats) || {};
+
+    $("#headline").textContent = answer.headline || "诊断结果";
+    const metaParts = [
+      answer.model || "机型未识别",
+      answer.material || "材料未识别",
+      answer.symptom || "",
+      (stats.calls || 0) + " 条查询 / " + (stats.evidence_count || 0) + " 条证据",
+      seconds(payload.elapsed_ms),
+    ].filter(Boolean);
+    $("#metaLine").textContent = metaParts.join(" · ");
+
+    const badge = $("#confBadge");
+    const conf = answer.confidence || "medium";
+    badge.className = "badge " + conf;
+    badge.textContent = conf === "high" ? "高置信" : conf === "low" ? "低置信" : "中置信";
+
+    $("#summary").textContent = answer.summary || "";
+
+    const steps = $("#steps");
+    clear(steps);
+    (answer.steps || []).forEach((step) => {
+      const li = el("li", "step");
+      li.append(el("span", "step-num", step.n || ""));
+      const body = el("div");
+      body.append(el("h3", null, step.title || "步骤"));
+      if (step.text) body.append(el("p", null, step.text));
+      const sids = el("div", "sids");
+      (step.sids || []).forEach((sid) => sids.append(sidLink(sid)));
+      if (sids.childNodes.length) body.append(sids);
+      body.append(renderReceiptPanel(step));
+      li.append(body);
+      steps.append(li);
+    });
+    if (!steps.childNodes.length) steps.append(el("li", "hint", "这轮没有形成可执行步骤，先补缺口。"));
+
+    const conflicts = $("#conflicts");
+    clear(conflicts);
+    if (answer.conflict_notes && answer.conflict_notes.length) {
+      const card = el("div", "note-card danger");
+      card.append(el("h3", null, "需要你知道的分歧"));
+      const ul = el("ul");
+      answer.conflict_notes.forEach((note) => ul.append(el("li", null, note)));
+      card.append(ul);
+      conflicts.append(card);
+    }
+
+    const followup = $("#followup");
+    clear(followup);
+    if (answer.followup) {
+      const card = el("div", "note-card");
+      card.append(el("h3", null, "还需要你确认"));
+      card.append(el("p", null, answer.followup));
+      followup.append(card);
+    }
+
+    const uncertainties = $("#uncertainties");
+    clear(uncertainties);
+    if (answer.uncertainties && answer.uncertainties.length) {
+      const card = el("div", "note-card");
+      card.append(el("h3", null, "边界与不确定"));
+      const ul = el("ul");
+      answer.uncertainties.forEach((note) => ul.append(el("li", null, note)));
+      card.append(ul);
+      uncertainties.append(card);
+    }
+
+    if (answer.kb_note && answer.kb_note.used && answer.kb_note.items && answer.kb_note.items.length) {
+      const card = el("div", "note-card");
+      card.append(el("h3", null, "私域笔记（未出机）"));
+      answer.kb_note.items.forEach((item) => {
+        const p = el("p");
+        p.append(document.createTextNode(item.title || item.id));
+        p.append(document.createTextNode(" · " + (item.created_at || "")));
+        if (item.stale) p.append(el("span", "tag", "可能过时"));
+        card.append(p);
+      });
+      uncertainties.append(card);
+    }
+
+    if (answer.source_note) uncertainties.append(el("p", "hint", answer.source_note));
+
+    const pill = $("#modePill");
+    pill.className = "pill" + (payload.replayed ? " warn" : "");
+    pill.textContent = payload.replayed ? "离线回放" : "实时检索";
+
+    $("#preview").hidden = true;
+    $("#answerEmpty").hidden = true;
+    $("#answerBody").hidden = false;
+    $("#evidenceCount").textContent = String((payload.evidence || []).length);
+    $("#planCount").textContent = String(((payload.plan && payload.plan.queries) || []).length);
+  }
+
+  /* ---------------------------------------------------------- evidence */
+  function renderEvidence(payload) {
+    const list = $("#evidenceList");
+    clear(list);
+    const evidence = payload.evidence || [];
+    if (!evidence.length) {
+      list.append(el("div", "hint", "这轮没有检索到可用证据。可以补充机型/现象，或换一种说法再试。"));
+      return;
+    }
+    evidence.forEach((ev) => {
+      const card = el("article", "evidence");
+      card.id = "ev-" + ev.id;
+      const top = el("div", "top");
+      const tier = ev.tier || "general";
+      top.append(el("span", "kind " + (tier === "official" ? "" : tier), ev.tier_label || tier));
+      const title = el("b");
+      const link = el("a", null, (ev.id ? ev.id + " · " : "") + (ev.title || "未命名页面"));
+      link.href = safeUrl(ev.url);
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+      title.append(link);
+      top.append(title);
+      if (ev.site) top.append(el("span", "site", ev.site));
+      if (ev.date) top.append(el("span", "site", ev.date));
+      card.append(top);
+
+      const passage = String(ev.passage || ev.content || "").replace(/\s+/g, " ").trim();
+      if (passage) card.append(el("p", null, passage.length > 300 ? passage.slice(0, 300) + "…" : passage));
+
+      if (ev.url) {
+        const url = el("a", "url", ev.url);
+        url.href = safeUrl(ev.url);
+        url.target = "_blank";
+        url.rel = "noopener noreferrer";
+        card.append(url);
       }
-      block.append(card);
+      const meta = [];
+      if (ev.covers && ev.covers.length) meta.push("覆盖 " + ev.covers.join("/"));
+      if (ev.qids && ev.qids.length) meta.push("来自 " + ev.qids.join("/"));
+      if (ev.relevance) meta.push("相关度 " + Number(ev.relevance).toFixed(2));
+      if (meta.length) card.append(el("div", "hint", meta.join(" · ")));
+      list.append(card);
+    });
+  }
+
+  /* -------------------------------------------------------------- plan */
+  function renderPlanTab(plan) {
+    const box = $("#planBox");
+    clear(box);
+    if (!plan) {
+      box.append(el("div", "hint", "还没有诊断。"));
+      return;
     }
-    pane.append(block);
-  }
 
-  if (answer.followup) {
-    pane.append(h("div", { class: "block" },
-      h("div", { class: "block-title" }, "还需要你确认"),
-      h("div", { class: "followup-card" },
-        h("p", { class: "q" }, answer.followup),
-        h("p", { class: "why" }, "补上这条信息，下一轮检索才能收敛；现在给的是保守结论。"),
-      ),
-    ));
-  }
+    if (plan.strategy) {
+      const strategy = el("div", "note-card");
+      strategy.append(el("h3", null, "这轮策略"));
+      strategy.append(el("p", null, plan.strategy));
+      box.append(strategy);
+    }
 
-  if (Array.isArray(answer.uncertainties) && answer.uncertainties.length) {
-    const list = h("ul", { class: "uncertainty-list" });
-    for (const item of answer.uncertainties) list.append(h("li", null, item));
-    pane.append(h("div", { class: "block" }, h("div", { class: "block-title" }, "边界与不确定"), list));
-  }
+    const gapBlock = el("div", "plan-block");
+    gapBlock.append(el("h3", null, "缺口 G：检索前先决定要补什么"));
+    (plan.gaps || []).forEach((gap) => {
+      const card = el("div", "gap");
+      card.append(el("span", "tag", gap.id), el("b", null, gap.question || ""));
+      if (gap.why) card.append(el("p", null, gap.why));
+      gapBlock.append(card);
+    });
+    if (!plan.gaps || !plan.gaps.length) gapBlock.append(el("p", "hint", "没有明显缺口。"));
+    box.append(gapBlock);
 
-  if (answer.kb_note) {
-    const note = answer.kb_note;
-    const block = h("div", { class: "block" });
-    const line = h("div", { class: "kb-note" }, h("strong", null, "私域笔记"));
-    if (typeof note === "string") {
-      line.append(h("span", null, note));
-    } else if (Array.isArray(note.items)) {
-      const list = h("div", { class: "kb-items" });
-      for (const item of note.items) {
-        list.append(h("div", { class: "kb-item" },
-          h("span", null, item.title || item.id || ""),
-          h("span", { class: "muted" }, `${item.created_at || ""}${item.stale ? " · 旧笔记" : ""}`),
-        ));
+    const queryBlock = el("div", "plan-block");
+    queryBlock.append(el("h3", null, "查询 Q：真正发出去的句子和参数"));
+    (plan.queries || []).forEach((query) => {
+      const card = el("div", "query-full");
+      card.append(el("span", "qid", query.id), document.createTextNode(query.text || ""));
+      if (query.params) {
+        const params = Object.entries(query.params).map(([key, value]) => key + "=" + value).join(" · ");
+        card.append(el("div", "params", params));
       }
-      line.append(list);
+      if (query.purpose) card.append(el("div", "purpose", "目的：" + query.purpose));
+      const meta = [];
+      if (query.covers && query.covers.length) meta.push("覆盖 " + query.covers.join("/"));
+      if (query.weight) meta.push("权重 " + query.weight);
+      if (meta.length) card.append(el("div", "params", meta.join(" · ")));
+      queryBlock.append(card);
+    });
+    if (!plan.queries || !plan.queries.length) queryBlock.append(el("p", "hint", "还没有生成查询。"));
+    box.append(queryBlock);
+  }
+
+  /* ------------------------------------------------------------- trace */
+  function renderTrace(payload) {
+    const box = $("#traceBox");
+    clear(box);
+    const stats = (payload.search && payload.search.stats) || {};
+    const calls = (payload.search && payload.search.calls) || [];
+
+    const metrics = el("div", "metrics");
+    [
+      [String(stats.calls || 0), "检索调用"],
+      [String(stats.evidence_count || 0), "证据条数"],
+      [String(stats.official || 0), "官方证据"],
+      [seconds(stats.latency_ms || payload.elapsed_ms), "总耗时"],
+    ].forEach(([value, label]) => {
+      const metric = el("div", "metric");
+      metric.append(el("b", null, value), el("small", null, label));
+      metrics.append(metric);
+    });
+    box.append(metrics);
+
+    const timeline = el("div", "timeline");
+    (payload.stages || []).forEach((stage) => {
+      const row = el("div", "tl");
+      row.append(el("b", null, stage.name || ""));
+      row.append(el("span", null, stage.ms != null ? stage.ms + "ms" : ""));
+      row.append(el("p", null, stage.detail || ""));
+      timeline.append(row);
+    });
+    box.append(timeline);
+
+    const heading = el("div", "section-label", "调用记录");
+    box.append(heading);
+    calls.forEach((call) => {
+      const card = el("div", "query-full");
+      card.append(el("span", "qid", call.qid || ""), document.createTextNode(call.query || ""));
+      const params = call.params ? Object.entries(call.params).map(([key, value]) => key + "=" + value).join(" · ") : "";
+      const bits = [params, seconds(call.latency_ms), (call.pages || 0) + " 页"];
+      if (call.request_id) bits.push("req " + String(call.request_id).slice(0, 8));
+      if (call.fallback) bits.push("fallback=" + call.fallback);
+      if (call.error) bits.push("error=" + call.error);
+      card.append(el("div", "params", bits.filter(Boolean).join(" · ")));
+      if (call.purpose) card.append(el("div", "purpose", call.purpose));
+      box.append(card);
+    });
+    if (!calls.length) box.append(el("p", "hint", "这次没有调用记录。"));
+
+    if (payload.run_id) {
+      const footer = el("p", "hint");
+      footer.append(document.createTextNode("run id：" + payload.run_id + " · "));
+      const link = el("a", "url", "下载原始记录");
+      link.href = "/api/runs/" + encodeURIComponent(payload.run_id);
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+      footer.append(link);
+      box.append(footer);
     }
-    block.append(line);
-    pane.append(block);
   }
 
-  const stats = (payload.search || {}).stats || {};
-  pane.append(h("div", { class: "answer-footer" },
-    h("span", null, `run ${payload.run_id || "—"}`),
-    h("span", null, `耗时 ${fmtMs(payload.elapsed_ms)}`),
-    h("span", null, `证据 ${stats.evidence_count ?? (payload.evidence || []).length} 条`),
-    h("span", null, `调用 ${stats.calls ?? (payload.search?.calls || []).length} 次`),
-    h("span", null, `数值断言 ${stats.claims ?? (payload.claims || []).length} 条`),
-    h("span", null, `冲突 ${stats.conflicts ?? (payload.conflicts || []).length} 处`),
-  ));
-}
-
-function renderEvidence(payload) {
-  const pane = $("#evidencePane");
-  clear(pane);
-  const evidence = payload.evidence || [];
-  pane.append(h("div", { class: "evidence-head" },
-    h("h2", null, "公开证据"),
-    h("span", null, `${evidence.length} 条 · 按权威度 / 新鲜度 / 相关度排序`),
-  ));
-  if (!evidence.length) {
-    pane.append(h("p", { class: "muted" }, "这次没有拿到公开证据；回答应当降级为追问，而不是硬给结论。"));
-    return;
+  /* ----------------------------------------------------------- receipts */
+  function receiptKey() {
+    const answer = state.answer || {};
+    const slots = (state.plan && state.plan.slots) || {};
+    return {
+      model: slots.model || answer.model || "",
+      material: (slots.materials || []).join("/") || slots.material || answer.material || "",
+      symptom: (slots.symptom_ids || []).join(",") || answer.symptom || "",
+    };
   }
-  for (const item of evidence) {
-    const card = h("article", { class: "evidence-card", id: `ev-${item.id}` },
-      h("div", { class: "ev-top" },
-        h("span", { class: "rank" }, item.id || "S?"),
-        h("div", { class: "ev-title" },
-          h("a", { href: safeUrl(item.url), target: "_blank", rel: "noopener noreferrer" }, text(item.title, "无标题")),
-        ),
-      ),
-      h("div", { class: "ev-meta" },
-        h("span", { class: `tier tier-${item.tier || "general"}` }, item.tier_label || item.tier || "网页"),
-        h("span", null, item.site || ""),
-        item.date ? h("span", null, item.date) : null,
-        h("span", null, `相关度 ${pct(item.relevance)}`),
-        h("span", null, `新鲜度 ${pct(item.freshness)}`),
-        item.authority_level !== null && item.authority_level !== undefined
-          ? h("span", null, `权威 ${item.authority_level}/5`) : null,
-      ),
-      h("p", { class: "ev-passage" }, text(item.passage || item.content, "（无摘要）")),
-    );
-    const foot = h("div", { class: "ev-foot" });
-    for (const qid of item.qids || []) foot.append(h("span", { class: "mini-chip" }, qid));
-    for (const gid of item.covers || []) foot.append(h("span", { class: "mini-chip g1" }, gid));
-    if (foot.childNodes.length) card.append(foot);
-    pane.append(card);
-  }
-}
 
-function renderPlan(payload) {
-  const plan = payload.plan || {};
-  const pane = $("#planPane");
-  clear(pane);
-  pane.append(h("div", { class: "plan-hero" },
-    h("span", { class: "k" }, "编译器改写后的问题"),
-    h("p", null, text(plan.rewritten_question, payload.question)),
-    h("div", { class: "strategy" }, text(plan.strategy, "先补私域缺口，再用公开证据校验。")),
-  ));
-  if (plan.naive_query) {
-    pane.append(h("div", { class: "block" },
-      h("div", { class: "block-title" }, "对照：如果只把原话丢给搜索"),
-      h("div", { class: "plan-hero" }, h("p", { style: "font-family:ui-monospace,Consolas,monospace;font-size:12px" }, plan.naive_query)),
-    ));
-  }
-  const queries = plan.queries || [];
-  const block = h("div", { class: "block" }, h("div", { class: "block-title" }, `检索任务书 · ${queries.length} 条`));
-  for (const query of queries) {
-    const card = h("div", { class: "query-card" },
-      h("div", { class: "query-top" },
-        h("span", { class: "qid" }, query.id || "Q?"),
-        h("span", { class: "query-purpose" }, query.purpose || ""),
-      ),
-      h("p", { class: "query-text" }, query.text || ""),
-      paramsRow(query.params),
-    );
-    const foot = h("div", { class: "params" });
-    for (const gid of query.covers || []) foot.append(h("span", { class: "mini-chip g1" }, gid));
-    if (query.weight !== undefined) foot.append(h("span", { class: "mini-chip" }, `w=${query.weight}`));
-    if (foot.childNodes.length) card.append(foot);
-    block.append(card);
-  }
-  if (!queries.length) block.append(h("p", { class: "muted" }, "没有生成检索任务。"));
-  pane.append(block);
-}
-
-function renderTrace(payload) {
-  const pane = $("#tracePane");
-  clear(pane);
-  const trace = payload.trace || {};
-  const stats = trace.stats || (payload.search || {}).stats || {};
-  const calls = trace.calls || (payload.search || {}).calls || [];
-
-  pane.append(h("div", { class: "trace-summary" },
-    metric(fmtMs(payload.elapsed_ms), "总耗时"),
-    metric(String(calls.length), "SearchPro 调用"),
-    metric(String(stats.evidence_count ?? (payload.evidence || []).length), "证据"),
-    metric(String(stats.claims ?? (payload.claims || []).length), "数值断言"),
-  ));
-
-  const stages = trace.stages || payload.stages || [];
-  if (stages.length) {
-    const timeline = h("div", { class: "timeline" });
-    for (const stage of stages) {
-      timeline.append(h("div", { class: "stage" },
-        h("div", { class: "stage-dot" }),
-        h("div", { class: "stage-body" },
-          h("div", { class: "stage-name" }, stage.name || ""),
-          h("div", { class: "stage-detail" }, stage.detail || ""),
-        ),
-        h("div", { class: "stage-ms" }, `${stage.ms ?? 0}ms`),
-      ));
+  async function loadReceipts() {
+    if (!state.answer) return;
+    const params = new URLSearchParams(receiptKey());
+    try {
+      const res = await fetch("/api/receipts?" + params.toString(), { cache: "no-store" });
+      const data = await res.json();
+      if (!res.ok) return;
+      state.receipts = data.receipts || [];
+      renderReceiptSummaries();
+    } catch (err) {
+      /* 回执是增强项，失败不挡主流程 */
     }
-    pane.append(h("div", { class: "block" }, h("div", { class: "block-title" }, "链路耗时"), timeline));
   }
 
-  if (calls.length) {
-    const table = h("div", { class: "trace-table" });
-    table.append(h("div", { class: "trace-row head" },
-      h("span", null, "Q"), h("span", null, "查询"), h("span", null, "页数"), h("span", null, "耗时"), h("span", null, "RequestId"),
-    ));
-    for (const call of calls) {
-      const params = Object.entries(call.params || {}).map(([k, v]) => `${k}=${v}`).join(" · ");
-      table.append(h("div", { class: "trace-row" },
-        h("span", { class: "mono" }, call.qid || ""),
-        h("div", null,
-          h("div", { class: "q-text" }, call.query || ""),
-          h("div", { class: "mono", style: "margin-top:3px" }, params + (call.fallback ? ` · fallback=${call.fallback}` : "")),
-          call.error ? h("div", { class: "err" }, `${call.error}: ${call.detail || ""}`) : null,
-        ),
-        h("span", { class: "mono" }, String(call.pages ?? 0)),
-        h("span", { class: "mono" }, fmtMs(call.latency_ms)),
-        h("span", { class: "mono" }, call.request_id || "—"),
-      ));
+  function renderReceiptSummaries() {
+    const byStep = new Map(state.receipts.map((row) => [row.step_title, row]));
+    $$(".receipt").forEach((box) => {
+      const summary = box.querySelector(".receipt-summary");
+      if (!summary) return;
+      const row = byStep.get(box.dataset.step);
+      if (!row) {
+        summary.textContent = "还没有同机型/同材料的回执。";
+        return;
+      }
+      if (!row.visible) {
+        summary.textContent = "已有回执，但不足 3 条，暂不显示汇总。";
+        return;
+      }
+      summary.textContent = "同机型同材料 " + row.total + " 人复现：" + row.fixed + " 成功 · " + row.not_fixed + " 没解决；最近 " + (row.last_at || "") + "。";
+    });
+  }
+
+  async function submitReceipt(stepTitle, outcome, button) {
+    const answer = state.answer;
+    if (!answer) return;
+    button.disabled = true;
+    try {
+      const res = await fetch("/api/receipts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          run_id: answer.run_id,
+          step_title: stepTitle,
+          ...receiptKey(),
+          outcome: outcome,
+          note: "",
+          client_id: state.clientId,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || data.error || "记录失败");
+      toast(outcome === "fixed" ? "已记录：这条对你有效。" : outcome === "not_fixed" ? "已记录：这条没解决。" : "已记录：还没试。");
+      await loadReceipts();
+    } catch (err) {
+      toast("回执记录失败：" + err.message, "error");
+    } finally {
+      button.disabled = false;
     }
-    pane.append(h("div", { class: "block" }, h("div", { class: "block-title" }, "调用明细"), table));
   }
 
-  const actions = h("div", { class: "trace-actions" });
-  if (payload.run_id) {
-    actions.append(h("a", { href: `/api/runs/${payload.run_id}?download=1` }, "下载本次 trace JSON ↗"));
+  /* --------------------------------------------------------------- tabs */
+  function switchTab(name) {
+    $$(".tab").forEach((tab) => tab.classList.toggle("active", tab.dataset.tab === name));
+    $$(".pane").forEach((pane) => pane.classList.toggle("active", pane.id === "pane-" + name));
   }
-  actions.append(h("span", { class: "muted" },
-    `official ${stats.official ?? 0} · community ${stats.community ?? 0} · 冲突 ${stats.conflicts ?? 0} · ${trace.credential_kind || payload.credential_kind || ""}`,
-  ));
-  pane.append(actions);
-}
 
-function metric(number, label) {
-  return h("div", { class: "metric" }, h("span", { class: "num" }, number), h("span", { class: "lbl" }, label));
-}
-
-/* ---------------------------------------------------------------- tabs */
-function switchTab(name, silent = false) {
-  const valid = ["answer", "evidence", "plan", "trace"];
-  if (!valid.includes(name)) name = "answer";
-  state.activeTab = name;
-  for (const tab of $$(".tab")) {
-    const active = tab.dataset.tab === name;
-    tab.classList.toggle("active", active);
-    tab.setAttribute("aria-selected", active ? "true" : "false");
+  /* --------------------------------------------------------------- ask */
+  async function ask() {
+    const text = question.value.trim();
+    if (!text) {
+      toast("先写一句你遇到的情况，不用写标准问题。");
+      question.focus();
+      return;
+    }
+    if (state.busy) return;
+    state.busy = true;
+    askBtn.disabled = true;
+    askBtn.innerHTML = "<span>正在编译并检索…</span><small>先补缺口，再检索；通常 3–8 秒</small>";
+    try {
+      const res = await fetch("/api/ask", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ question: text }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || data.error || "请求失败");
+      state.answer = data;
+      state.plan = data.plan;
+      renderAnswer(data);
+      renderEvidence(data);
+      renderPlanTab(data.plan);
+      renderTrace(data);
+      switchTab("answer");
+      loadReceipts();
+      toast(data.replayed ? "这是离线回放结果，不是实时检索。" : "诊断完成。", data.replayed ? "warn" : "ok");
+    } catch (err) {
+      toast("诊断失败：" + err.message, "error");
+    } finally {
+      state.busy = false;
+      askBtn.disabled = false;
+      askBtn.innerHTML = askHTML;
+    }
   }
-  for (const pane of ["answer", "evidence", "plan", "trace"]) {
-    const node = $(`#${pane}Pane`);
-    if (node) node.classList.toggle("hidden", pane !== name);
-  }
-  if (!silent) {
-    const url = new URL(location.href);
-    if (name === "answer") url.searchParams.delete("tab");
-    else url.searchParams.set("tab", name);
-    history.replaceState(null, "", url);
-  }
-}
 
-function focusEvidence(sid) {
-  switchTab("evidence");
-  const target = document.getElementById(`ev-${sid}`);
-  if (!target) return;
-  target.scrollIntoView({ behavior: "smooth", block: "center" });
-  target.classList.add("is-focus");
-  setTimeout(() => target.classList.remove("is-focus"), 1800);
-}
+  /* --------------------------------------------------------------- init */
+  question.addEventListener("input", () => {
+    count.textContent = question.value.length + " / 1200";
+    clearTimeout(state.timer);
+    state.timer = setTimeout(compilePreview, 280);
+  });
 
-function initialTab() {
-  const tab = new URLSearchParams(location.search).get("tab");
-  return ["answer", "evidence", "plan", "trace"].includes(tab) ? tab : "answer";
-}
-
-/* ---------------------------------------------------------------- boot */
-function boot() {
-  updateCount();
-  $("#question").addEventListener("input", updateCount);
-  $("#question").addEventListener("keydown", (event) => {
+  question.addEventListener("keydown", (event) => {
     if ((event.ctrlKey || event.metaKey) && event.key === "Enter") {
       event.preventDefault();
       ask();
     }
   });
-  $("#askBtn").addEventListener("click", ask);
-  for (const tab of $$(".tab")) {
-    tab.addEventListener("click", () => switchTab(tab.dataset.tab));
-  }
-  loadHealth();
-  loadCases().then(() => {
-    const params = new URLSearchParams(location.search);
-    const caseId = params.get("case");
-    const question = params.get("q");
-    if (caseId) {
-      const found = state.cases.find((item) => item.id === caseId);
-      if (found) {
-        $("#question").value = found.question;
-        updateCount();
-        ask();
-        return;
-      }
-    }
-    if (question) {
-      $("#question").value = question.slice(0, 1200);
-      updateCount();
-      ask();
-    }
-  });
-}
 
-document.addEventListener("DOMContentLoaded", boot);
+  askBtn.addEventListener("click", ask);
+
+  $$(".example").forEach((button) => {
+    button.addEventListener("click", () => {
+      question.value = button.dataset.q || "";
+      count.textContent = question.value.length + " / 1200";
+      question.focus();
+      compilePreview();
+    });
+  });
+
+  $$(".tab").forEach((tab) => {
+    tab.addEventListener("click", () => switchTab(tab.dataset.tab));
+  });
+
+  $("#guideBtn").addEventListener("click", () => {
+    const guide = $("#guide");
+    guide.open = true;
+    guide.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  $("#exampleBtn").addEventListener("click", () => {
+    const first = $(".example");
+    if (first) first.click();
+  });
+
+  const preset = new URLSearchParams(location.search).get("q");
+  if (preset) {
+    question.value = preset;
+    count.textContent = preset.length + " / 1200";
+    compilePreview();
+  } else {
+    resetPreview();
+  }
+
+  checkHealth();
+})();

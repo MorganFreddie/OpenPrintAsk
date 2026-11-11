@@ -13,6 +13,8 @@ from __future__ import annotations
 
 import re
 
+from lexicon import get_lexicon
+
 MODE_LABEL = {0: "公网", 1: "权威垂类", 2: "混合"}
 PRIORITY_ORDER = {"high": 0, "medium": 1, "low": 2}
 
@@ -127,6 +129,105 @@ TRIED_WORDS = [
 ]
 
 
+# --------------------------------------------------------------- lexicon v2
+# The lists above are the safe built-in fallback. Data/lexicon.json extends and
+# overrides them, so a contributor can add a printer or a localism without
+# editing Python. Unknown keys are ignored on purpose: old lexicons still work.
+_LEX = get_lexicon()
+
+
+def _dedupe(items):
+    seen = {}
+    for item in items:
+        seen.setdefault(item, None)
+    return list(seen)
+
+
+if _LEX:
+    _models = _LEX.get("models") or []
+    if _models:
+        MODEL_META = {
+            m["name"]: {
+                "brand": m.get("brand", ""),
+                "site": m.get("site", ""),
+                "released": m.get("released", ""),
+            }
+            for m in _models
+        }
+        MODEL_ALIASES = sorted(
+            [(alias.lower(), m["name"]) for m in _models for alias in m.get("aliases", [])],
+            key=lambda item: len(item[0]),
+            reverse=True,
+        )
+
+    _materials = _LEX.get("materials") or []
+    if _materials:
+        MATERIALS = [
+            (m["name"], [a.lower() for a in m.get("aliases", [])], bool(m.get("hygroscopic")))
+            for m in _materials
+        ]
+
+    for _sid, _spec in (_LEX.get("symptoms") or {}).items():
+        if _sid in SYMPTOMS:
+            SYMPTOMS[_sid]["keywords"] = _dedupe(
+                list(SYMPTOMS[_sid].get("keywords", [])) + list(_spec.get("keywords", []))
+            )
+        else:
+            SYMPTOMS[_sid] = _spec
+
+    if _LEX.get("environments"):
+        ENV_WORDS = [
+            (e["kind"], e["label"], e.get("words", []))
+            for e in _LEX["environments"]
+        ]
+    for _region in _LEX.get("regions") or []:
+        ENV_WORDS.append((
+            f"region_{_region['name']}",
+            f"{_region['name']}（{_region.get('climate', '')}）" if _region.get("climate") else _region["name"],
+            _region.get("words", []),
+        ))
+
+    if _LEX.get("tried"):
+        TRIED_WORDS = [
+            (t["kind"], t["label"], t.get("words", []))
+            for t in _LEX["tried"]
+        ]
+
+
+BRAND_ALIASES = sorted(
+    [(alias.lower(), b["name"]) for b in (_LEX.get("brands") or []) for alias in b.get("aliases", [])],
+    key=lambda item: len(item[0]),
+    reverse=True,
+)
+FILAMENT_BRANDS = sorted(
+    [(alias.lower(), b["name"]) for b in (_LEX.get("filament_brands") or []) for alias in b.get("aliases", [])],
+    key=lambda item: len(item[0]),
+    reverse=True,
+)
+SYMPTOM_PRIORITY = [
+    "safety", "clog", "warping", "first_layer", "stringing",
+    "multi_color", "layer_shift", "surface",
+]
+
+
+def _symptom_obj(symptom_id: str) -> dict:
+    spec = SYMPTOMS[symptom_id]
+    return {
+        "id": symptom_id,
+        "label": spec["label"],
+        "mechanisms": spec.get("mechanisms", []),
+        "query_symptom": spec.get("query_symptom", spec["label"]),
+        "parameter_sensitive": bool(spec.get("parameter_sensitive", True)),
+    }
+
+
+def _symptom_label(slots: dict) -> str:
+    symptoms = slots.get("symptoms") or []
+    if symptoms:
+        return "、".join(s["label"] for s in symptoms)
+    return "打印异常"
+
+
 def _has(text: str, word: str) -> bool:
     return word.lower() in text.lower()
 
@@ -136,8 +237,15 @@ def _match_alias(text: str, alias: str) -> bool:
     return re.search(pattern, text, re.IGNORECASE) is not None
 
 
+def _priority(symptom_id: str) -> int:
+    return SYMPTOM_PRIORITY.index(symptom_id) if symptom_id in SYMPTOM_PRIORITY else 99
+
+
 def extract_slots(question: str) -> dict:
-    text = (question or "").strip()
+    raw = (question or "").strip()
+    # A pasted "case + solution" should not count the solution as something the
+    # user already tried. Parse only the problem half.
+    text = re.split(r"(?:解决(?:方法|办法|过程)|已解决|修复方法|处理方式)\s*[:：]", raw, maxsplit=1)[0].strip()
     low = text.lower()
 
     model = None
@@ -146,32 +254,84 @@ def extract_slots(question: str) -> dict:
             model = canonical
             break
 
-    material = None
-    for canonical, aliases, _hygroscopic in MATERIALS:
-        if any(_has(low, a) for a in aliases):
-            material = canonical
+    brand = MODEL_META.get(model, {}).get("brand") if model else None
+    if not brand:
+        for alias, name in BRAND_ALIASES:
+            if _match_alias(low, alias):
+                brand = name
+                break
+
+    material_hits = [
+        canonical
+        for canonical, aliases, _hygroscopic in MATERIALS
+        if any(_has(low, a) for a in aliases)
+    ]
+    materials = _dedupe(material_hits)
+    material = materials[0] if materials else None
+
+    material_brand = None
+    for alias, name in FILAMENT_BRANDS:
+        if _match_alias(low, alias):
+            material_brand = name
             break
+    # A machine brand mentioned as "拓竹 A1" is not the filament brand.
+    if material_brand and material_brand == brand and not any(
+        _has(low, word) for word in ("耗材", "材料", "线材", "用料", "料盘")
+    ):
+        material_brand = None
 
     safety_hit = any(_has(low, k) for k in SYMPTOMS["safety"]["keywords"])
-    safety_context = material == "光敏树脂" or any(_has(low, k) for k in ["有毒", "孕妇", "废液", "皮肤", "过敏", "通风", "气味"])
-    symptom_id = "safety" if (safety_hit and safety_context) else None
-    if symptom_id is None:
-        best_score = 0
-        for sid, spec in SYMPTOMS.items():
-            if sid == "safety":
-                continue
-            score = sum(1 for k in spec["keywords"] if _has(low, k))
-            if score > best_score:
-                best_score, symptom_id = score, sid
+    safety_context = material == "光敏树脂" or any(
+        _has(low, k) for k in ["有毒", "孕妇", "废液", "皮肤", "过敏", "通风", "气味"]
+    )
+
+    scores: dict[str, int] = {}
+    for sid, spec in SYMPTOMS.items():
+        score = sum(1 for k in spec["keywords"] if _has(low, k))
+        if score:
+            scores[sid] = score
+    if safety_hit and safety_context:
+        scores["safety"] = max(scores.get("safety", 0), 2)
+    elif "safety" in scores:
+        scores.pop("safety", None)
+
+    symptom_ids = sorted(
+        scores,
+        key=lambda sid: (-scores[sid], _priority(sid)),
+    )
+    if safety_hit and safety_context:
+        symptom_ids = ["safety"] + [sid for sid in symptom_ids if sid != "safety"]
+    # "首层不沾" is a warping/attachment case, not two separate diseases.
+    if "warping" in symptom_ids and "first_layer" in symptom_ids:
+        symptom_ids.remove("first_layer")
+
+    symptoms = [_symptom_obj(sid) for sid in symptom_ids]
+    symptom = symptoms[0] if symptoms else None
 
     tried: list[dict] = []
+    ambient: list[int] = []
     for match in re.finditer(r"(\d{2,3})\s*(?:℃|°c|度)", text, re.IGNORECASE):
         value = int(match.group(1))
-        window = text[max(0, match.start() - 12):match.start()]
-        if re.search(r"热床|平台|床温|bed", window, re.IGNORECASE):
-            tried.append({"kind": "bed_temp", "label": f"热床 {value}℃", "value": value})
-        elif re.search(r"喷嘴|喷头|nozzle", window, re.IGNORECASE):
-            tried.append({"kind": "nozzle_temp", "label": f"喷嘴 {value}℃", "value": value})
+        window = text[max(0, match.start() - 18):match.start()]
+        # 取离数字最近的那个关键词，避免“喷头堵料，单色不堵，室温28度”
+        # 因为前面 14 个字里出现“喷头”而被误判成“喷嘴 28℃”。
+        positions = []
+        for kind, words in (
+            ("bed_temp", ("热床", "平台", "床温", "bed")),
+            ("nozzle_temp", ("喷嘴", "喷头", "nozzle")),
+            ("ambient_temp", ("室内", "室温", "环境", "房间", "工位")),
+        ):
+            pos = max((window.lower().rfind(w.lower()) for w in words), default=-1)
+            if pos >= 0:
+                positions.append((pos, kind))
+        if positions:
+            _, nearest = max(positions)
+            if nearest == "bed_temp":
+                tried.append({"kind": "bed_temp", "label": f"热床 {value}℃", "value": value})
+            elif nearest == "nozzle_temp":
+                tried.append({"kind": "nozzle_temp", "label": f"喷嘴 {value}℃", "value": value})
+            else:
+                ambient.append(value)
     for kind, label, words in TRIED_WORDS:
         if any(_has(low, w) for w in words):
             tried.append({"kind": kind, "label": label})
@@ -185,12 +345,20 @@ def extract_slots(question: str) -> dict:
         for kind, label, words in ENV_WORDS
         if any(_has(low, w) for w in words)
     ]
+    if ambient:
+        environment = [e for e in environment if e["kind"] != "hot"]
+        seen = {e["kind"] for e in environment}
+        for value in ambient[:2]:
+            if "ambient_temp" not in seen:
+                environment.append({"kind": "ambient_temp", "label": f"室温 {value}℃", "value": value})
+                seen.add("ambient_temp")
 
     intent = {
         "freshness": any(_has(low, k) for k in ["最新", "最近", "刚", "新固件", "固件", "升级", "更新", "召回", "批次", "降价", "2026", "本月", "上周"]),
-        "safety": symptom_id == "safety",
+        "safety": "safety" in symptom_ids,
         "official": any(_has(low, k) for k in ["官方", "厂家", "说明书", "参数", "规格"]),
         "price": any(_has(low, k) for k in ["价格", "多少钱", "值得买", "推荐", "选机"]),
+        "multi_color": "multi_color" in symptom_ids,
     }
 
     missing = []
@@ -198,37 +366,35 @@ def extract_slots(question: str) -> dict:
         missing.append("model")
     if not material:
         missing.append("material")
-    if not symptom_id:
+    if not symptom:
         missing.append("symptom")
 
-    symptom = None
-    if symptom_id:
-        spec = SYMPTOMS[symptom_id]
-        symptom = {
-            "id": symptom_id,
-            "label": spec["label"],
-            "mechanisms": spec["mechanisms"],
-            "query_symptom": spec["query_symptom"],
-            "parameter_sensitive": spec["parameter_sensitive"],
-        }
-
+    required = 3 - len(missing)
+    confidence = "high" if required == 3 else ("medium" if required == 2 else "low")
     return {
-        "raw": text,
+        "raw": raw,
+        "parse_text": text,
         "model": model,
-        "brand": MODEL_META.get(model, {}).get("brand") if model else None,
+        "brand": brand,
         "material": material,
+        "materials": materials,
+        "material_brand": material_brand,
         "symptom": symptom,
+        "symptoms": symptoms,
+        "symptom_ids": symptom_ids,
         "tried": tried,
         "environment": environment,
         "intent": intent,
         "missing": missing,
+        "confidence": confidence,
     }
 
 
 def _rewrite(slots: dict) -> str:
     model = slots["model"]
-    material = slots["material"]
-    label = slots["symptom"]["label"] if slots["symptom"] else "打印异常"
+    materials = slots.get("materials") or ([slots["material"]] if slots["material"] else [])
+    material = "/".join(materials)
+    label = _symptom_label(slots)
     if model and material:
         head = f"{model} 打 {material} 时出现「{label}」"
     elif model:
@@ -237,6 +403,8 @@ def _rewrite(slots: dict) -> str:
         head = f"{material} 打印出现「{label}」"
     else:
         head = f"3D 打印出现「{label}」"
+    if "multi_color" in (slots.get("symptom_ids") or []):
+        head += "（多色 / AMS 换料场景）"
     parts = [head]
     if slots["tried"]:
         parts.append("已经试过 " + "、".join(t["label"] for t in slots["tried"]))
@@ -273,13 +441,20 @@ def analyze_gaps(slots: dict, kb_hits: list[dict]) -> list[dict]:
     note_text = " ".join(f"{h.get('title','')} {h.get('body','')} {h.get('tags','')}" for h in kb_hits)
     model = slots["model"]
     material = slots["material"]
+    materials = slots.get("materials") or ([material] if material else [])
+    material_text = "/".join(materials)
     symptom = slots["symptom"]
+    symptom_ids = slots.get("symptom_ids") or ([symptom["id"]] if symptom else [])
+    symptom_label = _symptom_label(slots)
 
     model_notes = [h for h in kb_hits if model and _has(f"{h.get('title','')} {h.get('body','')} {h.get('tags','')}", model)]
     material_notes = [h for h in kb_hits if material and _has(f"{h.get('title','')} {h.get('body','')} {h.get('tags','')}", material)]
     symptom_notes = [
         h for h in kb_hits
-        if symptom and any(_has(f"{h.get('title','')} {h.get('body','')} {h.get('tags','')}", k) for k in SYMPTOMS[symptom["id"]]["keywords"])
+        if symptom_ids and any(
+            _has(f"{h.get('title','')} {h.get('body','')} {h.get('tags','')}", k)
+            for sid in symptom_ids for k in SYMPTOMS[sid]["keywords"]
+        )
     ]
 
     if not model and not slots["intent"]["safety"]:
@@ -289,7 +464,7 @@ def analyze_gaps(slots: dict, kb_hits: list[dict]) -> list[dict]:
             action="ask_user")
     elif model and not model_notes:
         add("G1", "model_experience", "high",
-            f"{model} 在 {material or '这种耗材'} 上出现「{symptom['label'] if symptom else '异常'}」，最常见的三个原因是什么？",
+            f"{model} 在 {material_text or '这种耗材'} 上出现「{symptom_label}」，最常见的三个原因是什么？",
             f"私域库里没有 {model} 的直接案例，只有通用经验。")
     elif model_notes:
         stale_notes = [h for h in model_notes if h.get("stale")]
@@ -304,29 +479,35 @@ def analyze_gaps(slots: dict, kb_hits: list[dict]) -> list[dict]:
 
     if not symptom:
         add("G2", "clarify_symptom", "high",
-            "你看到的具体现象是什么？（翘边 / 拉丝 / 堵头 / 错层 / 表面粗糙 / 气味）",
+            "你看到的具体现象是什么？（翘边 / 拉丝 / 堵头 / 多色换料 / 错层 / 表面粗糙 / 气味）",
             "现象描述决定检索方向；'打印不好' 无法被有效检索。",
             action="ask_user")
     elif not symptom_notes:
         add("G2", "symptom_mechanism", "high",
-            f"「{symptom['label']}」通常由哪些机制造成？按可能性怎么排序？",
+            f"「{symptom_label}」通常由哪些机制造成？按可能性怎么排序？",
             "私域库里没有这个现象的直接记录，需要外部案例补齐。")
 
-    if symptom and symptom["parameter_sensitive"]:
-        target = material or model or "这台机型"
+    if any(SYMPTOMS[sid].get("parameter_sensitive") for sid in symptom_ids):
+        target = "/".join(materials) if materials else (model or "这台机型")
         add("G3", "official_parameter", "high",
             f"{target} 的官方基线是什么：热床/喷嘴温度、首层速度、调平要求分别是什么？",
             "私域笔记只有个人经验值，缺厂家基线；没有基线就无法判断你现在的参数是偏高还是偏低。")
 
-    hygroscopic = next((h for c, _a, h in MATERIALS if c == material), False)
-    if hygroscopic and symptom and symptom["id"] in {"stringing", "surface", "clog"}:
+    wet_materials = [c for c, _a, h in MATERIALS if h and c in materials]
+    if wet_materials and any(sid in {"stringing", "surface", "clog", "multi_color"} for sid in symptom_ids):
+        wet_text = "/".join(wet_materials)
         add("G4", "material_condition", "medium",
-            f"{material} 是否需要烘干？推荐温度和时间是多少？",
-            "拉丝/气泡常被误判为参数问题，实际是耗材含水率。")
+            f"{wet_text} 是否需要烘干？推荐温度和时间是多少？",
+            "拉丝/气泡/多色堵料常被误判为参数问题，实际是耗材含水率或材料兼容性。")
+
+    if "multi_color" in symptom_ids:
+        add("G5", "multi_color_setting", "high",
+            f"{model or '这台机型'} 的 AMS / 多色换料，冲刷量、废料塔和换料温度怎么设？",
+            "多色堵头常来自换料残留、冲刷不足或材料兼容，不是喷嘴本身；这条要单独查。")
 
     if slots["intent"]["freshness"]:
         add("G5", "freshness", "high",
-            f"{model or '这台机型'} 最近是否有与「{symptom['label'] if symptom else '打印异常'}」相关的固件、批次或召回信息？",
+            f"{model or '这台机型'} 最近是否有与「{symptom_label}」相关的固件、批次或召回信息？",
             "机型相关事实会过期；不限定时间窗，搜到的可能是三年前的旧版本经验。")
 
     if slots["intent"]["safety"]:
@@ -343,7 +524,7 @@ def analyze_gaps(slots: dict, kb_hits: list[dict]) -> list[dict]:
             "清洗液、废树脂和后处理耗材应该怎么处理？",
             "废液是树脂用户最容易违规的一步，必须有可执行的合规做法。")
 
-    hypothesis = _hypothesis(slots["raw"])
+    hypothesis = _hypothesis(slots.get("parse_text") or slots["raw"])
     if hypothesis:
         add("G7", "rule_out", "medium",
             f"你怀疑「{hypothesis}」，这个方向成立吗？需要哪些证据才能排除它？",
@@ -359,9 +540,12 @@ def analyze_gaps(slots: dict, kb_hits: list[dict]) -> list[dict]:
             f"私域笔记里的数值（{_numbers(note_text)}）与公开资料是否一致？",
             "私域笔记可能过期，也可能只适用于旧版本或特定平台。")
 
-    if not slots["intent"]["safety"] and (slots["environment"] or (symptom and symptom["id"] == "warping")):
+    if not slots["intent"]["safety"] and (
+        slots["environment"]
+        or any(sid in {"warping", "first_layer", "clog", "multi_color"} for sid in symptom_ids)
+    ):
         add("G9", "environment", "low",
-            "环境温度、空调直吹或湿度，是否足以解释这个现象？",
+            "环境温度、空调直吹、湿度或地区气候，是否足以解释这个现象？",
             "这是成本最低、最容易被忽略的变量，先用一条检索排除。")
 
     gaps.sort(key=lambda g: (0 if g["action"] == "ask_user" else 1, PRIORITY_ORDER.get(g["priority"], 3)))
@@ -387,7 +571,10 @@ def build_queries(slots: dict, gaps: list[dict]) -> list[dict]:
     gap_ids = {g["id"] for g in gaps}
     model = slots["model"]
     material = slots["material"]
+    materials = slots.get("materials") or ([material] if material else [])
+    material_text = "/".join(materials)
     symptom = slots["symptom"]
+    symptom_label = _symptom_label(slots)
     site = MODEL_META.get(model, {}).get("site") if model else None
     queries: list[dict] = []
 
@@ -429,8 +616,8 @@ def build_queries(slots: dict, gaps: list[dict]) -> list[dict]:
     official_covers = gids("official_parameter", "verify_conflict", "stale_private_note")
     if official_covers:
         symptom_hint = symptom["query_symptom"] if symptom else "首层 温度 参数"
-        if material:
-            text = f"{model or ''} {material} {symptom_hint} 官方 参数 热床 喷嘴 温度"
+        if material_text:
+            text = f"{model or ''} {material_text} {symptom_hint} 官方 参数 热床 喷嘴 温度"
         elif symptom and symptom["id"] == "first_layer":
             text = f"{model or ''} 官方 {symptom_hint} 调平 Z偏移 指南"
         else:
@@ -441,16 +628,23 @@ def build_queries(slots: dict, gaps: list[dict]) -> list[dict]:
     # 2. Community cases: the operational order that manuals rarely give.
     symptom_covers = gids("symptom_mechanism", "model_experience")
     if symptom and symptom_covers:
-        add(f"3D打印 {model or ''} {material or ''} {symptom['query_symptom']}",
+        add(f"3D打印 {model or ''} {material_text or ''} {symptom['query_symptom']}",
             "找同机型/同材料的真实案例，补齐处理顺序", symptom_covers,
             mode=2, weight=1.0)
+
+    # 2b. Multi-color: clog is often a filament-change residue problem.
+    multi_covers = gids("multi_color_setting")
+    if multi_covers:
+        add(f"{model or ''} AMS Lite 多色 换料 堵头 冲刷 废料塔 设置",
+            "多色换料的冲刷量、废料塔与材料兼容性单独排查", multi_covers,
+            mode=2, site_filter=site, weight=1.25)
 
     # 3. Rule out the user's own hypothesis (firmware, nozzle, machine broken).
     rule_covers = gids("rule_out")
     if symptom and rule_covers:
         tried_text = " ".join(t["label"] for t in slots["tried"])
         if tried_text:
-            text = f"3D打印 {model or ''} {material or ''} {symptom['query_symptom']} {tried_text} 无效 其他原因"
+            text = f"3D打印 {model or ''} {material_text or ''} {symptom['query_symptom']} {tried_text} 无效 其他原因"
             purpose = "验证已经试过的方向为什么无效，避免继续加码"
         else:
             text = f"3D打印 {model or ''} {symptom['query_symptom']} 排除 其他 原因"
@@ -459,17 +653,17 @@ def build_queries(slots: dict, gaps: list[dict]) -> list[dict]:
 
     # 4. Material condition: drying is often misread as a parameter problem.
     if gids("material_condition"):
-        add(f"3D打印 {material} 受潮 烘干 温度 时间",
+        add(f"3D打印 {material_text} 受潮 烘干 温度 时间",
             "判断是不是耗材含水率问题", gids("material_condition"),
             mode=2, weight=1.0)
-        if site and material:
-            add(f"{model} {material} 烘干 温度 时间 官方",
+        if site and material_text:
+            add(f"{model} {material_text} 烘干 温度 时间 官方",
                 "到厂商站点确认该材料的烘干制度", gids("material_condition"),
                 mode=2, site_filter=site, weight=1.15)
 
     # 5. Environment: cheapest variable to rule out.
     if gids("environment"):
-        add(f"3D打印 {symptom['label'] if symptom else ''} 环境 温度 空调 直吹",
+        add(f"3D打印 {symptom_label} 环境 温度 空调 直吹",
             "用一条低成本检索排除环境变量", gids("environment"),
             mode=2, weight=0.7)
 
@@ -486,21 +680,21 @@ def build_queries(slots: dict, gaps: list[dict]) -> list[dict]:
 
     # 7. Safety: official requirements, real-world risk, waste compliance.
     if gids("official_safety"):
-        add(f"3D打印 {material or '光敏树脂'} 安全 使用 通风 手套 防护",
+        add(f"3D打印 {material_text or '光敏树脂'} 安全 使用 通风 手套 防护",
             "拿厂家安全要求，而不是社区口口相传", gids("official_safety"),
             mode=2, site_filter=site, weight=1.3)
     if gids("safety_mechanism"):
-        add(f"3D打印 {material or '光敏树脂'} 气味 毒性 卧室 通风",
+        add(f"3D打印 {material_text or '光敏树脂'} 气味 毒性 卧室 通风",
             "看真实使用场景里的风险边界", gids("safety_mechanism"),
             mode=2, weight=1.0)
     if gids("waste"):
-        add(f"3D打印 {material or '光敏树脂'} 废液 清洗 处理 危险废物",
+        add(f"3D打印 {material_text or '光敏树脂'} 废液 清洗 处理 危险废物",
             "确认废液与后处理的合规做法", gids("waste"),
             mode=2, weight=0.8)
 
     # 8. Stale-note-only case: still need a public anchor.
     if "stale_private_note" in {g["type"] for g in gaps} and not official_covers:
-        add(f"{model or ''} {material or ''} 官方 推荐 参数",
+        add(f"{model or ''} {material_text or ''} 官方 推荐 参数",
             "用公开资料校准过期笔记", gids("stale_private_note"),
             mode=2 if site else 0, site_filter=site, weight=1.1)
 
@@ -518,6 +712,8 @@ def _strategy(gaps: list[dict]) -> str:
     types = {g["type"] for g in gaps}
     if "official_safety" in types:
         return "安全题不赌经验：先用厂家要求定边界，再看真实场景，最后确认废液合规；三条线互相印证。"
+    if "multi_color_setting" in types:
+        return "多色题先分清「喷嘴本身堵」还是「换料残留/冲刷不足」：先查 AMS 换料设置，再查材料干燥与兼容，最后才拆喷嘴。"
     if "freshness" in types:
         return "先用官方基线定锚，再用最近半年的时间窗验证固件/批次事实，最后用社区案例补操作顺序。"
     return "先补私域缺口，再拿官方基线，最后用社区案例交叉验证；私域笔记与公开资料冲突时，以官方和更新时间更近者为准。"
@@ -529,16 +725,23 @@ def compile_question(question: str, kb_hits: list[dict] | None = None) -> dict:
     gaps = analyze_gaps(slots, kb_hits)
     queries = build_queries(slots, gaps)
 
+    model_value = slots["model"]
+    if model_value and slots.get("brand") and slots["brand"] not in model_value:
+        model_value = f"{model_value}（{slots['brand']}）"
+    material_value = "/".join(slots.get("materials") or ([slots["material"]] if slots["material"] else [])) or None
+    symptom_value = _symptom_label(slots) if slots.get("symptoms") else None
+
     chips = [
-        {"key": "model", "label": "机型", "value": slots["model"], "state": "filled" if slots["model"] else "missing"},
-        {"key": "material", "label": "材料", "value": slots["material"], "state": "filled" if slots["material"] else "missing"},
-        {"key": "symptom", "label": "现象", "value": slots["symptom"]["label"] if slots["symptom"] else None,
+        {"key": "model", "label": "机型", "value": model_value, "state": "filled" if slots["model"] else "missing"},
+        {"key": "material", "label": "材料", "value": material_value, "state": "filled" if slots["material"] else "missing"},
+        {"key": "symptom", "label": "现象", "value": symptom_value,
          "state": "filled" if slots["symptom"] else "missing"},
         {"key": "tried", "label": "已尝试", "value": "、".join(t["label"] for t in slots["tried"]) or None,
          "state": "filled" if slots["tried"] else "missing"},
         {"key": "environment", "label": "环境", "value": "、".join(e["label"] for e in slots["environment"]) or None,
          "state": "filled" if slots["environment"] else "missing"},
     ]
+    filled = sum(1 for chip in chips if chip["state"] == "filled")
 
     return {
         "slots": slots,
@@ -548,4 +751,6 @@ def compile_question(question: str, kb_hits: list[dict] | None = None) -> dict:
         "strategy": _strategy(gaps),
         "rewritten_question": _rewrite(slots),
         "naive_query": question,
+        "confidence": slots.get("confidence", "low"),
+        "coverage": {"filled": filled, "total": len(chips)},
     }

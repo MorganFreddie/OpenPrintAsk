@@ -20,5 +20,6 @@ venv/
 
 # generated traces: keep demo_check/bench if you want; ignore per-request runs
 runs/*.json
+runs/*.jsonl
 !runs/demo_check.json
 !runs/bench.json

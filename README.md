@@ -1,6 +1,6 @@
 # 得师傅·外脑
 
-> **v2 开发版**：界面 V2 + 词表外置 + 复现回执。v1 已冻结在 `../deshifu-wsa`；本版计划与分工见 [docs/v2-plan.md](docs/v2-plan.md)。
+> **v2 开发版**：界面 V2 + 词表外置 + 7 个真实病例 + 复现回执。v1 已冻结在 `../deshifu-wsa`；本版计划与分工见 [docs/v2-plan.md](docs/v2-plan.md)，输入方法见 [docs/input-guide.md](docs/input-guide.md)，征文底稿见 [docs/article-draft.md](docs/article-draft.md)。
 
 > 把 3D 打印新手的「打不好」翻译成可检索的问题，再用元宝搜索 SearchPro 补私域知识缺口，最后给出带编号引用的下一步。
 
@@ -46,10 +46,10 @@
 # 在仓库根目录（本文件所在目录）执行
 Copy-Item .env.example .env
 # 没有 key 也能跑：auto 会自动落到 replay
-python server.py --mode replay --port 8765
+python server.py --mode replay --port 8766
 ```
 
-打开 <http://127.0.0.1:8765/>。
+打开 <http://127.0.0.1:8766/>。
 
 也可以直接：
 
@@ -77,7 +77,7 @@ WSA_SECRET_KEY=你的SecretKey
 然后：
 
 ```powershell
-python server.py --mode live --port 8765
+python server.py --mode live --port 8766
 ```
 
 免费额度与申请入口以赛事页/腾讯云文档为准；不要把 key 写进文章、截图或仓库。
@@ -90,6 +90,17 @@ python live_check.py
 
 成功时会打印 `RequestId`、版本、延迟和前三条结果，并把完整响应写到 `runs/live_check.json`。这一步不经过回放层，是真正的 SearchPro 调用。
 
+### 主要接口
+
+| 方法 | 路径 | 作用 |
+|---|---|---|
+| GET | `/api/health` | 模式、凭证、KB 条数、SearchPro 探活 |
+| POST | `/api/compile` | 只编译问题：槽位 / 缺口 / 查询任务书 |
+| POST | `/api/ask` | 全链路：编译 → 检索 → 证据 → 回答 |
+| GET | `/api/receipts?model=&material=&symptom=` | 按机型/材料/现象取复现回执 |
+| POST | `/api/receipts` | 记录某一步「有效 / 没解决 / 还没试」 |
+| GET | `/api/runs/{id}` | 下载一次运行的完整 trace |
+
 ---
 
 ## 3. 目录
@@ -99,28 +110,30 @@ deshifu-wsa/
 ├─ config.py            # 环境变量、路径、模式
 ├─ kb.py                # SQLite FTS5 私域笔记（按线程独立连接）
 ├─ planner.py           # 问题编译器：槽位 / 缺口 / 查询任务书
+├─ lexicon.py           # 词表加载与热重载
 ├─ wsa.py               # SearchPro 客户端：Bearer + TC3 + replay + record
 ├─ fuse.py              # 证据融合：排序 / 数值断言 / 冲突 / 缺口覆盖
 ├─ compose.py           # 回答生成：按症状组装步骤与引用
 ├─ pipeline.py          # 全链路编排 + trace
 ├─ server.py            # 本地 HTTP 服务 + 静态页面
-├─ bench.py             # 四案例验证表
+├─ bench.py             # 案例验证表
 ├─ live_check.py        # 一条真实 SearchPro 请求，验证凭证/网络/RequestId
 ├─ smoke.py             # 只跑编译器的冒烟测试
-├─ check_demo.py        # 四案例全链路检查
+├─ check_demo.py        # 全案例全链路检查
 ├─ make_fixtures.py     # 生成合成回放语料（synthetic=true）
 ├─ data/
-│  ├─ kb_seed.json      # 8 条私域笔记（含一条过期笔记）
-│  ├─ cases.json        # 4 个演示案例
+│  ├─ lexicon.json      # 品牌 / 机型 / 材料 / 现象 / 环境 / 地区 / 已尝试
+│  ├─ kb_seed.json      # 20 条私域笔记（含过期笔记）
+│  ├─ cases.json        # 7 个演示案例
 │  └─ fixtures/demo.json# 12 条查询记录 / 16 张合成页面
-├─ web/                 # 无框架前端
+├─ web/                 # 无框架前端（V2）
 ├─ runs/                # 每次运行的 trace JSON
-└─ docs/                # 参赛方案 / 征文 / 截图清单
+└─ docs/                # 参赛方案 / 输入手册 / 征文底稿 / 截图清单
 ```
 
 ---
 
-## 4. 四个演示案例
+## 4. 七个演示案例
 
 | 案例 | 用户表面问题 | 编译器看到的真问题 | 回答落点 |
 |---|---|---|---|
@@ -128,6 +141,9 @@ deshifu-wsa/
 | P1S / PETG / 拉丝 | 「是不是要换喷嘴」 | 回抽已试错；含水率才是优先变量 | 先烘干（65℃ / 4–6h），再谈回抽 |
 | K1 / 首层变薄 | 「是不是固件问题，要不要回滚」 | 强假设需要反向证据 + 时间窗口 | 先排除固件，再谈回滚 |
 | 光敏树脂 / 卧室 | 「有毒吗，怎么防护」 | 安全类必须官方 + 合规，不能只靠社区 | 先搬出卧室，再谈参数 |
+| A1 / PETG / 单色堵料 | 「打龟壳就堵」 | 已停打退料；室温 30℃；要分喷嘴/挤出机/热蠕变 | 先停打，再分堵在哪 |
+| A1 / AMS Lite / 多色堵料 | 「换色就堵，单色不堵」 | 换料残留 + 冲刷不足；AMS 细节公开证据不足 | 先查换料残留，再通喷嘴 |
+| A1 / PLA / 首层炒面 | 「底部不在热床还在打」 | 首层附着失效 + 没及时停打；平台清洁优先 | 先洗板，再升温，最后挡风 |
 
 每个案例都会产出：
 
@@ -143,7 +159,7 @@ deshifu-wsa/
 
 ```powershell
 python smoke.py        # 编译器冒烟：槽位 / 缺口 / 查询
-python check_demo.py   # 四案例全链路，写 runs/demo_check.json
+python check_demo.py   # 全案例全链路，写 runs/demo_check.json
 python bench.py --live # live 汇总表，写 runs/bench.json
 ```
 
@@ -157,6 +173,14 @@ python bench.py --live # live 汇总表，写 runs/bench.json
 | 光敏树脂 | 3 | 10 | 0 | 0 | 0 | 3/3 | 4/4 | medium |
 
 合计 14 次 SearchPro 调用、40 条证据、12 条官方来源、18 条数值断言、2 处冲突、17 个有引用步骤（2026-11-09，`version=lite`，`replayed=False`）。`lite` 不返回 `score`/`authority_level`，相关度用标题/正文词面覆盖兜底；来源层级按域名白名单判断。私域笔记是合成演示数据，公网页面是真实返回；4 个案例样本不足以代表总体准确率。
+
+2026-11-11 又用三条真实病例跑了一次 live：
+
+- 单色堵料：5 条查询 / 10 条证据 / 5 条官方 / `high`；
+- 多色堵料：5 条查询 / 10 条证据 / 10 条官方 / 0 条社区 / 0 条通用 / `medium`；
+- 首层炒面：走首层附着分支，`high`。
+
+多色那条的 `uncertainties` 明确写了「AMS / 多色换料的冲刷量、废料塔、换料温度」没有足够公开证据。这是当前的真实边界，不是 bug。
 
 ---
 
@@ -174,7 +198,7 @@ python bench.py --live # live 汇总表，写 runs/bench.json
 ## 7. 已知限制
 
 - 槽位与数值断言是规则 + 正则，不是通用 NLU；换到牙科、法律等域需要重写词表。
-- 只有 4 个演示案例；私域笔记是合成的，不能据此宣称线上召回率。
+- 只有 7 个演示案例；私域笔记是合成的，不能据此宣称线上召回率。
 - `lite` 版本不返回 `score`/`authority_level`，相关度与权威度是本地兜底；换 `standard`/`flagship` 后应重新校准权重。
 - `compose.py` 是模板化回答，不调用 LLM；接 LLM 时仍需保留 S 编号与「证据不足」分支。
 - 安全类结论只做信息整理，不构成医疗/合规建议；涉及孕期、长期暴露要回到厂家 SDS 与医生。
@@ -194,6 +218,10 @@ python bench.py --live # live 汇总表，写 runs/bench.json
 ## 9. 赛事文档
 
 - [`docs/参赛方案.md`](docs/参赛方案.md)：赛道选择、评分拆解、13 天执行表、风险与备选
-- [`docs/CSDN征文.md`](docs/CSDN征文.md)：可发布稿（已替换为 live 数字、截图与 RequestId）
+- [`docs/input-guide.md`](docs/input-guide.md)：五槽位输入模板、真实病例、常见错误
+- [`docs/开发手册.md`](docs/开发手册.md)：数据流、改词表/病例/回答分支、回执调试
+- [`docs/任务卡.md`](docs/任务卡.md)：数据/测试/界面/逻辑/发布五层参与任务
+- [`docs/article-draft.md`](docs/article-draft.md)：征文底稿（标题、结构、live 数字、限制）
+- [`docs/CSDN征文.md`](docs/CSDN征文.md)：旧版可发布稿（数字需按 v2 更新）
 - [`docs/发布步骤.md`](docs/发布步骤.md)：CSDN 发布、上传图、提交与 24h 运营清单
 - [`docs/截图清单.md`](docs/截图清单.md)：每张 live 截图的用途、拍摄命令、检查项

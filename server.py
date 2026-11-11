@@ -17,6 +17,7 @@ from urllib.parse import parse_qs, urlparse
 
 from config import WEB_DIR, get_settings
 from pipeline import Pipeline, get_pipeline
+from planner import compile_question
 
 RUN_ID_RE = re.compile(r"^[0-9]{8}-[0-9]{6}-[0-9a-f]{4}$")
 MAX_QUESTION = 1200
@@ -117,6 +118,14 @@ class Handler(BaseHTTPRequestHandler):
             pipeline = self.server.pipeline  # type: ignore[attr-defined]
             self._json(200, {"runs": pipeline.list_runs(30)})
             return
+        if path == "/api/receipts":
+            qs = parse_qs(parsed.query)
+            pipeline = self.server.pipeline  # type: ignore[attr-defined]
+            items = pipeline.kb.receipt_summary(
+                qs.get("model", [""])[0], qs.get("material", [""])[0], qs.get("symptom", [""])[0]
+            )
+            self._json(200, {"receipts": items})
+            return
         if path.startswith("/api/runs/"):
             run_id = path[len("/api/runs/"):].strip("/")
             if not RUN_ID_RE.match(run_id):
@@ -133,10 +142,36 @@ class Handler(BaseHTTPRequestHandler):
     # ----------------------------------------------------------------- POST
     def do_POST(self) -> None:  # noqa: N802 - http.server API
         path = urlparse(self.path).path
-        if path != "/api/ask":
+        if path not in ("/api/ask", "/api/compile", "/api/receipts"):
             self._json(404, {"error": "not_found"})
             return
         data = self._read_json()
+        if path == "/api/receipts":
+            outcome = str(data.get("outcome", ""))
+            client_id = str(data.get("client_id", ""))[:64]
+            run_id = str(data.get("run_id", ""))
+            step_title = str(data.get("step_title", "")).strip()[:120]
+            if outcome not in ("fixed", "not_fixed", "not_tried"):
+                self._json(400, {"error": "bad_outcome"})
+                return
+            if len(client_id) < 8 or not RUN_ID_RE.match(run_id) or not step_title:
+                self._json(400, {"error": "bad_receipt"})
+                return
+            try:
+                result = self.server.pipeline.kb.add_receipt({  # type: ignore[attr-defined]
+                    "run_id": run_id, "step_title": step_title,
+                    "model": str(data.get("model", ""))[:80],
+                    "material": str(data.get("material", ""))[:40],
+                    "symptom": str(data.get("symptom", ""))[:40],
+                    "outcome": outcome, "note": str(data.get("note", "")),
+                    "client_id": client_id,
+                })
+            except Exception as exc:  # noqa: BLE001
+                traceback.print_exc()
+                self._json(500, {"error": "receipt_failed", "detail": str(exc)})
+                return
+            self._json(200, result)
+            return
         question = str(data.get("question", "")).strip()
         if not question:
             self._json(400, {"error": "empty_question", "detail": "请描述你遇到的打印问题。"})
@@ -145,7 +180,19 @@ class Handler(BaseHTTPRequestHandler):
             self._json(400, {"error": "question_too_long", "detail": f"最多 {MAX_QUESTION} 字。"})
             return
         try:
-            payload = self.server.pipeline.ask(question)  # type: ignore[attr-defined]
+            pipeline = self.server.pipeline  # type: ignore[attr-defined]
+            if path == "/api/compile":
+                hits = pipeline.kb.search(question, 4)
+                plan = compile_question(question, hits)
+                self._json(200, {
+                    "plan": plan,
+                    "kb": [
+                        {"id": h["id"], "title": h["title"], "stale": h.get("stale", False)}
+                        for h in hits
+                    ],
+                })
+                return
+            payload = pipeline.ask(question)
         except Exception as exc:  # noqa: BLE001 - surface a clean error to the UI
             traceback.print_exc()
             self._json(500, {"error": "internal", "detail": f"{type(exc).__name__}: {exc}"})

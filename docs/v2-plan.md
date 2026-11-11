@@ -5,6 +5,12 @@
 - 远程仓库：待填 `<repo-url>`。提交前 `git remote add origin <repo-url>` 并 push；`.env` 已在 `.gitignore`，不会入库。
 - 基线提交：`chore: fork v1 as v2 baseline (UI v2, version isolation)`。
 
+### 当前状态（2026-11-11）
+
+- 已完成：词表外置、抽取升级（多色/地区/解决方法排除/室温不被误判为喷嘴）、`/api/compile`、界面 V2、回执 MVP、7 个案例、20 条私域笔记、3 条真实病例 live、`docs/input-guide.md`、`docs/article-draft.md`、7 条回归测试。
+- 待完成：live 截图（headless 在当前沙箱起不来，需本机普通浏览器）、远程仓库 URL、最终 commit/push。
+- 密钥：已从 v1 `.env` 提取 `WSA_API_KEY` 写入 v2 `.env`，`health(probe=True)` 与 `/api/ask` 均通过；key 不入库。
+
 ---
 
 ## 一、认可度：做“复现回执”，不做点赞榜、不做置顶
@@ -58,7 +64,7 @@
 | P0-4 | `POST /api/compile` + 左栏实时识别 | 不触发检索；300ms 防抖；返回 slots/chips/gaps/queries/preview；本地 p95 < 50ms |
 | P0-5 | 界面 V2 接入 | 左栏五要素+chips+预览；右栏回答/依据/任务书/轨迹；1280/1440/1920 不溢出；键盘可提交 |
 | P0-6 | 复现回执 MVP | SQLite `receipts` 表；POST 回执；GET 聚合；答案卡片；<3 条隐藏；180 天外排除；步骤徽标 |
-| P0-7 | 测试与文档 | 15 条真实句 + 4 案例全过；`docs/输入提示词手册.md`、`docs/开发手册.md`、`docs/任务卡.md` |
+| P0-7 | 测试与文档 | 7 条回归测试全过；`docs/input-guide.md`、`docs/开发手册.md`、`docs/任务卡.md` |
 
 ### P1（11/13–11/18）
 
@@ -136,7 +142,7 @@ python server.py --port 8766
 
 ### 风险
 
-- **key 没落盘**：目前 `.env` 和系统环境变量里都读不到 `WSA_SECRET_ID/KEY`，live 会被卡；replay 能开发但不能当参赛截图。
+- **key 没落盘**：已在 11/11 从 v1 `.env` 提取 `WSA_API_KEY` 并写入 v2 `.env`，live 已通过；仍要注意 `.env` 不能入库、不能进截图。
 - **12 天**：先砍 P1/P2，绝不砍 P0-2/3/6；回执做不完就只做“本地病例复现”，不硬上社区。
 - **表述要诚实**：单实例就写单实例；不把“回执”说成“社区共识”。
 - **来源版权**：只存 ≤120 字摘要 + 链接，不整页搬运。

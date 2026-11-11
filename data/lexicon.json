@@ -1,0 +1,107 @@
+{
+  "version": 2,
+  "updated_at": "2026-11-11",
+  "brands": [
+    {"name": "拓竹", "en": "Bambu Lab", "aliases": ["拓竹", "bambu lab", "bambu", "竹"]},
+    {"name": "创想三维", "en": "Creality", "aliases": ["创想三维", "创想", "creality"]},
+    {"name": "爱乐酷", "en": "Elegoo", "aliases": ["爱乐酷", "elegoo"]},
+    {"name": "Prusa", "en": "Prusa", "aliases": ["prusa"]},
+    {"name": "纵维立方", "en": "Anycubic", "aliases": ["纵维立方", "anycubic"]}
+  ],
+  "models": [
+    {"name": "A1 mini", "brand": "拓竹", "aliases": ["a1 mini", "a1mini", "a1 mini combo"], "site": "wiki.bambulab.com", "released": "2023-12"},
+    {"name": "A1", "brand": "拓竹", "aliases": ["a1"], "site": "wiki.bambulab.com", "released": "2023-12"},
+    {"name": "P1S", "brand": "拓竹", "aliases": ["p1s"], "site": "wiki.bambulab.com", "released": "2023-07"},
+    {"name": "P1P", "brand": "拓竹", "aliases": ["p1p"], "site": "wiki.bambulab.com", "released": "2022-06"},
+    {"name": "X1 Carbon", "brand": "拓竹", "aliases": ["x1 carbon", "x1c"], "site": "wiki.bambulab.com", "released": "2022-08"},
+    {"name": "K1", "brand": "创想三维", "aliases": ["k1"], "site": "creality.com", "released": "2023-04"},
+    {"name": "K1C", "brand": "创想三维", "aliases": ["k1c"], "site": "creality.com", "released": "2024-04"},
+    {"name": "K1 Max", "brand": "创想三维", "aliases": ["k1 max"], "site": "creality.com", "released": "2023-09"},
+    {"name": "Ender-3 V3", "brand": "创想三维", "aliases": ["ender-3 v3", "ender3 v3"], "site": "creality.com", "released": "2024-04"},
+    {"name": "Ender-3", "brand": "创想三维", "aliases": ["ender-3", "ender3"], "site": "creality.com", "released": "2018-03"},
+    {"name": "Saturn 4", "brand": "爱乐酷", "aliases": ["saturn 4"], "site": "elegoo.com", "released": "2024-05"},
+    {"name": "Saturn 4 Ultra", "brand": "爱乐酷", "aliases": ["saturn 4 ultra"], "site": "elegoo.com", "released": "2024-08"},
+    {"name": "Mars 5", "brand": "爱乐酷", "aliases": ["mars 5"], "site": "elegoo.com", "released": "2024-01"},
+    {"name": "Prusa MK4", "brand": "Prusa", "aliases": ["prusa mk4", "mk4"], "site": "help.prusa3d.com", "released": "2023-04"}
+  ],
+  "materials": [
+    {"name": "PLA", "aliases": ["pla", "聚乳酸"], "hygroscopic": false},
+    {"name": "PETG", "aliases": ["petg"], "hygroscopic": true},
+    {"name": "ABS", "aliases": ["abs"], "hygroscopic": true},
+    {"name": "ASA", "aliases": ["asa"], "hygroscopic": true},
+    {"name": "TPU", "aliases": ["tpu", "柔性材料"], "hygroscopic": true},
+    {"name": "尼龙", "aliases": ["尼龙", "nylon", "pa6", "pa12"], "hygroscopic": true},
+    {"name": "光敏树脂", "aliases": ["光敏树脂", "树脂", "resin"], "hygroscopic": false}
+  ],
+  "symptoms": {
+    "warping": {
+      "keywords": ["炒面", "面条", "spaghetti", "不沾", "粘不住", "粘不牢", "底部不在热床", "模型倒了", "倒伏", "翘边", "翘起", "卷边", "边角翘", "脱落", "掉件", "warping", "warp", "detach", "curling", "bed adhesion", "first layer adhesion"]
+    },
+    "first_layer": {
+      "keywords": ["首层不沾", "首层", "第一层", "z偏移", "z-offset", "z offset", "压得薄", "压得太薄", "首层变差", "首层不平", "first layer", "squished", "too thin"]
+    },
+    "stringing": {
+      "keywords": ["拉丝", "丝状", "渗料", "stringing", "oozing", "毛刺", "蜘蛛网", "wisps"]
+    },
+    "clog": {
+      "keywords": ["堵料", "堵住", "堵了", "喷头堵", "喷嘴堵", "堵头", "堵塞", "挤出不足", "下料不顺", "空打", "clog", "under-extrusion", "缺料", "jammed", "不通"]
+    },
+    "multi_color": {
+      "label": "多色 / 换料异常",
+      "keywords": ["多色", "amslite", "ams lite", "ams", "换色", "混色", "多材料", "四色", "双色"],
+      "mechanisms": ["换料冲刷", "废料塔", "喷嘴残留", "材料兼容", "回抽"],
+      "query_symptom": "多色 换料 堵头 冲刷 废料塔 原因",
+      "parameter_sensitive": true
+    },
+    "layer_shift": {
+      "keywords": ["错层", "位移", "layer shift", "层移", "打一半歪了"]
+    },
+    "surface": {
+      "keywords": ["表面粗糙", "气泡", "麻点", "拉毛", "surface", "blob", "zits"]
+    },
+    "safety": {
+      "keywords": ["安全", "有毒", "气味", "孕妇", "小孩", "卧室", "通风", "皮肤", "过敏", "废液", "毒性", "safety", "toxic", "ventilation", "fumes", "VOC"]
+    }
+  },
+  "environments": [
+    {"kind": "aircon", "label": "空调直吹", "words": ["空调", "直吹"]},
+    {"kind": "window", "label": "窗边/开门", "words": ["窗边", "开窗", "门开", "阳台"]},
+    {"kind": "humidity", "label": "潮湿天气", "words": ["潮湿", "湿度", "回南天", "下雨", "梅雨"]},
+    {"kind": "cold", "label": "低温环境", "words": ["冬天", "低温", "冷"]},
+    {"kind": "hot", "label": "高温环境", "words": ["30度", "室温30", "夏天", "高温", "闷热", "热气"]},
+    {"kind": "bedroom", "label": "卧室/居住空间", "words": ["卧室", "睡房", "宿舍"]}
+  ],
+  "regions": [
+    {"name": "浙江", "climate": "潮湿/梅雨", "words": ["浙江", "杭州", "宁波", "温州", "绍兴", "金华"]},
+    {"name": "江苏", "climate": "潮湿/梅雨", "words": ["江苏", "南京", "苏州", "无锡", "常州"]},
+    {"name": "上海", "climate": "潮湿/梅雨", "words": ["上海"]},
+    {"name": "广东", "climate": "高温高湿", "words": ["广东", "广州", "深圳", "东莞", "佛山"]},
+    {"name": "福建", "climate": "高温高湿", "words": ["福建", "厦门", "福州", "泉州"]},
+    {"name": "海南", "climate": "高温高湿", "words": ["海南", "海口", "三亚"]},
+    {"name": "四川", "climate": "潮湿/寡照", "words": ["四川", "成都", "重庆"]},
+    {"name": "北方", "climate": "干燥/温差大", "words": ["北方", "北京", "天津", "河北", "山东", "山西", "陕西"]}
+  ],
+  "tried": [
+    {"kind": "adhesive", "label": "胶水/胶棒", "words": ["胶水", "固体胶", "发胶", "胶棒"]},
+    {"kind": "brim", "label": "裙边/raft", "words": ["裙边", "brim", "raft", "底座"]},
+    {"kind": "drying", "label": "烘干", "words": ["烘干", "干燥", "烘干箱"]},
+    {"kind": "leveling", "label": "调平/Z 偏移", "words": ["调平", "leveling", "z偏移", "z-offset", "z offset"]},
+    {"kind": "cleaning", "label": "平台清洁", "words": ["洗洁精", "酒精", "擦平台", "清洗"]},
+    {"kind": "speed", "label": "降速", "words": ["降速", "慢一点", "速度调低"]},
+    {"kind": "retraction", "label": "调回抽", "words": ["回抽", "retraction"]},
+    {"kind": "nozzle_clean", "label": "撞针/通针疏通", "words": ["撞针", "通针", "疏通", "通喷嘴", "通喷头"]},
+    {"kind": "heat_feed", "label": "加热进料", "words": ["加热进料", "230度进料", "加热到230"]},
+    {"kind": "unload", "label": "退料", "words": ["退料", "退耗材"]},
+    {"kind": "stop_print", "label": "停止打印", "words": ["停止打印", "暂停打印", "停了"]},
+    {"kind": "power_cycle", "label": "关机重启", "words": ["关机", "重启"]}
+  ],
+  "filament_brands": [
+    {"name": "创想三维", "aliases": ["创想三维", "创想"]},
+    {"name": "爱丽兹", "aliases": ["爱丽兹", "爱丽丝", "arize"]},
+    {"name": "拓竹", "aliases": ["拓竹", "bambu"]},
+    {"name": "eSUN", "aliases": ["esun", "易生"]},
+    {"name": "Polymaker", "aliases": ["polymaker"]},
+    {"name": "Sunlu", "aliases": ["sunlu", "三绿"]},
+    {"name": "三绿", "aliases": ["三绿"]}
+  ]
+}

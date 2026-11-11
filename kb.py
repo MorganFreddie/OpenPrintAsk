@@ -12,6 +12,7 @@ import pathlib
 import re
 import sqlite3
 import threading
+from datetime import datetime, timedelta, timezone
 from typing import Iterable
 
 from config import DATA_DIR, ensure_dirs
@@ -118,6 +119,21 @@ class KnowledgeBase:
                 text,
                 tokenize = 'unicode61'
             );
+            CREATE TABLE IF NOT EXISTS receipts (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                run_id TEXT NOT NULL,
+                step_title TEXT NOT NULL,
+                model TEXT NOT NULL DEFAULT '',
+                material TEXT NOT NULL DEFAULT '',
+                symptom TEXT NOT NULL DEFAULT '',
+                outcome TEXT NOT NULL,
+                note TEXT NOT NULL DEFAULT '',
+                client_id TEXT NOT NULL,
+                created_at TEXT NOT NULL,
+                UNIQUE(client_id, run_id, step_title)
+            );
+            CREATE INDEX IF NOT EXISTS idx_receipts_match
+                ON receipts(model, material, symptom, created_at);
             """
         )
         self.conn.commit()
@@ -182,6 +198,59 @@ class KnowledgeBase:
             results.append(note)
         results.sort(key=lambda n: (n["relevance"], n["title"]), reverse=True)
         return results[:k]
+
+    def add_receipt(self, receipt: dict) -> dict:
+        now = datetime.now(timezone.utc).isoformat(timespec="seconds")
+        self.conn.execute(
+            "INSERT OR REPLACE INTO receipts"
+            " (run_id,step_title,model,material,symptom,outcome,note,client_id,created_at)"
+            " VALUES (?,?,?,?,?,?,?,?,?)",
+            (
+                receipt["run_id"], receipt["step_title"], receipt.get("model", ""),
+                receipt.get("material", ""), receipt.get("symptom", ""),
+                receipt["outcome"], receipt.get("note", "")[:300],
+                receipt["client_id"], now,
+            ),
+        )
+        self.conn.commit()
+        return {"saved": True, "created_at": now}
+
+    def receipt_summary(self, model: str = "", material: str = "", symptom: str = "") -> list[dict]:
+        """Only receipts that match the same model/material/symptom, 180 days."""
+        cutoff = (datetime.now(timezone.utc) - timedelta(days=180)).isoformat(timespec="seconds")
+        rows = self.conn.execute(
+            "SELECT step_title,outcome,created_at FROM receipts"
+            " WHERE model=? AND material=? AND symptom=? AND created_at>=?",
+            (model, material, symptom, cutoff),
+        ).fetchall()
+        now = datetime.now(timezone.utc)
+        buckets: dict[str, dict] = {}
+        for row in rows:
+            bucket = buckets.setdefault(row["step_title"], {
+                "step_title": row["step_title"], "fixed": 0, "not_fixed": 0,
+                "weekly_fixed": 0.0, "last_at": "",
+            })
+            if row["outcome"] == "fixed":
+                bucket["fixed"] += 1
+                try:
+                    age = (now - datetime.fromisoformat(row["created_at"])).days
+                except ValueError:
+                    age = 0
+                bucket["weekly_fixed"] += 0.5 ** (max(0, age) / 90)
+            elif row["outcome"] == "not_fixed":
+                bucket["not_fixed"] += 1
+            if row["created_at"] > bucket["last_at"]:
+                bucket["last_at"] = row["created_at"]
+        out = []
+        for bucket in buckets.values():
+            total = bucket["fixed"] + bucket["not_fixed"]
+            bucket["total"] = total
+            bucket["weight"] = round(min(0.15, bucket["weekly_fixed"] * 0.02), 4)
+            bucket["visible"] = total >= 3
+            bucket["last_at"] = bucket["last_at"][:10]
+            out.append(bucket)
+        out.sort(key=lambda b: (b["fixed"], b["total"]), reverse=True)
+        return out
 
     def close(self) -> None:
         conn = getattr(self._local, "conn", None)

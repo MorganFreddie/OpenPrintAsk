@@ -1,26 +1,26 @@
 [
   {
-    "run_id": "20261109-170527-1e9a",
-    "created_at": "2026-11-09T17:05:27+08:00",
+    "run_id": "20261111-155532-7020",
+    "created_at": "2026-11-11T15:55:32+08:00",
     "question": "A1 mini 打 PLA，首层老翘边，热床 60℃ 还加了胶水也没用，是不是机器坏了？",
     "mode": "live",
     "credential_kind": "api_key",
     "replayed": false,
-    "elapsed_ms": 354,
+    "elapsed_ms": 308,
     "stages": [
       {
         "name": "问题编译",
-        "ms": 2,
+        "ms": 6,
         "detail": "5 个缺口 / 3 条查询"
       },
       {
         "name": "私域检索",
-        "ms": 3,
+        "ms": 2,
         "detail": "5 条笔记"
       },
       {
         "name": "元宝搜索",
-        "ms": 331,
+        "ms": 283,
         "detail": "3 次调用 / 30 条原始结果"
       },
       {
@@ -37,9 +37,14 @@
     "plan": {
       "slots": {
         "raw": "A1 mini 打 PLA，首层老翘边，热床 60℃ 还加了胶水也没用，是不是机器坏了？",
+        "parse_text": "A1 mini 打 PLA，首层老翘边，热床 60℃ 还加了胶水也没用，是不是机器坏了？",
         "model": "A1 mini",
-        "brand": "Bambu Lab",
+        "brand": "拓竹",
         "material": "PLA",
+        "materials": [
+          "PLA"
+        ],
+        "material_brand": null,
         "symptom": {
           "id": "warping",
           "label": "翘边 / 首层脱落",
@@ -53,6 +58,24 @@
           "query_symptom": "首层 翘边 附着 原因",
           "parameter_sensitive": true
         },
+        "symptoms": [
+          {
+            "id": "warping",
+            "label": "翘边 / 首层脱落",
+            "mechanisms": [
+              "首层附着",
+              "热床温度",
+              "平台清洁",
+              "环境气流",
+              "首层压缩量"
+            ],
+            "query_symptom": "首层 翘边 附着 原因",
+            "parameter_sensitive": true
+          }
+        ],
+        "symptom_ids": [
+          "warping"
+        ],
         "tried": [
           {
             "kind": "bed_temp",
@@ -69,15 +92,17 @@
           "freshness": false,
           "safety": false,
           "official": false,
-          "price": false
+          "price": false,
+          "multi_color": false
         },
-        "missing": []
+        "missing": [],
+        "confidence": "high"
       },
       "chips": [
         {
           "key": "model",
           "label": "机型",
-          "value": "A1 mini",
+          "value": "A1 mini（拓竹）",
           "state": "filled"
         },
         {
@@ -167,7 +192,7 @@
           "id": "G4",
           "type": "verify_conflict",
           "priority": "medium",
-          "question": "私域笔记里的数值（60℃、22℃、55℃、65℃）与公开资料是否一致？",
+          "question": "私域笔记里的数值（60℃、55℃、20mm、22℃）与公开资料是否一致？",
           "why": "私域笔记可能过期，也可能只适用于旧版本或特定平台。",
           "action": "search",
           "status": "covered",
@@ -186,7 +211,7 @@
           "id": "G5",
           "type": "environment",
           "priority": "low",
-          "question": "环境温度、空调直吹或湿度，是否足以解释这个现象？",
+          "question": "环境温度、空调直吹、湿度或地区气候，是否足以解释这个现象？",
           "why": "这是成本最低、最容易被忽略的变量，先用一条检索排除。",
           "action": "search",
           "status": "covered",
@@ -260,10 +285,17 @@
           "relevance": 0.714
         },
         {
-          "id": "note-a1m-002",
-          "title": "A1 mini 热床温度记录（旧）",
-          "created_at": "2024-11-02",
-          "stale": true,
+          "id": "note-a1-011",
+          "title": "A1 热床 60℃ 还是 55℃：一次只改一个变量",
+          "created_at": "2026-06-28",
+          "stale": false,
+          "relevance": 0.429
+        },
+        {
+          "id": "note-a1-012",
+          "title": "空调直吹时，挡风比升热床更先做",
+          "created_at": "2026-07-21",
+          "stale": false,
           "relevance": 0.429
         },
         {
@@ -274,18 +306,11 @@
           "relevance": 0.429
         },
         {
-          "id": "note-general-001",
-          "title": "什么时候该怀疑耗材受潮",
-          "created_at": "2026-06-15",
-          "stale": false,
-          "relevance": 0.143
-        },
-        {
-          "id": "note-resin-001",
-          "title": "树脂机放卧室，气味和安全边界",
-          "created_at": "2026-02-11",
-          "stale": false,
-          "relevance": 0.048
+          "id": "note-a1m-002",
+          "title": "A1 mini 热床温度记录（旧）",
+          "created_at": "2024-11-02",
+          "stale": true,
+          "relevance": 0.238
         }
       ]
     },
@@ -305,9 +330,9 @@
             "G2",
             "G4"
           ],
-          "latency_ms": 329,
+          "latency_ms": 280,
           "pages": 10,
-          "request_id": "5e58c9c5-dc7b-4f4e-bf1e-531b9239aeb8",
+          "request_id": "2667734b-e199-414e-8560-822ee6afa1eb",
           "version": "lite",
           "error": "",
           "detail": "",
@@ -325,9 +350,9 @@
           "covers": [
             "G3"
           ],
-          "latency_ms": 270,
+          "latency_ms": 237,
           "pages": 10,
-          "request_id": "a595b87b-fd19-445d-a6af-30f22f52c87d",
+          "request_id": "97f6d0e8-f460-4d8e-9a80-51a0acf0b253",
           "version": "lite",
           "error": "",
           "detail": "",
@@ -345,9 +370,9 @@
           "covers": [
             "G5"
           ],
-          "latency_ms": 286,
+          "latency_ms": 266,
           "pages": 10,
-          "request_id": "3bd31365-ab4f-4e4c-8dbd-215e9840b58f",
+          "request_id": "f682a657-ff05-4dd7-9fb2-28c9b78e7afe",
           "version": "lite",
           "error": "",
           "detail": "",
@@ -361,16 +386,16 @@
         "community": 0,
         "general": 6,
         "low": 1,
-        "fresh": 5,
+        "fresh": 4,
         "claims": 9,
         "conflicts": 1,
         "calls": 3,
         "failed_calls": 0,
-        "latency_ms": 885,
+        "latency_ms": 783,
         "request_ids": [
-          "5e58c9c5-dc7b-4f4e-bf1e-531b9239aeb8",
-          "a595b87b-fd19-445d-a6af-30f22f52c87d",
-          "3bd31365-ab4f-4e4c-8dbd-215e9840b58f"
+          "2667734b-e199-414e-8560-822ee6afa1eb",
+          "97f6d0e8-f460-4d8e-9a80-51a0acf0b253",
+          "f682a657-ff05-4dd7-9fb2-28c9b78e7afe"
         ],
         "replayed": false
       }
@@ -390,8 +415,8 @@
         "authority_level": null,
         "tier": "general",
         "tier_label": "一般网页",
-        "freshness": 0.751,
-        "rank": 0.799,
+        "freshness": 0.749,
+        "rank": 0.7987,
         "qids": [
           "Q3"
         ],
@@ -415,8 +440,8 @@
         "authority_level": null,
         "tier": "general",
         "tier_label": "一般网页",
-        "freshness": 0.911,
-        "rank": 0.7687,
+        "freshness": 0.908,
+        "rank": 0.7684,
         "qids": [
           "Q3"
         ],
@@ -440,8 +465,8 @@
         "authority_level": null,
         "tier": "general",
         "tier_label": "一般网页",
-        "freshness": 0.837,
-        "rank": 0.7188,
+        "freshness": 0.834,
+        "rank": 0.7184,
         "qids": [
           "Q2"
         ],
@@ -465,8 +490,8 @@
         "authority_level": null,
         "tier": "general",
         "tier_label": "一般网页",
-        "freshness": 0.802,
-        "rank": 0.6996,
+        "freshness": 0.799,
+        "rank": 0.6992,
         "qids": [
           "Q2"
         ],
@@ -491,7 +516,7 @@
         "tier": "official",
         "tier_label": "官方/权威",
         "freshness": 0.246,
-        "rank": 0.6967,
+        "rank": 0.6966,
         "qids": [
           "Q1"
         ],
@@ -517,8 +542,8 @@
         "authority_level": null,
         "tier": "official",
         "tier_label": "官方/权威",
-        "freshness": 0.952,
-        "rank": 0.6719,
+        "freshness": 0.949,
+        "rank": 0.6715,
         "qids": [
           "Q1"
         ],
@@ -544,8 +569,8 @@
         "authority_level": null,
         "tier": "general",
         "tier_label": "一般网页",
-        "freshness": 0.67,
-        "rank": 0.6602,
+        "freshness": 0.667,
+        "rank": 0.6599,
         "qids": [
           "Q2"
         ],
@@ -569,8 +594,8 @@
         "authority_level": null,
         "tier": "low",
         "tier_label": "低置信",
-        "freshness": 0.788,
-        "rank": 0.6516,
+        "freshness": 0.786,
+        "rank": 0.6513,
         "qids": [
           "Q3"
         ],
@@ -594,8 +619,8 @@
         "authority_level": null,
         "tier": "official",
         "tier_label": "官方/权威",
-        "freshness": 0.873,
-        "rank": 0.6423,
+        "freshness": 0.87,
+        "rank": 0.6419,
         "qids": [
           "Q1"
         ],
@@ -621,8 +646,8 @@
         "authority_level": null,
         "tier": "general",
         "tier_label": "一般网页",
-        "freshness": 0.517,
-        "rank": 0.6357,
+        "freshness": 0.515,
+        "rank": 0.6354,
         "qids": [
           "Q2"
         ],
@@ -951,10 +976,10 @@
             "stale": false
           },
           {
-            "id": "note-a1m-002",
-            "title": "A1 mini 热床温度记录（旧）",
-            "created_at": "2024-11-02",
-            "stale": true
+            "id": "note-a1-011",
+            "title": "A1 热床 60℃ 还是 55℃：一次只改一个变量",
+            "created_at": "2026-06-28",
+            "stale": false
           }
         ]
       },
@@ -964,25 +989,25 @@
       "material": "PLA"
     },
     "trace": {
-      "run_id": "20261109-170527-1e9a",
-      "created_at": "2026-11-09T17:05:27+08:00",
+      "run_id": "20261111-155532-7020",
+      "created_at": "2026-11-11T15:55:32+08:00",
       "question": "A1 mini 打 PLA，首层老翘边，热床 60℃ 还加了胶水也没用，是不是机器坏了？",
       "mode": "live",
       "credential_kind": "api_key",
       "stages": [
         {
           "name": "问题编译",
-          "ms": 2,
+          "ms": 6,
           "detail": "5 个缺口 / 3 条查询"
         },
         {
           "name": "私域检索",
-          "ms": 3,
+          "ms": 2,
           "detail": "5 条笔记"
         },
         {
           "name": "元宝搜索",
-          "ms": 331,
+          "ms": 283,
           "detail": "3 次调用 / 30 条原始结果"
         },
         {
@@ -1011,9 +1036,9 @@
             "G2",
             "G4"
           ],
-          "latency_ms": 329,
+          "latency_ms": 280,
           "pages": 10,
-          "request_id": "5e58c9c5-dc7b-4f4e-bf1e-531b9239aeb8",
+          "request_id": "2667734b-e199-414e-8560-822ee6afa1eb",
           "version": "lite",
           "error": "",
           "detail": "",
@@ -1031,9 +1056,9 @@
           "covers": [
             "G3"
           ],
-          "latency_ms": 270,
+          "latency_ms": 237,
           "pages": 10,
-          "request_id": "a595b87b-fd19-445d-a6af-30f22f52c87d",
+          "request_id": "97f6d0e8-f460-4d8e-9a80-51a0acf0b253",
           "version": "lite",
           "error": "",
           "detail": "",
@@ -1051,9 +1076,9 @@
           "covers": [
             "G5"
           ],
-          "latency_ms": 286,
+          "latency_ms": 266,
           "pages": 10,
-          "request_id": "3bd31365-ab4f-4e4c-8dbd-215e9840b58f",
+          "request_id": "f682a657-ff05-4dd7-9fb2-28c9b78e7afe",
           "version": "lite",
           "error": "",
           "detail": "",
@@ -1067,16 +1092,16 @@
         "community": 0,
         "general": 6,
         "low": 1,
-        "fresh": 5,
+        "fresh": 4,
         "claims": 9,
         "conflicts": 1,
         "calls": 3,
         "failed_calls": 0,
-        "latency_ms": 885,
+        "latency_ms": 783,
         "request_ids": [
-          "5e58c9c5-dc7b-4f4e-bf1e-531b9239aeb8",
-          "a595b87b-fd19-445d-a6af-30f22f52c87d",
-          "3bd31365-ab4f-4e4c-8dbd-215e9840b58f"
+          "2667734b-e199-414e-8560-822ee6afa1eb",
+          "97f6d0e8-f460-4d8e-9a80-51a0acf0b253",
+          "f682a657-ff05-4dd7-9fb2-28c9b78e7afe"
         ],
         "replayed": false
       },
@@ -1089,10 +1114,17 @@
           "relevance": 0.714
         },
         {
-          "id": "note-a1m-002",
-          "title": "A1 mini 热床温度记录（旧）",
-          "created_at": "2024-11-02",
-          "stale": true,
+          "id": "note-a1-011",
+          "title": "A1 热床 60℃ 还是 55℃：一次只改一个变量",
+          "created_at": "2026-06-28",
+          "stale": false,
+          "relevance": 0.429
+        },
+        {
+          "id": "note-a1-012",
+          "title": "空调直吹时，挡风比升热床更先做",
+          "created_at": "2026-07-21",
+          "stale": false,
           "relevance": 0.429
         },
         {
@@ -1103,18 +1135,11 @@
           "relevance": 0.429
         },
         {
-          "id": "note-general-001",
-          "title": "什么时候该怀疑耗材受潮",
-          "created_at": "2026-06-15",
-          "stale": false,
-          "relevance": 0.143
-        },
-        {
-          "id": "note-resin-001",
-          "title": "树脂机放卧室，气味和安全边界",
-          "created_at": "2026-02-11",
-          "stale": false,
-          "relevance": 0.048
+          "id": "note-a1m-002",
+          "title": "A1 mini 热床温度记录（旧）",
+          "created_at": "2024-11-02",
+          "stale": true,
+          "relevance": 0.238
         }
       ],
       "plan": {
@@ -1226,7 +1251,7 @@
             "id": "G4",
             "type": "verify_conflict",
             "priority": "medium",
-            "question": "私域笔记里的数值（60℃、22℃、55℃、65℃）与公开资料是否一致？",
+            "question": "私域笔记里的数值（60℃、55℃、20mm、22℃）与公开资料是否一致？",
             "why": "私域笔记可能过期，也可能只适用于旧版本或特定平台。",
             "action": "search",
             "status": "covered",
@@ -1245,7 +1270,7 @@
             "id": "G5",
             "type": "environment",
             "priority": "low",
-            "question": "环境温度、空调直吹或湿度，是否足以解释这个现象？",
+            "question": "环境温度、空调直吹、湿度或地区气候，是否足以解释这个现象？",
             "why": "这是成本最低、最容易被忽略的变量，先用一条检索排除。",
             "action": "search",
             "status": "covered",
@@ -1341,10 +1366,10 @@
               "stale": false
             },
             {
-              "id": "note-a1m-002",
-              "title": "A1 mini 热床温度记录（旧）",
-              "created_at": "2024-11-02",
-              "stale": true
+              "id": "note-a1-011",
+              "title": "A1 热床 60℃ 还是 55℃：一次只改一个变量",
+              "created_at": "2026-06-28",
+              "stale": false
             }
           ]
         },
@@ -1368,8 +1393,8 @@
           "authority_level": null,
           "tier": "general",
           "tier_label": "一般网页",
-          "freshness": 0.751,
-          "rank": 0.799,
+          "freshness": 0.749,
+          "rank": 0.7987,
           "qids": [
             "Q3"
           ],
@@ -1393,8 +1418,8 @@
           "authority_level": null,
           "tier": "general",
           "tier_label": "一般网页",
-          "freshness": 0.911,
-          "rank": 0.7687,
+          "freshness": 0.908,
+          "rank": 0.7684,
           "qids": [
             "Q3"
           ],
@@ -1418,8 +1443,8 @@
           "authority_level": null,
           "tier": "general",
           "tier_label": "一般网页",
-          "freshness": 0.837,
-          "rank": 0.7188,
+          "freshness": 0.834,
+          "rank": 0.7184,
           "qids": [
             "Q2"
           ],
@@ -1443,8 +1468,8 @@
           "authority_level": null,
           "tier": "general",
           "tier_label": "一般网页",
-          "freshness": 0.802,
-          "rank": 0.6996,
+          "freshness": 0.799,
+          "rank": 0.6992,
           "qids": [
             "Q2"
           ],
@@ -1469,7 +1494,7 @@
           "tier": "official",
           "tier_label": "官方/权威",
           "freshness": 0.246,
-          "rank": 0.6967,
+          "rank": 0.6966,
           "qids": [
             "Q1"
           ],
@@ -1495,8 +1520,8 @@
           "authority_level": null,
           "tier": "official",
           "tier_label": "官方/权威",
-          "freshness": 0.952,
-          "rank": 0.6719,
+          "freshness": 0.949,
+          "rank": 0.6715,
           "qids": [
             "Q1"
           ],
@@ -1522,8 +1547,8 @@
           "authority_level": null,
           "tier": "general",
           "tier_label": "一般网页",
-          "freshness": 0.67,
-          "rank": 0.6602,
+          "freshness": 0.667,
+          "rank": 0.6599,
           "qids": [
             "Q2"
           ],
@@ -1547,8 +1572,8 @@
           "authority_level": null,
           "tier": "low",
           "tier_label": "低置信",
-          "freshness": 0.788,
-          "rank": 0.6516,
+          "freshness": 0.786,
+          "rank": 0.6513,
           "qids": [
             "Q3"
           ],
@@ -1572,8 +1597,8 @@
           "authority_level": null,
           "tier": "official",
           "tier_label": "官方/权威",
-          "freshness": 0.873,
-          "rank": 0.6423,
+          "freshness": 0.87,
+          "rank": 0.6419,
           "qids": [
             "Q1"
           ],
@@ -1599,8 +1624,8 @@
           "authority_level": null,
           "tier": "general",
           "tier_label": "一般网页",
-          "freshness": 0.517,
-          "rank": 0.6357,
+          "freshness": 0.515,
+          "rank": 0.6354,
           "qids": [
             "Q2"
           ],
@@ -1850,36 +1875,36 @@
           "summary": "热床温度说法不一致：官方 60℃；官方 50℃；其他来源 60℃；其他来源 50–60℃。"
         }
       ],
-      "elapsed_ms": 354
+      "elapsed_ms": 308
     }
   },
   {
-    "run_id": "20261109-170527-ae10",
-    "created_at": "2026-11-09T17:05:28+08:00",
+    "run_id": "20261111-155532-5118",
+    "created_at": "2026-11-11T15:55:33+08:00",
     "question": "P1S 打 PETG 拉丝特别严重，回抽从 0.8 调到 1.2 了还是不行，是不是要换喷嘴？",
     "mode": "live",
     "credential_kind": "api_key",
     "replayed": false,
-    "elapsed_ms": 366,
+    "elapsed_ms": 443,
     "stages": [
       {
         "name": "问题编译",
-        "ms": 1,
+        "ms": 2,
         "detail": "4 个缺口 / 4 条查询"
       },
       {
         "name": "私域检索",
-        "ms": 1,
+        "ms": 2,
         "detail": "4 条笔记"
       },
       {
         "name": "元宝搜索",
-        "ms": 348,
+        "ms": 425,
         "detail": "4 次调用 / 40 条原始结果"
       },
       {
         "name": "证据融合",
-        "ms": 13,
+        "ms": 12,
         "detail": "10 条证据 / 6 条数值 / 1 处冲突"
       },
       {
@@ -1891,9 +1916,14 @@
     "plan": {
       "slots": {
         "raw": "P1S 打 PETG 拉丝特别严重，回抽从 0.8 调到 1.2 了还是不行，是不是要换喷嘴？",
+        "parse_text": "P1S 打 PETG 拉丝特别严重，回抽从 0.8 调到 1.2 了还是不行，是不是要换喷嘴？",
         "model": "P1S",
-        "brand": "Bambu Lab",
+        "brand": "拓竹",
         "material": "PETG",
+        "materials": [
+          "PETG"
+        ],
+        "material_brand": null,
         "symptom": {
           "id": "stringing",
           "label": "拉丝 / 渗料",
@@ -1906,6 +1936,23 @@
           "query_symptom": "拉丝 渗料 原因",
           "parameter_sensitive": true
         },
+        "symptoms": [
+          {
+            "id": "stringing",
+            "label": "拉丝 / 渗料",
+            "mechanisms": [
+              "回抽",
+              "耗材含水率",
+              "喷嘴温度",
+              "空驶"
+            ],
+            "query_symptom": "拉丝 渗料 原因",
+            "parameter_sensitive": true
+          }
+        ],
+        "symptom_ids": [
+          "stringing"
+        ],
         "tried": [
           {
             "kind": "retraction",
@@ -1917,15 +1964,17 @@
           "freshness": false,
           "safety": false,
           "official": false,
-          "price": false
+          "price": false,
+          "multi_color": false
         },
-        "missing": []
+        "missing": [],
+        "confidence": "high"
       },
       "chips": [
         {
           "key": "model",
           "label": "机型",
-          "value": "P1S",
+          "value": "P1S（拓竹）",
           "state": "filled"
         },
         {
@@ -1978,7 +2027,7 @@
           "type": "material_condition",
           "priority": "medium",
           "question": "PETG 是否需要烘干？推荐温度和时间是多少？",
-          "why": "拉丝/气泡常被误判为参数问题，实际是耗材含水率。",
+          "why": "拉丝/气泡/多色堵料常被误判为参数问题，实际是耗材含水率或材料兼容性。",
           "action": "search",
           "status": "covered",
           "matched": 7,
@@ -2016,7 +2065,7 @@
           "id": "G4",
           "type": "verify_conflict",
           "priority": "medium",
-          "question": "私域笔记里的数值（65℃、55℃、22℃）与公开资料是否一致？",
+          "question": "私域笔记里的数值（65℃、55℃）与公开资料是否一致？",
           "why": "私域笔记可能过期，也可能只适用于旧版本或特定平台。",
           "action": "search",
           "status": "covered",
@@ -2103,6 +2152,13 @@
           "relevance": 0.75
         },
         {
+          "id": "note-p1s-003",
+          "title": "PETG 烘完还拉丝，检查喷嘴磨损",
+          "created_at": "2026-04-14",
+          "stale": false,
+          "relevance": 0.75
+        },
+        {
           "id": "note-general-001",
           "title": "什么时候该怀疑耗材受潮",
           "created_at": "2026-06-15",
@@ -2110,18 +2166,11 @@
           "relevance": 0.5
         },
         {
-          "id": "note-p1s-002",
-          "title": "P1S 首层偶尔不粘，环境风是隐形变量",
-          "created_at": "2026-01-18",
+          "id": "note-a1-009",
+          "title": "PLA 和 PETG 混用多色：先看界面粘接，不只看堵头",
+          "created_at": "2026-09-12",
           "stale": false,
-          "relevance": 0.25
-        },
-        {
-          "id": "note-resin-001",
-          "title": "树脂机放卧室，气味和安全边界",
-          "created_at": "2026-02-11",
-          "stale": false,
-          "relevance": 0.05
+          "relevance": 0.5
         }
       ]
     },
@@ -2140,9 +2189,9 @@
             "G1",
             "G4"
           ],
-          "latency_ms": 347,
+          "latency_ms": 415,
           "pages": 10,
-          "request_id": "08bd65ef-f042-4159-aa0c-32c4e63152ec",
+          "request_id": "e72b53e5-f80c-4ffd-a2e1-51d6eb9b2a7e",
           "version": "lite",
           "error": "",
           "detail": "",
@@ -2160,9 +2209,9 @@
           "covers": [
             "G3"
           ],
-          "latency_ms": 323,
+          "latency_ms": 340,
           "pages": 10,
-          "request_id": "9ad5bd70-c234-4429-9da6-6d7245cb1b04",
+          "request_id": "41d62045-e656-4b1e-8015-85f9310bec1d",
           "version": "lite",
           "error": "",
           "detail": "",
@@ -2180,9 +2229,9 @@
           "covers": [
             "G2"
           ],
-          "latency_ms": 202,
+          "latency_ms": 182,
           "pages": 10,
-          "request_id": "f1a9688e-7422-4312-8d42-3f7bebb568c2",
+          "request_id": "34a40628-d010-4de0-8aa3-495a78a2cf8a",
           "version": "lite",
           "error": "",
           "detail": "",
@@ -2201,9 +2250,9 @@
           "covers": [
             "G2"
           ],
-          "latency_ms": 202,
+          "latency_ms": 281,
           "pages": 10,
-          "request_id": "d35d7c3b-103a-4c45-80e8-0c3a2c572fc7",
+          "request_id": "2fb55b9e-f26e-43ae-b756-5ad50e708352",
           "version": "lite",
           "error": "",
           "detail": "",
@@ -2222,12 +2271,12 @@
         "conflicts": 1,
         "calls": 4,
         "failed_calls": 0,
-        "latency_ms": 1074,
+        "latency_ms": 1218,
         "request_ids": [
-          "08bd65ef-f042-4159-aa0c-32c4e63152ec",
-          "9ad5bd70-c234-4429-9da6-6d7245cb1b04",
-          "f1a9688e-7422-4312-8d42-3f7bebb568c2",
-          "d35d7c3b-103a-4c45-80e8-0c3a2c572fc7"
+          "e72b53e5-f80c-4ffd-a2e1-51d6eb9b2a7e",
+          "41d62045-e656-4b1e-8015-85f9310bec1d",
+          "34a40628-d010-4de0-8aa3-495a78a2cf8a",
+          "2fb55b9e-f26e-43ae-b756-5ad50e708352"
         ],
         "replayed": false
       }
@@ -2247,8 +2296,8 @@
         "authority_level": null,
         "tier": "official",
         "tier_label": "官方/权威",
-        "freshness": 0.873,
-        "rank": 0.7691,
+        "freshness": 0.87,
+        "rank": 0.7688,
         "qids": [
           "Q2"
         ],
@@ -2347,8 +2396,8 @@
         "authority_level": null,
         "tier": "general",
         "tier_label": "一般网页",
-        "freshness": 0.923,
-        "rank": 0.6958,
+        "freshness": 0.919,
+        "rank": 0.6954,
         "qids": [
           "Q2"
         ],
@@ -2372,8 +2421,8 @@
         "authority_level": null,
         "tier": "official",
         "tier_label": "官方/权威",
-        "freshness": 0.873,
-        "rank": 0.6932,
+        "freshness": 0.87,
+        "rank": 0.6928,
         "qids": [
           "Q4"
         ],
@@ -2423,8 +2472,8 @@
         "authority_level": null,
         "tier": "general",
         "tier_label": "一般网页",
-        "freshness": 0.743,
-        "rank": 0.676,
+        "freshness": 0.74,
+        "rank": 0.6757,
         "qids": [
           "Q3"
         ],
@@ -2448,8 +2497,8 @@
         "authority_level": null,
         "tier": "general",
         "tier_label": "一般网页",
-        "freshness": 0.949,
-        "rank": 0.6727,
+        "freshness": 0.945,
+        "rank": 0.6723,
         "qids": [
           "Q2"
         ],
@@ -2473,8 +2522,8 @@
         "authority_level": null,
         "tier": "general",
         "tier_label": "一般网页",
-        "freshness": 0.437,
-        "rank": 0.67,
+        "freshness": 0.435,
+        "rank": 0.6698,
         "qids": [
           "Q2"
         ],
@@ -2716,9 +2765,9 @@
             "stale": false
           },
           {
-            "id": "note-general-001",
-            "title": "什么时候该怀疑耗材受潮",
-            "created_at": "2026-06-15",
+            "id": "note-p1s-003",
+            "title": "PETG 烘完还拉丝，检查喷嘴磨损",
+            "created_at": "2026-04-14",
             "stale": false
           }
         ]
@@ -2729,30 +2778,30 @@
       "material": "PETG"
     },
     "trace": {
-      "run_id": "20261109-170527-ae10",
-      "created_at": "2026-11-09T17:05:28+08:00",
+      "run_id": "20261111-155532-5118",
+      "created_at": "2026-11-11T15:55:33+08:00",
       "question": "P1S 打 PETG 拉丝特别严重，回抽从 0.8 调到 1.2 了还是不行，是不是要换喷嘴？",
       "mode": "live",
       "credential_kind": "api_key",
       "stages": [
         {
           "name": "问题编译",
-          "ms": 1,
+          "ms": 2,
           "detail": "4 个缺口 / 4 条查询"
         },
         {
           "name": "私域检索",
-          "ms": 1,
+          "ms": 2,
           "detail": "4 条笔记"
         },
         {
           "name": "元宝搜索",
-          "ms": 348,
+          "ms": 425,
           "detail": "4 次调用 / 40 条原始结果"
         },
         {
           "name": "证据融合",
-          "ms": 13,
+          "ms": 12,
           "detail": "10 条证据 / 6 条数值 / 1 处冲突"
         },
         {
@@ -2775,9 +2824,9 @@
             "G1",
             "G4"
           ],
-          "latency_ms": 347,
+          "latency_ms": 415,
           "pages": 10,
-          "request_id": "08bd65ef-f042-4159-aa0c-32c4e63152ec",
+          "request_id": "e72b53e5-f80c-4ffd-a2e1-51d6eb9b2a7e",
           "version": "lite",
           "error": "",
           "detail": "",
@@ -2795,9 +2844,9 @@
           "covers": [
             "G3"
           ],
-          "latency_ms": 323,
+          "latency_ms": 340,
           "pages": 10,
-          "request_id": "9ad5bd70-c234-4429-9da6-6d7245cb1b04",
+          "request_id": "41d62045-e656-4b1e-8015-85f9310bec1d",
           "version": "lite",
           "error": "",
           "detail": "",
@@ -2815,9 +2864,9 @@
           "covers": [
             "G2"
           ],
-          "latency_ms": 202,
+          "latency_ms": 182,
           "pages": 10,
-          "request_id": "f1a9688e-7422-4312-8d42-3f7bebb568c2",
+          "request_id": "34a40628-d010-4de0-8aa3-495a78a2cf8a",
           "version": "lite",
           "error": "",
           "detail": "",
@@ -2836,9 +2885,9 @@
           "covers": [
             "G2"
           ],
-          "latency_ms": 202,
+          "latency_ms": 281,
           "pages": 10,
-          "request_id": "d35d7c3b-103a-4c45-80e8-0c3a2c572fc7",
+          "request_id": "2fb55b9e-f26e-43ae-b756-5ad50e708352",
           "version": "lite",
           "error": "",
           "detail": "",
@@ -2857,12 +2906,12 @@
         "conflicts": 1,
         "calls": 4,
         "failed_calls": 0,
-        "latency_ms": 1074,
+        "latency_ms": 1218,
         "request_ids": [
-          "08bd65ef-f042-4159-aa0c-32c4e63152ec",
-          "9ad5bd70-c234-4429-9da6-6d7245cb1b04",
-          "f1a9688e-7422-4312-8d42-3f7bebb568c2",
-          "d35d7c3b-103a-4c45-80e8-0c3a2c572fc7"
+          "e72b53e5-f80c-4ffd-a2e1-51d6eb9b2a7e",
+          "41d62045-e656-4b1e-8015-85f9310bec1d",
+          "34a40628-d010-4de0-8aa3-495a78a2cf8a",
+          "2fb55b9e-f26e-43ae-b756-5ad50e708352"
         ],
         "replayed": false
       },
@@ -2875,6 +2924,13 @@
           "relevance": 0.75
         },
         {
+          "id": "note-p1s-003",
+          "title": "PETG 烘完还拉丝，检查喷嘴磨损",
+          "created_at": "2026-04-14",
+          "stale": false,
+          "relevance": 0.75
+        },
+        {
           "id": "note-general-001",
           "title": "什么时候该怀疑耗材受潮",
           "created_at": "2026-06-15",
@@ -2882,18 +2938,11 @@
           "relevance": 0.5
         },
         {
-          "id": "note-p1s-002",
-          "title": "P1S 首层偶尔不粘，环境风是隐形变量",
-          "created_at": "2026-01-18",
+          "id": "note-a1-009",
+          "title": "PLA 和 PETG 混用多色：先看界面粘接，不只看堵头",
+          "created_at": "2026-09-12",
           "stale": false,
-          "relevance": 0.25
-        },
-        {
-          "id": "note-resin-001",
-          "title": "树脂机放卧室，气味和安全边界",
-          "created_at": "2026-02-11",
-          "stale": false,
-          "relevance": 0.05
+          "relevance": 0.5
         }
       ],
       "plan": {
@@ -2981,7 +3030,7 @@
             "type": "material_condition",
             "priority": "medium",
             "question": "PETG 是否需要烘干？推荐温度和时间是多少？",
-            "why": "拉丝/气泡常被误判为参数问题，实际是耗材含水率。",
+            "why": "拉丝/气泡/多色堵料常被误判为参数问题，实际是耗材含水率或材料兼容性。",
             "action": "search",
             "status": "covered",
             "matched": 7,
@@ -3019,7 +3068,7 @@
             "id": "G4",
             "type": "verify_conflict",
             "priority": "medium",
-            "question": "私域笔记里的数值（65℃、55℃、22℃）与公开资料是否一致？",
+            "question": "私域笔记里的数值（65℃、55℃）与公开资料是否一致？",
             "why": "私域笔记可能过期，也可能只适用于旧版本或特定平台。",
             "action": "search",
             "status": "covered",
@@ -3105,9 +3154,9 @@
               "stale": false
             },
             {
-              "id": "note-general-001",
-              "title": "什么时候该怀疑耗材受潮",
-              "created_at": "2026-06-15",
+              "id": "note-p1s-003",
+              "title": "PETG 烘完还拉丝，检查喷嘴磨损",
+              "created_at": "2026-04-14",
               "stale": false
             }
           ]
@@ -3132,8 +3181,8 @@
           "authority_level": null,
           "tier": "official",
           "tier_label": "官方/权威",
-          "freshness": 0.873,
-          "rank": 0.7691,
+          "freshness": 0.87,
+          "rank": 0.7688,
           "qids": [
             "Q2"
           ],
@@ -3232,8 +3281,8 @@
           "authority_level": null,
           "tier": "general",
           "tier_label": "一般网页",
-          "freshness": 0.923,
-          "rank": 0.6958,
+          "freshness": 0.919,
+          "rank": 0.6954,
           "qids": [
             "Q2"
           ],
@@ -3257,8 +3306,8 @@
           "authority_level": null,
           "tier": "official",
           "tier_label": "官方/权威",
-          "freshness": 0.873,
-          "rank": 0.6932,
+          "freshness": 0.87,
+          "rank": 0.6928,
           "qids": [
             "Q4"
           ],
@@ -3308,8 +3357,8 @@
           "authority_level": null,
           "tier": "general",
           "tier_label": "一般网页",
-          "freshness": 0.743,
-          "rank": 0.676,
+          "freshness": 0.74,
+          "rank": 0.6757,
           "qids": [
             "Q3"
           ],
@@ -3333,8 +3382,8 @@
           "authority_level": null,
           "tier": "general",
           "tier_label": "一般网页",
-          "freshness": 0.949,
-          "rank": 0.6727,
+          "freshness": 0.945,
+          "rank": 0.6723,
           "qids": [
             "Q2"
           ],
@@ -3358,8 +3407,8 @@
           "authority_level": null,
           "tier": "general",
           "tier_label": "一般网页",
-          "freshness": 0.437,
-          "rank": 0.67,
+          "freshness": 0.435,
+          "rank": 0.6698,
           "qids": [
             "Q2"
           ],
@@ -3532,22 +3581,22 @@
           "summary": "烘干制度说法不一致：官方 65℃；其他来源 50℃；其他来源 40℃。"
         }
       ],
-      "elapsed_ms": 366
+      "elapsed_ms": 443
     }
   },
   {
-    "run_id": "20261109-170528-4ea6",
-    "created_at": "2026-11-09T17:05:28+08:00",
+    "run_id": "20261111-155533-544d",
+    "created_at": "2026-11-11T15:55:34+08:00",
     "question": "K1 升级最新固件以后首层压得很薄，是不是固件有问题？要不要回滚？",
     "mode": "live",
     "credential_kind": "api_key",
     "replayed": false,
-    "elapsed_ms": 589,
+    "elapsed_ms": 1056,
     "stages": [
       {
         "name": "问题编译",
         "ms": 1,
-        "detail": "4 个缺口 / 4 条查询"
+        "detail": "5 个缺口 / 5 条查询"
       },
       {
         "name": "私域检索",
@@ -3556,13 +3605,13 @@
       },
       {
         "name": "元宝搜索",
-        "ms": 575,
-        "detail": "4 次调用 / 37 条原始结果"
+        "ms": 1040,
+        "detail": "5 次调用 / 48 条原始结果"
       },
       {
         "name": "证据融合",
-        "ms": 8,
-        "detail": "10 条证据 / 3 条数值 / 0 处冲突"
+        "ms": 11,
+        "detail": "10 条证据 / 2 条数值 / 0 处冲突"
       },
       {
         "name": "回答生成",
@@ -3573,9 +3622,12 @@
     "plan": {
       "slots": {
         "raw": "K1 升级最新固件以后首层压得很薄，是不是固件有问题？要不要回滚？",
+        "parse_text": "K1 升级最新固件以后首层压得很薄，是不是固件有问题？要不要回滚？",
         "model": "K1",
-        "brand": "Creality",
+        "brand": "创想三维",
         "material": null,
+        "materials": [],
+        "material_brand": null,
         "symptom": {
           "id": "first_layer",
           "label": "首层异常（厚度 / 附着）",
@@ -3588,23 +3640,42 @@
           "query_symptom": "首层 厚度 附着 异常 原因",
           "parameter_sensitive": true
         },
+        "symptoms": [
+          {
+            "id": "first_layer",
+            "label": "首层异常（厚度 / 附着）",
+            "mechanisms": [
+              "Z 偏移",
+              "调平",
+              "首层流量",
+              "平台状态"
+            ],
+            "query_symptom": "首层 厚度 附着 异常 原因",
+            "parameter_sensitive": true
+          }
+        ],
+        "symptom_ids": [
+          "first_layer"
+        ],
         "tried": [],
         "environment": [],
         "intent": {
           "freshness": true,
           "safety": false,
           "official": false,
-          "price": false
+          "price": false,
+          "multi_color": false
         },
         "missing": [
           "material"
-        ]
+        ],
+        "confidence": "medium"
       },
       "chips": [
         {
           "key": "model",
           "label": "机型",
-          "value": "K1",
+          "value": "K1（创想三维）",
           "state": "filled"
         },
         {
@@ -3641,13 +3712,13 @@
           "why": "私域笔记只有个人经验值，缺厂家基线；没有基线就无法判断你现在的参数是偏高还是偏低。",
           "action": "search",
           "status": "covered",
-          "matched": 7,
+          "matched": 9,
           "evidence": [
             "S1",
             "S2",
             "S3"
           ],
-          "note": "7 条独立证据覆盖了这个缺口。",
+          "note": "9 条独立证据覆盖了这个缺口。",
           "qids": [
             "Q1"
           ]
@@ -3660,16 +3731,16 @@
           "why": "机型相关事实会过期；不限定时间窗，搜到的可能是三年前的旧版本经验。",
           "action": "search",
           "status": "covered",
-          "matched": 4,
+          "matched": 3,
           "evidence": [
-            "S2",
             "S3",
-            "S4"
+            "S4",
+            "S5"
           ],
-          "note": "4 条独立证据覆盖了这个缺口。",
+          "note": "3 条独立证据覆盖了这个缺口。",
           "qids": [
-            "Q3",
-            "Q4"
+            "Q4",
+            "Q5"
           ]
         },
         {
@@ -3680,13 +3751,13 @@
           "why": "先验证怀疑，避免直接换件或回滚固件。",
           "action": "search",
           "status": "covered",
-          "matched": 7,
+          "matched": 8,
           "evidence": [
             "S1",
             "S2",
             "S3"
           ],
-          "note": "7 条独立证据覆盖了这个缺口。",
+          "note": "8 条独立证据覆盖了这个缺口。",
           "qids": [
             "Q2"
           ]
@@ -3695,18 +3766,38 @@
           "id": "G4",
           "type": "verify_conflict",
           "priority": "medium",
-          "question": "私域笔记里的数值（22℃、60℃）与公开资料是否一致？",
+          "question": "私域笔记里的数值（22℃、60℃、55℃、20mm）与公开资料是否一致？",
           "why": "私域笔记可能过期，也可能只适用于旧版本或特定平台。",
           "action": "search",
           "status": "covered",
-          "matched": 1,
+          "matched": 4,
           "evidence": [
             "S1",
-            "S2"
+            "S6",
+            "S7"
           ],
-          "note": "官方与社区说法不一致，已在回答中显式对比。",
+          "note": "4 条独立证据覆盖了这个缺口。",
           "qids": [
             "Q1"
+          ]
+        },
+        {
+          "id": "G5",
+          "type": "environment",
+          "priority": "low",
+          "question": "环境温度、空调直吹、湿度或地区气候，是否足以解释这个现象？",
+          "why": "这是成本最低、最容易被忽略的变量，先用一条检索排除。",
+          "action": "search",
+          "status": "covered",
+          "matched": 9,
+          "evidence": [
+            "S1",
+            "S2",
+            "S3"
+          ],
+          "note": "9 条独立证据覆盖了这个缺口。",
+          "qids": [
+            "Q3"
           ]
         }
       ],
@@ -3741,6 +3832,19 @@
         },
         {
           "id": "Q3",
+          "text": "3D打印 首层异常（厚度 / 附着） 环境 温度 空调 直吹",
+          "params": {
+            "Mode": 2,
+            "Cnt": 10
+          },
+          "purpose": "用一条低成本检索排除环境变量",
+          "covers": [
+            "G5"
+          ],
+          "weight": 0.7
+        },
+        {
+          "id": "Q4",
           "text": "3D打印 K1 固件 更新 首层 厚度 附着 异常 原因 问题",
           "params": {
             "Mode": 2,
@@ -3754,7 +3858,7 @@
           "weight": 1.2
         },
         {
-          "id": "Q4",
+          "id": "Q5",
           "text": "K1 固件 更新 已知 问题 官方",
           "params": {
             "Mode": 2,
@@ -3783,6 +3887,20 @@
           "relevance": 0.391
         },
         {
+          "id": "note-a1-006",
+          "title": "首层已经翘了，为什么不要继续打",
+          "created_at": "2026-07-08",
+          "stale": false,
+          "relevance": 0.167
+        },
+        {
+          "id": "note-a1-012",
+          "title": "空调直吹时，挡风比升热床更先做",
+          "created_at": "2026-07-21",
+          "stale": false,
+          "relevance": 0.167
+        },
+        {
           "id": "note-p1s-002",
           "title": "P1S 首层偶尔不粘，环境风是隐形变量",
           "created_at": "2026-01-18",
@@ -3790,25 +3908,11 @@
           "relevance": 0.167
         },
         {
-          "id": "note-ender-001",
-          "title": "Ender-3 V3 首层调平经验",
-          "created_at": "2025-12-08",
+          "id": "note-a1-011",
+          "title": "A1 热床 60℃ 还是 55℃：一次只改一个变量",
+          "created_at": "2026-06-28",
           "stale": false,
-          "relevance": 0.167
-        },
-        {
-          "id": "note-a1m-001",
-          "title": "A1 mini 首层总翘边，最后发现是平台没洗净",
-          "created_at": "2026-03-12",
-          "stale": false,
-          "relevance": 0.167
-        },
-        {
-          "id": "note-resin-001",
-          "title": "树脂机放卧室，气味和安全边界",
-          "created_at": "2026-02-11",
-          "stale": false,
-          "relevance": 0.043
+          "relevance": 0.087
         }
       ]
     },
@@ -3826,9 +3930,9 @@
             "G1",
             "G4"
           ],
-          "latency_ms": 200,
-          "pages": 7,
-          "request_id": "181caadd-5e22-46e0-aea2-bb2362b285fa",
+          "latency_ms": 239,
+          "pages": 8,
+          "request_id": "612c4b7e-925b-4ba9-90de-67572fa95a5f",
           "version": "lite",
           "error": "",
           "detail": "",
@@ -3846,9 +3950,9 @@
           "covers": [
             "G3"
           ],
-          "latency_ms": 360,
+          "latency_ms": 457,
           "pages": 10,
-          "request_id": "5e4cc766-4e33-43ec-aa8d-b3461c32ac50",
+          "request_id": "a3d62cea-b1fd-4a4e-9b18-71731668595f",
           "version": "lite",
           "error": "",
           "detail": "",
@@ -3857,6 +3961,26 @@
         },
         {
           "qid": "Q3",
+          "query": "3D打印 首层异常（厚度 / 附着） 环境 温度 空调 直吹",
+          "params": {
+            "Mode": 2,
+            "Cnt": 10
+          },
+          "purpose": "用一条低成本检索排除环境变量",
+          "covers": [
+            "G5"
+          ],
+          "latency_ms": 440,
+          "pages": 10,
+          "request_id": "e969bf36-0c2e-401d-bac8-789728cdd6e7",
+          "version": "lite",
+          "error": "",
+          "detail": "",
+          "replayed": false,
+          "fallback": null
+        },
+        {
+          "qid": "Q4",
           "query": "3D打印 K1 固件 更新 首层 厚度 附着 异常 原因 问题",
           "params": {
             "Mode": 2,
@@ -3867,9 +3991,9 @@
           "covers": [
             "G2"
           ],
-          "latency_ms": 273,
+          "latency_ms": 340,
           "pages": 10,
-          "request_id": "777a112a-d808-459e-9683-ddd32a89df0d",
+          "request_id": "037ba7a9-824b-4dca-8c0f-05ff7f9d31a8",
           "version": "lite",
           "error": "",
           "detail": "",
@@ -3877,7 +4001,7 @@
           "fallback": null
         },
         {
-          "qid": "Q4",
+          "qid": "Q5",
           "query": "K1 固件 更新 已知 问题 官方",
           "params": {
             "Mode": 2,
@@ -3888,9 +4012,9 @@
           "covers": [
             "G2"
           ],
-          "latency_ms": 213,
+          "latency_ms": 354,
           "pages": 10,
-          "request_id": "c7fd353f-63fc-4a2c-8b73-3942fc65fbf5",
+          "request_id": "82140948-91cc-48d3-9da8-1c10fa546257",
           "version": "lite",
           "error": "",
           "detail": "",
@@ -3900,26 +4024,52 @@
       ],
       "stats": {
         "evidence_count": 10,
-        "official": 4,
+        "official": 5,
         "community": 0,
         "general": 5,
-        "low": 1,
-        "fresh": 5,
-        "claims": 3,
+        "low": 0,
+        "fresh": 2,
+        "claims": 2,
         "conflicts": 0,
-        "calls": 4,
+        "calls": 5,
         "failed_calls": 0,
-        "latency_ms": 1046,
+        "latency_ms": 1830,
         "request_ids": [
-          "181caadd-5e22-46e0-aea2-bb2362b285fa",
-          "5e4cc766-4e33-43ec-aa8d-b3461c32ac50",
-          "777a112a-d808-459e-9683-ddd32a89df0d",
-          "c7fd353f-63fc-4a2c-8b73-3942fc65fbf5"
+          "612c4b7e-925b-4ba9-90de-67572fa95a5f",
+          "a3d62cea-b1fd-4a4e-9b18-71731668595f",
+          "e969bf36-0c2e-401d-bac8-789728cdd6e7",
+          "037ba7a9-824b-4dca-8c0f-05ff7f9d31a8",
+          "82140948-91cc-48d3-9da8-1c10fa546257"
         ],
         "replayed": false
       }
     },
     "evidence": [
+      {
+        "title": "A2L 首层打印质量改善指南",
+        "url": "https://wiki.bambulab.com/zh/a2l/maintenance/first-layer-quality-calibration",
+        "site": "Bambu Lab Wiki",
+        "date": "2026/06/26 00:00:00",
+        "passage": "A2L 首层打印质量改善指南 Bambu Lab Wiki。A2L 首层打印质量改善指南 本文介绍了如何改善 A2L 的首层打印质量 页面内容 概述 合格首层标准 如何打印高质量首层 校准与调平 清洗打印板 常见首层问题及解决方法 首层异常处理步骤 首层热床保温策略解释 大面积首层热床保温策略 其他场景热床保温策略 摆放位置优化建议 结束语 ¶ 概述 首层打印质量会直接影响模型附着、成型稳定性以及后续层的打印效果。本指南将帮助您快速判断首层是否偏高或偏低,并通过基础校准与检查步骤恢复正常打印。 ¶ 合格首层标准 理想的首层应具备以下特征: 线与线之间贴合良好,无明显缝隙; 表面整体平整,无多余的褶皱、堆料或起皮; 首层能够稳定附着在打印板表面,不易被喷嘴拖动。 在实际打印过程中,受打印板表面附着力差异或耗材粘嘴导致的挤出波动影响,首层出现少量轻微瑕疵属于正常现象,通常不会影响最终打印结果。例如,若首层仅约 10% 的区域存在轻微线宽波动或细小褶皱,而其余大部分区域均打印平整,通常不会对打印成功率和成品质量造成明显影响。只要整体附着力正常,且不影响后续层的稳定成型,即可视为可接受的首层状态。 高质量首层 合格首层 ¶ 如何打印高质量首层 **注意:**由于 A2L 为开放式打印机,对环境温度变化较为敏感,**建议不要在空调直吹或温度波动较大的环境中进行首层打印。**环境温度变化可能导致热床发生轻微形变,进而影响首层成型质量并产生表面瑕疵。在进行任何打印作业时,应避免在上述环境条件下操作。 ¶ 校准与调平 无论遇到哪种首层打印质量问题,我们都建议您在“设置 > 维护 > 校准 > 打印校准”中运行一次自动热床调平。若机器经过搬运、长时间存放或者拆装更换热床后,也必须重新运行调平。 此外,建议在每次打印前,在发送任务窗口中将**“自动热床调平”** 设为 “打开”。 如果从打印机...",
+        "content": "",
+        "score_raw": 0.0,
+        "relevance": 0.873,
+        "relevance_source": "lexical",
+        "symptom_score": 0.667,
+        "authority_level": null,
+        "tier": "official",
+        "tier_label": "官方/权威",
+        "freshness": 0.774,
+        "rank": 0.8205,
+        "qids": [
+          "Q3"
+        ],
+        "covers": [
+          "G5"
+        ],
+        "replayed": false,
+        "id": "S1"
+      },
       {
         "title": "3D打印首层不粘平台怎么办?热床温度匹配与附着力增强排查指南",
         "url": "https://3d.wenqu123.com/article-3405.html",
@@ -3937,13 +4087,13 @@
         "freshness": 1.0,
         "rank": 0.7642,
         "qids": [
-          "Q3"
+          "Q4"
         ],
         "covers": [
           "G2"
         ],
         "replayed": false,
-        "id": "S1"
+        "id": "S2"
       },
       {
         "title": "K1 SE调平问题处理",
@@ -3969,7 +4119,7 @@
           "G4"
         ],
         "replayed": false,
-        "id": "S2"
+        "id": "S3"
       },
       {
         "title": "K1 Max 调平问题处理",
@@ -3995,7 +4145,7 @@
           "G4"
         ],
         "replayed": false,
-        "id": "S3"
+        "id": "S4"
       },
       {
         "title": "K1调平问题处理",
@@ -4021,7 +4171,82 @@
           "G4"
         ],
         "replayed": false,
-        "id": "S4"
+        "id": "S5"
+      },
+      {
+        "title": "2026年3D打印故障排查手册:20个问题速查表,首层不粘/拉丝/翘边/堵头一步解决",
+        "url": "https://beets3d.cn/blog/2026/06/3d-printing-troubleshooting-guide-20-problems/",
+        "site": "红菜3D",
+        "date": "2026/06/08 00:00:00",
+        "passage": "2026年3D打印故障排查手册:20个问题速查表,首层不粘/拉丝/翘边/堵头一步解决 红菜3D。 可能原因: 挤出倍率过高:切片 软件中 flow rate 设置超过 100% 层高设置不合理:层高过大导致单层挤出量过多 喷嘴直径设置错误:切片软件中喷嘴直径与实际不符(如实际 0.4mm,软件设为 0.5mm) 解决方案: 降低挤出倍率至 95-100% 区间测试 确保层高不超过喷嘴直径的 80%(0.4mm 喷嘴建议层高 0.2-0.32mm) 检查切片软件中的喷嘴直径设置,确保与实际一致 二、粘附问题(Adhesion Issues) 4. 模型翘边(Warping) 症状: 模型角落从热床上翘起,严重时整个模型脱落。 可能原因: 热床温度不足:PLA 建议 50-60°C,ABS 建议 90-110°C 环境温度波动:空调直吹、门窗通风导致温度骤降 第一层高度不当:喷嘴离热床太远,首层粘合不牢 材料收缩率高:ABS、尼龙等材料冷却时收缩明显 解决方案: 提高热床温度,确保均匀加热 关闭门窗,避免空调直吹 打印机;必要时加装 enclosure(封闭箱) 重新调平热床,确保第一层高度合适(纸张测试法:纸张能轻微摩擦通过) 使用粘附辅助:胶棒、 hairspray、PEI 板、BuildTak 贴纸 对于 ABS,尝试使用 ABS 胶水(ABS 溶于丙酮制成的浆糊)涂抹热床 5. 模型粘不住热床 症状: 打印开始后不久,模型从热床上脱落。 可能原因: 热床未调平:某些区域喷嘴距离过远 热床表面脏污:油脂、灰尘影响粘附 首层速度过快:材料来不及粘合就被喷嘴带走 冷却风扇过早开启:PLA 首层就被冷却,导致收缩脱离 解决方案: 重新执行自动/手动调平,确保全床水平 用异丙醇(IPA)或酒精清洁热床表面 降低首层打印速度(建议 20-30 mm/s) 关闭首层冷却风扇,从第二层...",
+        "content": "",
+        "score_raw": 0.0,
+        "relevance": 0.756,
+        "relevance_source": "lexical",
+        "symptom_score": 1.0,
+        "authority_level": null,
+        "tier": "general",
+        "tier_label": "一般网页",
+        "freshness": 0.749,
+        "rank": 0.7135,
+        "qids": [
+          "Q3"
+        ],
+        "covers": [
+          "G5"
+        ],
+        "replayed": false,
+        "id": "S6"
+      },
+      {
+        "title": "3D打印排错:首层粘不住的10个快速检查点(附参数清单)",
+        "url": "https://www.chuangzaojia.com/hub/topic/show/1208",
+        "site": "创造家",
+        "date": "2026/02/27 10:44:28",
+        "passage": "3D打印排错:首层粘不住的10个快速检查点(附参数清单) 创造家。 2) 打印时启用 Mesh(很多固件需要在起始 G-code 里加载)。 3) 若边缘更差,考虑床面温差或风口直吹(见下一条)。 7) 风与环境:首层阶段别让它“被冷却” 首层粘附需要“热量+时间”。排查: 1) 关门关窗,避免空调/风扇直吹打印机。 2) 首层与第2层风扇尽量低(PLA 也建议前2~3层 0%)。 3) 机身导风罩若漏风,先用临时挡风板验证。 8) 喷嘴/耗材状态:堵一点点也会表现为不粘 症状:挤出断断续续、线条有气泡、首层某些段突然变细。 处理:做一次冷拉(cold pull)或更换喷嘴;PLA 若受潮,先烘干(45~55°C 4~6小时)再试。 9) 临时救急方案(只在你知道后果时用) 1) 胶棒/发胶:对玻璃或某些涂层板有效,但会增加清洁工作。 2) Brim(裙边/边缘):对薄件、长条件特别有效;先从 6~10mm 宽度试起。 3) Elephant foot compensation(大象脚补偿):避免“为了粘住而压太扁”造成尺寸变形。 10) 一份可直接套用的首层参数清单 你可以把下面当作“首层排错开关表”,每次只改一项: 1) 清洁:洗洁精清洗 + IPA 2) Z Offset:微调到线条融合 3) 首层速度:15~25mm/s(再慢也不丢人) 4) 首层风扇:0%(前2~3层) 5) 首层线宽:120%~140% 6) 首层流量:105%~115% 最后:你把这三项告诉我,我能更快定位 材料(PLA/PETG/ABS)、床面类型(PEI/玻璃/涂层)、以及你当前的喷嘴/热床温度与 Z Offset。祝你首层一次到位。...",
+        "content": "",
+        "score_raw": 0.0,
+        "relevance": 0.756,
+        "relevance_source": "lexical",
+        "symptom_score": 1.0,
+        "authority_level": null,
+        "tier": "general",
+        "tier_label": "一般网页",
+        "freshness": 0.621,
+        "rank": 0.6987,
+        "qids": [
+          "Q3"
+        ],
+        "covers": [
+          "G5"
+        ],
+        "replayed": false,
+        "id": "S7"
+      },
+      {
+        "title": "首层不粘系统排查法六维联动从硬件校准到耗材环境",
+        "url": "https://3d.wenqu123.com/article-3304.html",
+        "site": "智绘已来",
+        "date": "2026/07/30 00:00:00",
+        "passage": "首层不粘系统排查法六维联动从硬件校准到耗材环境 智绘已来。 建议的打印环境指标: 环境温度:20-30°C(避免空调直吹打印机) 相对湿度:PLA<50%,PETG<40%,ABS<30% 无直接气流:关闭打印区域附近的窗和风扇 五维协同:附着力辅助方案选择 当硬件校准、材料匹配、切片参数和环境控制都已到位但首层附着力仍不理想时,可考虑使用附着力辅助方案。以下是常见辅助方案的适用场景对比: 辅助方案 适用耗材 操作方法 注意事项 PVA胶棒 PLA/PETG/ABS 热床预热后薄涂一层,干透后打印 涂层过厚会降低精度 3D打印专用胶水 PETG/ABS 瓶装胶水滴涂后均匀抹开 水溶性,打印后水洗即可 蓝色美纹纸 PLA/PETG 铺贴平整后加热压实 一次一换,避免粉尘堆积 ABS浆 ABS ABS碎屑溶于丙酮后薄涂 通风操作,易燃 六维检查:Z轴机械状态诊断 很多人在排查首层不粘时忽略了一个关键因素:Z轴机械状态。当Z轴丝杆存在弯曲、润滑不足、联轴器松动等问题时,Z轴抬升或下降的步进可能不均匀,导致首层在某些区域间隙突然变化。 检查Z轴状态的方法: 手动转动Z轴丝杆,感受旋转是否平顺,有无卡顿 检查丝杆与电机轴的联轴器顶丝是否拧紧 观察Z轴滑块的POM螺母是否有明显磨损 用百分表测量Z轴在升降过程中的偏摆量,超过0.05mm需要校正 Z轴丝杆建议每打印100小时后清洁并涂抹锂基润滑脂,使用浅色的润滑脂更容易观察丝杆上的耗材粉末和灰尘积累情况。 常见错误与避坑指南 **错误一:只调Z轴不关注温度。**首层不粘时很多人反复调整Z-Offset但忽略热床实际温度。用红外测温枪检查热床表面温度,往往发现角落比中心低8-12°C。解决方案:加长预热时间至10-15分钟,使热床温度均匀后再开始打印。 **错误二:盲目加胶水掩盖真实问题。**胶水和胶棒只是辅助方案,不能替代机械校准和参数...",
+        "content": "",
+        "score_raw": 0.0,
+        "relevance": 0.855,
+        "relevance_source": "lexical",
+        "symptom_score": 0.667,
+        "authority_level": null,
+        "tier": "general",
+        "tier_label": "一般网页",
+        "freshness": 0.824,
+        "rank": 0.6858,
+        "qids": [
+          "Q3"
+        ],
+        "covers": [
+          "G5"
+        ],
+        "replayed": false,
+        "id": "S8"
       },
       {
         "title": "How to Fix 3D Printer First Layer Problems (Beginner Guide)",
@@ -4037,142 +4262,38 @@
         "authority_level": null,
         "tier": "official",
         "tier_label": "官方/权威",
-        "freshness": 0.68,
-        "rank": 0.6623,
+        "freshness": 0.677,
+        "rank": 0.662,
         "qids": [
           "Q2"
         ],
         "covers": [
           "G3"
-        ],
-        "replayed": false,
-        "id": "S5"
-      },
-      {
-        "title": "3D打印模型打不出来五大类故障排查与快速修复指南",
-        "url": "https://3d.wenqu123.com/article-3110.html",
-        "site": "智绘已来",
-        "date": "2026/07/13 00:00:00",
-        "passage": "3D打印模型打不出来五大类故障排查与快速修复指南 智绘已来。3D打印模型打不出来五大类故障排查与快速修复指南 3D打印故障的底层逻辑:从现象到根因 当模型打不出来时,不要盲目调整参数。绝大多数打印失败可以归因到五个层面:首层附着失败、挤出系统异常、热管理失衡、机械传动故障和切片配置错误。正确的排查顺序是从\"物理硬件\"到\"软件参数\",先排除机械和温度问题,再调切片设置。下面按照故障发生率从高到低逐一拆解。 第一类:首层附着失败(占比约40%) 首层贴不住平台是一切成功的基石,这个问题也是最常见的打印失败原因。 症状一:首层翘边、模型角部脱离平台 **根因分析:**翘边由材料收缩应力引起。 🔗PLA 冷却收缩率约0.2-0.3%, 🔗PETG 约0.5-0.8%,大尺寸模型(对角线超过15cm)的累积收缩力足以将首层从平台拉起。具体原因包括:热床温度偏低(PLA低于55°C)、平台表面油污残留、环境气流导致局部冷却不均。 **解决方案:**按顺序执行三步:先用酒精彻底清洁PEI钢板或玻璃平台(不要用手触摸打印区域);将热床温度提升到PLA 60°C/PETG 80°C(前两层可额外+5°C);在切片软件中开启\"筏层\"(Raft)或\"裙边\"(Brim,设置10-15mm宽度)增加附着面积。如果仍翘边,在模型四角添加防翘边夹子或使用3D打印专用胶水(Magigoo等)。 症状二:首层完全不粘,挤出成线团飘走 **根因分析:**喷嘴与平台间隙过大(Z轴零点偏高),导致挤出的塑料无法被压平在平台上。这是更换喷嘴、拆装热端后最容易出现的问题。 **解决方案:**使用A4纸法重新校准Z轴零点,将热床和喷嘴加热到工作温度,用一张A4纸放在喷嘴和平台之间,调节Z轴限位或探针偏置,使抽纸时有明显阻尼感但不卡死。建议用OrcaSlicer内置的\"Z轴偏移校准\"功能打印5×5cm单层方块测试,根据实...",
-        "content": "",
-        "score_raw": 0.0,
-        "relevance": 0.75,
-        "relevance_source": "lexical",
-        "symptom_score": 0.333,
-        "authority_level": null,
-        "tier": "general",
-        "tier_label": "一般网页",
-        "freshness": 0.802,
-        "rank": 0.5901,
-        "qids": [
-          "Q2",
-          "Q3"
-        ],
-        "covers": [
-          "G2",
-          "G3"
-        ],
-        "replayed": false,
-        "id": "S6"
-      },
-      {
-        "title": "首层问题",
-        "url": "https://printtuner.com/zh/troubleshoot/first_layer",
-        "site": "PrintTuner",
-        "date": "",
-        "passage": "首层问题。首层问题包括不粘热床、首层过薄/过厚、附着不均匀等,是最常见的打印失败原因之一。 快速修复 重新校准Z偏移 清洁打印平台 提高热床温度 降低首层速度至15-20mm/s 使用胶棒或发胶增强附着 详细参考 The first layer won’t stick, prints unevenly, or the nozzle scrapes the bed. Everything that follows depends on this layer, and most print failures trace back to it. Read the First Layer Like a Diagnostic The first layer tells you exactly what’s wrong if you know what to look for: Filament doesn’t stick, rolls off the nozzle: Z-offset too high. The nozzle is printing into air. Extruder clicking, first layer is thin and translucent: Z-offset too low. The nozzle is pressing into the bed, creating back-pressure. Back off 0.05mm at a time. First layer sticks to the nozzle and gets dragged around: Bed not hot enough, or bed surface contaminated. Clean with IPA first before adjusting temper...",
-        "content": "",
-        "score_raw": 0.0,
-        "relevance": 0.42,
-        "relevance_source": "lexical",
-        "symptom_score": 1.0,
-        "authority_level": null,
-        "tier": "general",
-        "tier_label": "一般网页",
-        "freshness": 0.45,
-        "rank": 0.5759,
-        "qids": [
-          "Q2"
-        ],
-        "covers": [
-          "G3"
-        ],
-        "replayed": false,
-        "id": "S7"
-      },
-      {
-        "title": "3D打印板为什么会影响模型翘边",
-        "url": "https://www.toutiao.com/a7690426034944016934",
-        "site": "今日头条",
-        "date": "2026/09/28 11:41:00",
-        "passage": "3D打印板为什么会影响模型翘边 - 今日头条 今日头条。3D打印板为什么会影响模型翘边 模型翘边不只与温度和切片有关,打印板的平面度、表面状态和热床配合也会改变首层表现。 从打印失败的常见现象切入,解释打印板在首层附着中的作用。 先看平面度。打印板在常温下看起来平整,并不代表装到热床后仍保持同样状态。基材厚度、冲压或切边后的残余应力、磁吸底座和固定方式,都可能使板面出现局部起伏。首层间隙一旦不均,喷嘴到板面的距离就会随位置变化:间隙偏大时材料抓不住,间隙偏小时又可能出现堆料或刮擦。 再看热量传递。打印过程中,热床的作用不仅是把温度显示在屏幕上,更是让模型底部获得相对均匀的受热条件。打印板与热床之间若有翘曲、异物或贴合不完整,局部温度就可能低于设定值。模型边角冷却更快、内部收缩更早时,便容易从板面边缘抬起。 表面状态同样关键。以PEI类表面或带纹理的涂层为例,纹理、附着状态、固化质量与清洁度都会影响首层接触。表面过于光滑,某些材料可能难以建立稳定附着;表面受油污、手汗、残胶或磨损影响后,同一参数下的打印结果也会改变。清洁要使用与表面兼容的方法,避免为了“更干净”反而伤害涂层。 基材与结构需要兼顾取件体验。弹簧钢板具有一定韧性,打印完成后可通过轻微弯曲辅助脱模,但这并不意味着板材越薄越好。基材过薄可能影响平整支撑,过厚又会改变热传递和装配空间。边缘倒角、定位孔、磁吸配合与表面层收边,也都需要避免划手、翘起或重复装拆后的定位偏差。 制造端要把“能打印一次”与“多次使用仍稳定”区分开来。样件评估可以覆盖板面平整、边缘状态、涂层外观、热循环、反复取件与不同材料的首层观察。对批量项目而言,还应记录基材批次、表面工艺、检测基准和异常处理方式,让问题能够追溯到具体环节。 使用端也应建立简单的排查顺序:先确认模型底面和切片首层设置,再检查热床实际温度与环境气流;随后清洁板面、观察局部磨损或翘...",
-        "content": "",
-        "score_raw": 0.0,
-        "relevance": 0.64,
-        "relevance_source": "lexical",
-        "symptom_score": 0.333,
-        "authority_level": null,
-        "tier": "low",
-        "tier_label": "低置信",
-        "freshness": 0.925,
-        "rank": 0.5223,
-        "qids": [
-          "Q2",
-          "Q3"
-        ],
-        "covers": [
-          "G2",
-          "G3"
-        ],
-        "replayed": false,
-        "id": "S8"
-      },
-      {
-        "title": "Why 3D Prints Stick Too Firmly to the Build Plate—and How to Prevent Damage",
-        "url": "https://macmyths.com/why-3d-prints-stick-too-firmly-to-the-build-plate-and-how-to-prevent-damage",
-        "site": "MacMyths",
-        "date": "2026/10/17 01:33:24",
-        "passage": "Why 3D Prints Stick Too Firmly to the Build Plate—and How to Prevent Damage MacMyths。Why 3D Prints Stick Too Firmly to the Build Plate—and How to Prevent Damage A stuck 3D print usually points to an over-compressed first layer, excessive bed heat, a strong filament-and-surface bond, or too much adhesive. This guide explains how to diagnose each cause, calibrate Z offset and temperature, and remove finished parts safely from flexible or rigid plates. A print that will not release is usually caused by one of four things: the nozzle has compressed the first layer too far, the bed is hotter than that filament-and-plate combination needs, the material forms an unusually strong bond with the surface, or too much adhesive was applied. The safest fix is not to pull harder. Identify the filament an...",
-        "content": "",
-        "score_raw": 0.0,
-        "relevance": 0.2,
-        "relevance_source": "lexical",
-        "symptom_score": 0.667,
-        "authority_level": null,
-        "tier": "general",
-        "tier_label": "一般网页",
-        "freshness": 1.0,
-        "rank": 0.5022,
-        "qids": [
-          "Q3"
-        ],
-        "covers": [
-          "G2"
         ],
         "replayed": false,
         "id": "S9"
       },
       {
-        "title": "3D Printer First Layer Not Sticking? Here's How to Fix It",
-        "url": "https://www.forgely3d.com/blogs/news/3d-printer-first-layer-not-sticking",
-        "site": "Forgely",
-        "date": "2026/07/23 00:00:00",
-        "passage": "3D Printer First Layer Not Sticking? Here's How to Fix It Forgely。The first layer is everything in FDM printing. If it doesn't stick, nothing else matters. Whether you're seeing warping, peeling corners, a stringy mess that's not adhering to the bed, or the nozzle dragging your print off mid-layer — the fix almost always comes down to one of five root causes. Root Causes of First-Layer Failure Bed not level — the most common cause by far Z offset too high — nozzle is too far from the bed Dirty bed — skin oil prevents bonding Wrong bed temperature — too cold for the material Wrong bed surface for the material — PEI, glass, textured sheets all behave differently Step 1 — Level the Bed Even with auto-leveling (BLTouch, Bambu auto-cal), your Z offset and mesh can drift over time. Run a fresh c...",
+        "title": "3D打印首层不粘平台怎么办?环境温湿度与PEI表面老化深度排查方案",
+        "url": "https://3d.wenqu123.com/article-2354.html",
+        "site": "智绘已来",
+        "date": "2026/06/23 00:00:00",
+        "passage": "3D打印首层不粘平台怎么办?环境温湿度与PEI表面老化深度排查方案 智绘已来。为什么首层附着力如此关键 首层是3D打印的基石。首层粘不住,后面所有的层都白打了。很多新手遇到首层不粘时,第一反应是调高热床温度,但实际根因可能藏在环境湿度、平台表面老化或Z轴补偿偏移中。首层附着力的本质是熔融耗材与平台表面之间的物理和化学结合力,这个结合力受到耗材温度、平台温度、表面粗糙度、环境气流和表面能等因素的综合影响。理解这些因素的相互作用,才能从根源上解决问题。 我们需要记住一个核心原则:首层附着力不是单一参数决定的,而是一个系统性问题。当你改动一个参数(比如提高热床温度)却没有效果时,说明根因在别处。本文提供的排查方案从最常被忽略的环境因素开始,逐步深入到硬件校准和表面处理,确保每一步都能独立验证效果。 第一步:环境温湿度对首层的影响与应对 排查环境温度波动 FDM打印机的工作环境温度直接影响首层冷却速度。当室温低于15°C时,熔融的 🔗PLA耗材 在接触平台后会快速冷却,导致结晶不完全、附着力大幅下降。 🔗PETG 和 🔗ABS 对温度更敏感。理想的打印环境温度是20-28°C,且不应有空调直吹或门窗缝隙带来的气流。你可以用普通温湿度计测量打印机周围的环境温度,记录24小时内的温度波动范围。 如果环境温度偏低,解决方案很简单:给打印机加一个封闭机箱或临时围挡。对于开放式打印机,可以在打印机周围放置一块纸板或亚克力挡板,减少气流扰动。注意不要完全封闭导致散热不足。另一种有效方法是在打印前预热腔室:让热床升温到设定温度并保持10-15分钟,使平台周围形成一个稳定的热场,再开始打印。 湿度对首层附着力影响实测 湿度的影响常被低估。当环境湿度超过65%时,PLA耗材表面会吸附水分,加热时水分汽化产生气泡,破坏首层的均匀附着。PETG的吸湿性更强,在高湿度环境下首层附着失败率会提升40%以上。...",
         "content": "",
         "score_raw": 0.0,
-        "relevance": 0.2,
+        "relevance": 0.936,
         "relevance_source": "lexical",
-        "symptom_score": 0.667,
+        "symptom_score": 0.333,
         "authority_level": null,
         "tier": "general",
         "tier_label": "一般网页",
-        "freshness": 0.817,
-        "rank": 0.468,
+        "freshness": 0.77,
+        "rank": 0.6365,
         "qids": [
-          "Q2"
+          "Q3"
         ],
         "covers": [
-          "G3"
+          "G5"
         ],
         "replayed": false,
         "id": "S10"
@@ -4184,42 +4305,28 @@
         "attribute": "bed_temp",
         "label": "热床温度",
         "value": 55.0,
-        "value_low": 55.0,
-        "value_high": 55.0,
+        "value_low": 50.0,
+        "value_high": 60.0,
         "unit": "℃",
-        "text": "具体原因包括:热床温度偏低(PLA低于55°C)、平台表面油污残留、环境气流导致局部冷却不均。",
-        "date": "2026/07/13 00:00:00",
+        "text": "热床温度不足:PLA 建议 50-60°C",
+        "date": "2026/06/08 00:00:00",
         "tier": "general",
         "official": false,
         "id": "C1"
       },
       {
-        "sid": "S6",
-        "attribute": "bed_temp",
-        "label": "热床温度",
-        "value": 60.0,
-        "value_low": 60.0,
-        "value_high": 60.0,
-        "unit": "℃",
-        "text": "**解决方案:**按顺序执行三步:先用酒精彻底清洁PEI钢板或玻璃平台(不要用手触摸打印区域);将热床温度提升到PLA 60°C/PETG 80°C(前两层可额外+5°C);在切片软件中开启\"筏层\"(Raft)或\"裙边\"(Brim,设置10-15mm宽度)增加附着面积。",
-        "date": "2026/07/13 00:00:00",
-        "tier": "general",
-        "official": false,
-        "id": "C2"
-      },
-      {
         "sid": "S7",
         "attribute": "speed",
         "label": "打印速度",
-        "value": 20.0,
-        "value_low": 20.0,
-        "value_high": 20.0,
+        "value": 25.0,
+        "value_low": 25.0,
+        "value_high": 25.0,
         "unit": "mm/s",
-        "text": "首层速度至15-20mm/s",
-        "date": "",
+        "text": "首层速度:15~25mm/s",
+        "date": "2026/02/27 10:44:28",
         "tier": "general",
         "official": false,
-        "id": "C3"
+        "id": "C2"
       }
     ],
     "conflicts": [],
@@ -4250,8 +4357,8 @@
           "title": "确认平台方向",
           "text": "确认 PEI 板没有装反、卡扣到位；这一步最便宜，也最容易被忽略。",
           "sids": [
-            "S1",
-            "S2"
+            "S2",
+            "S3"
           ]
         },
         {
@@ -4259,8 +4366,8 @@
           "title": "再查固件",
           "text": "三步做完仍然异常，再去查固件版本、已知问题和回滚路径；把“怀疑”变成“可复现的对比”。",
           "sids": [
-            "S2",
-            "S3"
+            "S3",
+            "S4"
           ]
         }
       ],
@@ -4271,7 +4378,7 @@
       ],
       "confidence": "high",
       "coverage": {
-        "covered": 4,
+        "covered": 5,
         "partial": 0,
         "insufficient": 0,
         "need_user": 0
@@ -4286,9 +4393,9 @@
             "stale": false
           },
           {
-            "id": "note-p1s-002",
-            "title": "P1S 首层偶尔不粘，环境风是隐形变量",
-            "created_at": "2026-01-18",
+            "id": "note-a1-006",
+            "title": "首层已经翘了，为什么不要继续打",
+            "created_at": "2026-07-08",
             "stale": false
           }
         ]
@@ -4299,8 +4406,8 @@
       "material": null
     },
     "trace": {
-      "run_id": "20261109-170528-4ea6",
-      "created_at": "2026-11-09T17:05:28+08:00",
+      "run_id": "20261111-155533-544d",
+      "created_at": "2026-11-11T15:55:34+08:00",
       "question": "K1 升级最新固件以后首层压得很薄，是不是固件有问题？要不要回滚？",
       "mode": "live",
       "credential_kind": "api_key",
@@ -4308,7 +4415,7 @@
         {
           "name": "问题编译",
           "ms": 1,
-          "detail": "4 个缺口 / 4 条查询"
+          "detail": "5 个缺口 / 5 条查询"
         },
         {
           "name": "私域检索",
@@ -4317,13 +4424,13 @@
         },
         {
           "name": "元宝搜索",
-          "ms": 575,
-          "detail": "4 次调用 / 37 条原始结果"
+          "ms": 1040,
+          "detail": "5 次调用 / 48 条原始结果"
         },
         {
           "name": "证据融合",
-          "ms": 8,
-          "detail": "10 条证据 / 3 条数值 / 0 处冲突"
+          "ms": 11,
+          "detail": "10 条证据 / 2 条数值 / 0 处冲突"
         },
         {
           "name": "回答生成",
@@ -4344,9 +4451,9 @@
             "G1",
             "G4"
           ],
-          "latency_ms": 200,
-          "pages": 7,
-          "request_id": "181caadd-5e22-46e0-aea2-bb2362b285fa",
+          "latency_ms": 239,
+          "pages": 8,
+          "request_id": "612c4b7e-925b-4ba9-90de-67572fa95a5f",
           "version": "lite",
           "error": "",
           "detail": "",
@@ -4364,9 +4471,9 @@
           "covers": [
             "G3"
           ],
-          "latency_ms": 360,
+          "latency_ms": 457,
           "pages": 10,
-          "request_id": "5e4cc766-4e33-43ec-aa8d-b3461c32ac50",
+          "request_id": "a3d62cea-b1fd-4a4e-9b18-71731668595f",
           "version": "lite",
           "error": "",
           "detail": "",
@@ -4375,6 +4482,26 @@
         },
         {
           "qid": "Q3",
+          "query": "3D打印 首层异常（厚度 / 附着） 环境 温度 空调 直吹",
+          "params": {
+            "Mode": 2,
+            "Cnt": 10
+          },
+          "purpose": "用一条低成本检索排除环境变量",
+          "covers": [
+            "G5"
+          ],
+          "latency_ms": 440,
+          "pages": 10,
+          "request_id": "e969bf36-0c2e-401d-bac8-789728cdd6e7",
+          "version": "lite",
+          "error": "",
+          "detail": "",
+          "replayed": false,
+          "fallback": null
+        },
+        {
+          "qid": "Q4",
           "query": "3D打印 K1 固件 更新 首层 厚度 附着 异常 原因 问题",
           "params": {
             "Mode": 2,
@@ -4385,9 +4512,9 @@
           "covers": [
             "G2"
           ],
-          "latency_ms": 273,
+          "latency_ms": 340,
           "pages": 10,
-          "request_id": "777a112a-d808-459e-9683-ddd32a89df0d",
+          "request_id": "037ba7a9-824b-4dca-8c0f-05ff7f9d31a8",
           "version": "lite",
           "error": "",
           "detail": "",
@@ -4395,7 +4522,7 @@
           "fallback": null
         },
         {
-          "qid": "Q4",
+          "qid": "Q5",
           "query": "K1 固件 更新 已知 问题 官方",
           "params": {
             "Mode": 2,
@@ -4406,9 +4533,9 @@
           "covers": [
             "G2"
           ],
-          "latency_ms": 213,
+          "latency_ms": 354,
           "pages": 10,
-          "request_id": "c7fd353f-63fc-4a2c-8b73-3942fc65fbf5",
+          "request_id": "82140948-91cc-48d3-9da8-1c10fa546257",
           "version": "lite",
           "error": "",
           "detail": "",
@@ -4418,21 +4545,22 @@
       ],
       "stats": {
         "evidence_count": 10,
-        "official": 4,
+        "official": 5,
         "community": 0,
         "general": 5,
-        "low": 1,
-        "fresh": 5,
-        "claims": 3,
+        "low": 0,
+        "fresh": 2,
+        "claims": 2,
         "conflicts": 0,
-        "calls": 4,
+        "calls": 5,
         "failed_calls": 0,
-        "latency_ms": 1046,
+        "latency_ms": 1830,
         "request_ids": [
-          "181caadd-5e22-46e0-aea2-bb2362b285fa",
-          "5e4cc766-4e33-43ec-aa8d-b3461c32ac50",
-          "777a112a-d808-459e-9683-ddd32a89df0d",
-          "c7fd353f-63fc-4a2c-8b73-3942fc65fbf5"
+          "612c4b7e-925b-4ba9-90de-67572fa95a5f",
+          "a3d62cea-b1fd-4a4e-9b18-71731668595f",
+          "e969bf36-0c2e-401d-bac8-789728cdd6e7",
+          "037ba7a9-824b-4dca-8c0f-05ff7f9d31a8",
+          "82140948-91cc-48d3-9da8-1c10fa546257"
         ],
         "replayed": false
       },
@@ -4445,6 +4573,20 @@
           "relevance": 0.391
         },
         {
+          "id": "note-a1-006",
+          "title": "首层已经翘了，为什么不要继续打",
+          "created_at": "2026-07-08",
+          "stale": false,
+          "relevance": 0.167
+        },
+        {
+          "id": "note-a1-012",
+          "title": "空调直吹时，挡风比升热床更先做",
+          "created_at": "2026-07-21",
+          "stale": false,
+          "relevance": 0.167
+        },
+        {
           "id": "note-p1s-002",
           "title": "P1S 首层偶尔不粘，环境风是隐形变量",
           "created_at": "2026-01-18",
@@ -4452,25 +4594,11 @@
           "relevance": 0.167
         },
         {
-          "id": "note-ender-001",
-          "title": "Ender-3 V3 首层调平经验",
-          "created_at": "2025-12-08",
+          "id": "note-a1-011",
+          "title": "A1 热床 60℃ 还是 55℃：一次只改一个变量",
+          "created_at": "2026-06-28",
           "stale": false,
-          "relevance": 0.167
-        },
-        {
-          "id": "note-a1m-001",
-          "title": "A1 mini 首层总翘边，最后发现是平台没洗净",
-          "created_at": "2026-03-12",
-          "stale": false,
-          "relevance": 0.167
-        },
-        {
-          "id": "note-resin-001",
-          "title": "树脂机放卧室，气味和安全边界",
-          "created_at": "2026-02-11",
-          "stale": false,
-          "relevance": 0.043
+          "relevance": 0.087
         }
       ],
       "plan": {
@@ -4507,6 +4635,19 @@
           },
           {
             "id": "Q3",
+            "text": "3D打印 首层异常（厚度 / 附着） 环境 温度 空调 直吹",
+            "params": {
+              "Mode": 2,
+              "Cnt": 10
+            },
+            "purpose": "用一条低成本检索排除环境变量",
+            "covers": [
+              "G5"
+            ],
+            "weight": 0.7
+          },
+          {
+            "id": "Q4",
             "text": "3D打印 K1 固件 更新 首层 厚度 附着 异常 原因 问题",
             "params": {
               "Mode": 2,
@@ -4520,7 +4661,7 @@
             "weight": 1.2
           },
           {
-            "id": "Q4",
+            "id": "Q5",
             "text": "K1 固件 更新 已知 问题 官方",
             "params": {
               "Mode": 2,
@@ -4544,13 +4685,13 @@
             "why": "私域笔记只有个人经验值，缺厂家基线；没有基线就无法判断你现在的参数是偏高还是偏低。",
             "action": "search",
             "status": "covered",
-            "matched": 7,
+            "matched": 9,
             "evidence": [
               "S1",
               "S2",
               "S3"
             ],
-            "note": "7 条独立证据覆盖了这个缺口。",
+            "note": "9 条独立证据覆盖了这个缺口。",
             "qids": [
               "Q1"
             ]
@@ -4563,16 +4704,16 @@
             "why": "机型相关事实会过期；不限定时间窗，搜到的可能是三年前的旧版本经验。",
             "action": "search",
             "status": "covered",
-            "matched": 4,
+            "matched": 3,
             "evidence": [
-              "S2",
               "S3",
-              "S4"
+              "S4",
+              "S5"
             ],
-            "note": "4 条独立证据覆盖了这个缺口。",
+            "note": "3 条独立证据覆盖了这个缺口。",
             "qids": [
-              "Q3",
-              "Q4"
+              "Q4",
+              "Q5"
             ]
           },
           {
@@ -4583,13 +4724,13 @@
             "why": "先验证怀疑，避免直接换件或回滚固件。",
             "action": "search",
             "status": "covered",
-            "matched": 7,
+            "matched": 8,
             "evidence": [
               "S1",
               "S2",
               "S3"
             ],
-            "note": "7 条独立证据覆盖了这个缺口。",
+            "note": "8 条独立证据覆盖了这个缺口。",
             "qids": [
               "Q2"
             ]
@@ -4598,18 +4739,38 @@
             "id": "G4",
             "type": "verify_conflict",
             "priority": "medium",
-            "question": "私域笔记里的数值（22℃、60℃）与公开资料是否一致？",
+            "question": "私域笔记里的数值（22℃、60℃、55℃、20mm）与公开资料是否一致？",
             "why": "私域笔记可能过期，也可能只适用于旧版本或特定平台。",
             "action": "search",
             "status": "covered",
-            "matched": 1,
+            "matched": 4,
             "evidence": [
               "S1",
-              "S2"
+              "S6",
+              "S7"
             ],
-            "note": "官方与社区说法不一致，已在回答中显式对比。",
+            "note": "4 条独立证据覆盖了这个缺口。",
             "qids": [
               "Q1"
+            ]
+          },
+          {
+            "id": "G5",
+            "type": "environment",
+            "priority": "low",
+            "question": "环境温度、空调直吹、湿度或地区气候，是否足以解释这个现象？",
+            "why": "这是成本最低、最容易被忽略的变量，先用一条检索排除。",
+            "action": "search",
+            "status": "covered",
+            "matched": 9,
+            "evidence": [
+              "S1",
+              "S2",
+              "S3"
+            ],
+            "note": "9 条独立证据覆盖了这个缺口。",
+            "qids": [
+              "Q3"
             ]
           }
         ]
@@ -4641,8 +4802,8 @@
             "title": "确认平台方向",
             "text": "确认 PEI 板没有装反、卡扣到位；这一步最便宜，也最容易被忽略。",
             "sids": [
-              "S1",
-              "S2"
+              "S2",
+              "S3"
             ]
           },
           {
@@ -4650,8 +4811,8 @@
             "title": "再查固件",
             "text": "三步做完仍然异常，再去查固件版本、已知问题和回滚路径；把“怀疑”变成“可复现的对比”。",
             "sids": [
-              "S2",
-              "S3"
+              "S3",
+              "S4"
             ]
           }
         ],
@@ -4662,7 +4823,7 @@
         ],
         "confidence": "high",
         "coverage": {
-          "covered": 4,
+          "covered": 5,
           "partial": 0,
           "insufficient": 0,
           "need_user": 0
@@ -4677,9 +4838,9 @@
               "stale": false
             },
             {
-              "id": "note-p1s-002",
-              "title": "P1S 首层偶尔不粘，环境风是隐形变量",
-              "created_at": "2026-01-18",
+              "id": "note-a1-006",
+              "title": "首层已经翘了，为什么不要继续打",
+              "created_at": "2026-07-08",
               "stale": false
             }
           ]
@@ -4690,6 +4851,31 @@
         "material": null
       },
       "evidence": [
+        {
+          "title": "A2L 首层打印质量改善指南",
+          "url": "https://wiki.bambulab.com/zh/a2l/maintenance/first-layer-quality-calibration",
+          "site": "Bambu Lab Wiki",
+          "date": "2026/06/26 00:00:00",
+          "passage": "A2L 首层打印质量改善指南 Bambu Lab Wiki。A2L 首层打印质量改善指南 本文介绍了如何改善 A2L 的首层打印质量 页面内容 概述 合格首层标准 如何打印高质量首层 校准与调平 清洗打印板 常见首层问题及解决方法 首层异常处理步骤 首层热床保温策略解释 大面积首层热床保温策略 其他场景热床保温策略 摆放位置优化建议 结束语 ¶ 概述 首层打印质量会直接影响模型附着、成型稳定性以及后续层的打印效果。本指南将帮助您快速判断首层是否偏高或偏低,并通过基础校准与检查步骤恢复正常打印。 ¶ 合格首层标准 理想的首层应具备以下特征: 线与线之间贴合良好,无明显缝隙; 表面整体平整,无多余的褶皱、堆料或起皮; 首层能够稳定附着在打印板表面,不易被喷嘴拖动。 在实际打印过程中,受打印板表面附着力差异或耗材粘嘴导致的挤出波动影响,首层出现少量轻微瑕疵属于正常现象,通常不会影响最终打印结果。例如,若首层仅约 10% 的区域存在轻微线宽波动或细小褶皱,而其余大部分区域均打印平整,通常不会对打印成功率和成品质量造成明显影响。只要整体附着力正常,且不影响后续层的稳定成型,即可视为可接受的首层状态。 高质量首层 合格首层 ¶ 如何打印高质量首层 **注意:**由于 A2L 为开放式打印机,对环境温度变化较为敏感,**建议不要在空调直吹或温度波动较大的环境中进行首层打印。**环境温度变化可能导致热床发生轻微形变,进而影响首层成型质量并产生表面瑕疵。在进行任何打印作业时,应避免在上述环境条件下操作。 ¶ 校准与调平 无论遇到哪种首层打印质量问题,我们都建议您在“设置 > 维护 > 校准 > 打印校准”中运行一次自动热床调平。若机器经过搬运、长时间存放或者拆装更换热床后,也必须重新运行调平。 此外,建议在每次打印前,在发送任务窗口中将**“自动热床调平”** 设为 “打开”。 如果从打印机...",
+          "content": "",
+          "score_raw": 0.0,
+          "relevance": 0.873,
+          "relevance_source": "lexical",
+          "symptom_score": 0.667,
+          "authority_level": null,
+          "tier": "official",
+          "tier_label": "官方/权威",
+          "freshness": 0.774,
+          "rank": 0.8205,
+          "qids": [
+            "Q3"
+          ],
+          "covers": [
+            "G5"
+          ],
+          "replayed": false,
+          "id": "S1"
+        },
         {
           "title": "3D打印首层不粘平台怎么办?热床温度匹配与附着力增强排查指南",
           "url": "https://3d.wenqu123.com/article-3405.html",
@@ -4707,13 +4893,13 @@
           "freshness": 1.0,
           "rank": 0.7642,
           "qids": [
-            "Q3"
+            "Q4"
           ],
           "covers": [
             "G2"
           ],
           "replayed": false,
-          "id": "S1"
+          "id": "S2"
         },
         {
           "title": "K1 SE调平问题处理",
@@ -4739,7 +4925,7 @@
             "G4"
           ],
           "replayed": false,
-          "id": "S2"
+          "id": "S3"
         },
         {
           "title": "K1 Max 调平问题处理",
@@ -4765,7 +4951,7 @@
             "G4"
           ],
           "replayed": false,
-          "id": "S3"
+          "id": "S4"
         },
         {
           "title": "K1调平问题处理",
@@ -4791,7 +4977,82 @@
             "G4"
           ],
           "replayed": false,
-          "id": "S4"
+          "id": "S5"
+        },
+        {
+          "title": "2026年3D打印故障排查手册:20个问题速查表,首层不粘/拉丝/翘边/堵头一步解决",
+          "url": "https://beets3d.cn/blog/2026/06/3d-printing-troubleshooting-guide-20-problems/",
+          "site": "红菜3D",
+          "date": "2026/06/08 00:00:00",
+          "passage": "2026年3D打印故障排查手册:20个问题速查表,首层不粘/拉丝/翘边/堵头一步解决 红菜3D。 可能原因: 挤出倍率过高:切片 软件中 flow rate 设置超过 100% 层高设置不合理:层高过大导致单层挤出量过多 喷嘴直径设置错误:切片软件中喷嘴直径与实际不符(如实际 0.4mm,软件设为 0.5mm) 解决方案: 降低挤出倍率至 95-100% 区间测试 确保层高不超过喷嘴直径的 80%(0.4mm 喷嘴建议层高 0.2-0.32mm) 检查切片软件中的喷嘴直径设置,确保与实际一致 二、粘附问题(Adhesion Issues) 4. 模型翘边(Warping) 症状: 模型角落从热床上翘起,严重时整个模型脱落。 可能原因: 热床温度不足:PLA 建议 50-60°C,ABS 建议 90-110°C 环境温度波动:空调直吹、门窗通风导致温度骤降 第一层高度不当:喷嘴离热床太远,首层粘合不牢 材料收缩率高:ABS、尼龙等材料冷却时收缩明显 解决方案: 提高热床温度,确保均匀加热 关闭门窗,避免空调直吹 打印机;必要时加装 enclosure(封闭箱) 重新调平热床,确保第一层高度合适(纸张测试法:纸张能轻微摩擦通过) 使用粘附辅助:胶棒、 hairspray、PEI 板、BuildTak 贴纸 对于 ABS,尝试使用 ABS 胶水(ABS 溶于丙酮制成的浆糊)涂抹热床 5. 模型粘不住热床 症状: 打印开始后不久,模型从热床上脱落。 可能原因: 热床未调平:某些区域喷嘴距离过远 热床表面脏污:油脂、灰尘影响粘附 首层速度过快:材料来不及粘合就被喷嘴带走 冷却风扇过早开启:PLA 首层就被冷却,导致收缩脱离 解决方案: 重新执行自动/手动调平,确保全床水平 用异丙醇(IPA)或酒精清洁热床表面 降低首层打印速度(建议 20-30 mm/s) 关闭首层冷却风扇,从第二层...",
+          "content": "",
+          "score_raw": 0.0,
+          "relevance": 0.756,
+          "relevance_source": "lexical",
+          "symptom_score": 1.0,
+          "authority_level": null,
+          "tier": "general",
+          "tier_label": "一般网页",
+          "freshness": 0.749,
+          "rank": 0.7135,
+          "qids": [
+            "Q3"
+          ],
+          "covers": [
+            "G5"
+          ],
+          "replayed": false,
+          "id": "S6"
+        },
+        {
+          "title": "3D打印排错:首层粘不住的10个快速检查点(附参数清单)",
+          "url": "https://www.chuangzaojia.com/hub/topic/show/1208",
+          "site": "创造家",
+          "date": "2026/02/27 10:44:28",
+          "passage": "3D打印排错:首层粘不住的10个快速检查点(附参数清单) 创造家。 2) 打印时启用 Mesh(很多固件需要在起始 G-code 里加载)。 3) 若边缘更差,考虑床面温差或风口直吹(见下一条)。 7) 风与环境:首层阶段别让它“被冷却” 首层粘附需要“热量+时间”。排查: 1) 关门关窗,避免空调/风扇直吹打印机。 2) 首层与第2层风扇尽量低(PLA 也建议前2~3层 0%)。 3) 机身导风罩若漏风,先用临时挡风板验证。 8) 喷嘴/耗材状态:堵一点点也会表现为不粘 症状:挤出断断续续、线条有气泡、首层某些段突然变细。 处理:做一次冷拉(cold pull)或更换喷嘴;PLA 若受潮,先烘干(45~55°C 4~6小时)再试。 9) 临时救急方案(只在你知道后果时用) 1) 胶棒/发胶:对玻璃或某些涂层板有效,但会增加清洁工作。 2) Brim(裙边/边缘):对薄件、长条件特别有效;先从 6~10mm 宽度试起。 3) Elephant foot compensation(大象脚补偿):避免“为了粘住而压太扁”造成尺寸变形。 10) 一份可直接套用的首层参数清单 你可以把下面当作“首层排错开关表”,每次只改一项: 1) 清洁:洗洁精清洗 + IPA 2) Z Offset:微调到线条融合 3) 首层速度:15~25mm/s(再慢也不丢人) 4) 首层风扇:0%(前2~3层) 5) 首层线宽:120%~140% 6) 首层流量:105%~115% 最后:你把这三项告诉我,我能更快定位 材料(PLA/PETG/ABS)、床面类型(PEI/玻璃/涂层)、以及你当前的喷嘴/热床温度与 Z Offset。祝你首层一次到位。...",
+          "content": "",
+          "score_raw": 0.0,
+          "relevance": 0.756,
+          "relevance_source": "lexical",
+          "symptom_score": 1.0,
+          "authority_level": null,
+          "tier": "general",
+          "tier_label": "一般网页",
+          "freshness": 0.621,
+          "rank": 0.6987,
+          "qids": [
+            "Q3"
+          ],
+          "covers": [
+            "G5"
+          ],
+          "replayed": false,
+          "id": "S7"
+        },
+        {
+          "title": "首层不粘系统排查法六维联动从硬件校准到耗材环境",
+          "url": "https://3d.wenqu123.com/article-3304.html",
+          "site": "智绘已来",
+          "date": "2026/07/30 00:00:00",
+          "passage": "首层不粘系统排查法六维联动从硬件校准到耗材环境 智绘已来。 建议的打印环境指标: 环境温度:20-30°C(避免空调直吹打印机) 相对湿度:PLA<50%,PETG<40%,ABS<30% 无直接气流:关闭打印区域附近的窗和风扇 五维协同:附着力辅助方案选择 当硬件校准、材料匹配、切片参数和环境控制都已到位但首层附着力仍不理想时,可考虑使用附着力辅助方案。以下是常见辅助方案的适用场景对比: 辅助方案 适用耗材 操作方法 注意事项 PVA胶棒 PLA/PETG/ABS 热床预热后薄涂一层,干透后打印 涂层过厚会降低精度 3D打印专用胶水 PETG/ABS 瓶装胶水滴涂后均匀抹开 水溶性,打印后水洗即可 蓝色美纹纸 PLA/PETG 铺贴平整后加热压实 一次一换,避免粉尘堆积 ABS浆 ABS ABS碎屑溶于丙酮后薄涂 通风操作,易燃 六维检查:Z轴机械状态诊断 很多人在排查首层不粘时忽略了一个关键因素:Z轴机械状态。当Z轴丝杆存在弯曲、润滑不足、联轴器松动等问题时,Z轴抬升或下降的步进可能不均匀,导致首层在某些区域间隙突然变化。 检查Z轴状态的方法: 手动转动Z轴丝杆,感受旋转是否平顺,有无卡顿 检查丝杆与电机轴的联轴器顶丝是否拧紧 观察Z轴滑块的POM螺母是否有明显磨损 用百分表测量Z轴在升降过程中的偏摆量,超过0.05mm需要校正 Z轴丝杆建议每打印100小时后清洁并涂抹锂基润滑脂,使用浅色的润滑脂更容易观察丝杆上的耗材粉末和灰尘积累情况。 常见错误与避坑指南 **错误一:只调Z轴不关注温度。**首层不粘时很多人反复调整Z-Offset但忽略热床实际温度。用红外测温枪检查热床表面温度,往往发现角落比中心低8-12°C。解决方案:加长预热时间至10-15分钟,使热床温度均匀后再开始打印。 **错误二:盲目加胶水掩盖真实问题。**胶水和胶棒只是辅助方案,不能替代机械校准和参数...",
+          "content": "",
+          "score_raw": 0.0,
+          "relevance": 0.855,
+          "relevance_source": "lexical",
+          "symptom_score": 0.667,
+          "authority_level": null,
+          "tier": "general",
+          "tier_label": "一般网页",
+          "freshness": 0.824,
+          "rank": 0.6858,
+          "qids": [
+            "Q3"
+          ],
+          "covers": [
+            "G5"
+          ],
+          "replayed": false,
+          "id": "S8"
         },
         {
           "title": "How to Fix 3D Printer First Layer Problems (Beginner Guide)",
@@ -4807,142 +5068,38 @@
           "authority_level": null,
           "tier": "official",
           "tier_label": "官方/权威",
-          "freshness": 0.68,
-          "rank": 0.6623,
+          "freshness": 0.677,
+          "rank": 0.662,
           "qids": [
             "Q2"
           ],
           "covers": [
             "G3"
-          ],
-          "replayed": false,
-          "id": "S5"
-        },
-        {
-          "title": "3D打印模型打不出来五大类故障排查与快速修复指南",
-          "url": "https://3d.wenqu123.com/article-3110.html",
-          "site": "智绘已来",
-          "date": "2026/07/13 00:00:00",
-          "passage": "3D打印模型打不出来五大类故障排查与快速修复指南 智绘已来。3D打印模型打不出来五大类故障排查与快速修复指南 3D打印故障的底层逻辑:从现象到根因 当模型打不出来时,不要盲目调整参数。绝大多数打印失败可以归因到五个层面:首层附着失败、挤出系统异常、热管理失衡、机械传动故障和切片配置错误。正确的排查顺序是从\"物理硬件\"到\"软件参数\",先排除机械和温度问题,再调切片设置。下面按照故障发生率从高到低逐一拆解。 第一类:首层附着失败(占比约40%) 首层贴不住平台是一切成功的基石,这个问题也是最常见的打印失败原因。 症状一:首层翘边、模型角部脱离平台 **根因分析:**翘边由材料收缩应力引起。 🔗PLA 冷却收缩率约0.2-0.3%, 🔗PETG 约0.5-0.8%,大尺寸模型(对角线超过15cm)的累积收缩力足以将首层从平台拉起。具体原因包括:热床温度偏低(PLA低于55°C)、平台表面油污残留、环境气流导致局部冷却不均。 **解决方案:**按顺序执行三步:先用酒精彻底清洁PEI钢板或玻璃平台(不要用手触摸打印区域);将热床温度提升到PLA 60°C/PETG 80°C(前两层可额外+5°C);在切片软件中开启\"筏层\"(Raft)或\"裙边\"(Brim,设置10-15mm宽度)增加附着面积。如果仍翘边,在模型四角添加防翘边夹子或使用3D打印专用胶水(Magigoo等)。 症状二:首层完全不粘,挤出成线团飘走 **根因分析:**喷嘴与平台间隙过大(Z轴零点偏高),导致挤出的塑料无法被压平在平台上。这是更换喷嘴、拆装热端后最容易出现的问题。 **解决方案:**使用A4纸法重新校准Z轴零点,将热床和喷嘴加热到工作温度,用一张A4纸放在喷嘴和平台之间,调节Z轴限位或探针偏置,使抽纸时有明显阻尼感但不卡死。建议用OrcaSlicer内置的\"Z轴偏移校准\"功能打印5×5cm单层方块测试,根据实...",
-          "content": "",
-          "score_raw": 0.0,
-          "relevance": 0.75,
-          "relevance_source": "lexical",
-          "symptom_score": 0.333,
-          "authority_level": null,
-          "tier": "general",
-          "tier_label": "一般网页",
-          "freshness": 0.802,
-          "rank": 0.5901,
-          "qids": [
-            "Q2",
-            "Q3"
-          ],
-          "covers": [
-            "G2",
-            "G3"
-          ],
-          "replayed": false,
-          "id": "S6"
-        },
-        {
-          "title": "首层问题",
-          "url": "https://printtuner.com/zh/troubleshoot/first_layer",
-          "site": "PrintTuner",
-          "date": "",
-          "passage": "首层问题。首层问题包括不粘热床、首层过薄/过厚、附着不均匀等,是最常见的打印失败原因之一。 快速修复 重新校准Z偏移 清洁打印平台 提高热床温度 降低首层速度至15-20mm/s 使用胶棒或发胶增强附着 详细参考 The first layer won’t stick, prints unevenly, or the nozzle scrapes the bed. Everything that follows depends on this layer, and most print failures trace back to it. Read the First Layer Like a Diagnostic The first layer tells you exactly what’s wrong if you know what to look for: Filament doesn’t stick, rolls off the nozzle: Z-offset too high. The nozzle is printing into air. Extruder clicking, first layer is thin and translucent: Z-offset too low. The nozzle is pressing into the bed, creating back-pressure. Back off 0.05mm at a time. First layer sticks to the nozzle and gets dragged around: Bed not hot enough, or bed surface contaminated. Clean with IPA first before adjusting temper...",
-          "content": "",
-          "score_raw": 0.0,
-          "relevance": 0.42,
-          "relevance_source": "lexical",
-          "symptom_score": 1.0,
-          "authority_level": null,
-          "tier": "general",
-          "tier_label": "一般网页",
-          "freshness": 0.45,
-          "rank": 0.5759,
-          "qids": [
-            "Q2"
-          ],
-          "covers": [
-            "G3"
-          ],
-          "replayed": false,
-          "id": "S7"
-        },
-        {
-          "title": "3D打印板为什么会影响模型翘边",
-          "url": "https://www.toutiao.com/a7690426034944016934",
-          "site": "今日头条",
-          "date": "2026/09/28 11:41:00",
-          "passage": "3D打印板为什么会影响模型翘边 - 今日头条 今日头条。3D打印板为什么会影响模型翘边 模型翘边不只与温度和切片有关,打印板的平面度、表面状态和热床配合也会改变首层表现。 从打印失败的常见现象切入,解释打印板在首层附着中的作用。 先看平面度。打印板在常温下看起来平整,并不代表装到热床后仍保持同样状态。基材厚度、冲压或切边后的残余应力、磁吸底座和固定方式,都可能使板面出现局部起伏。首层间隙一旦不均,喷嘴到板面的距离就会随位置变化:间隙偏大时材料抓不住,间隙偏小时又可能出现堆料或刮擦。 再看热量传递。打印过程中,热床的作用不仅是把温度显示在屏幕上,更是让模型底部获得相对均匀的受热条件。打印板与热床之间若有翘曲、异物或贴合不完整,局部温度就可能低于设定值。模型边角冷却更快、内部收缩更早时,便容易从板面边缘抬起。 表面状态同样关键。以PEI类表面或带纹理的涂层为例,纹理、附着状态、固化质量与清洁度都会影响首层接触。表面过于光滑,某些材料可能难以建立稳定附着;表面受油污、手汗、残胶或磨损影响后,同一参数下的打印结果也会改变。清洁要使用与表面兼容的方法,避免为了“更干净”反而伤害涂层。 基材与结构需要兼顾取件体验。弹簧钢板具有一定韧性,打印完成后可通过轻微弯曲辅助脱模,但这并不意味着板材越薄越好。基材过薄可能影响平整支撑,过厚又会改变热传递和装配空间。边缘倒角、定位孔、磁吸配合与表面层收边,也都需要避免划手、翘起或重复装拆后的定位偏差。 制造端要把“能打印一次”与“多次使用仍稳定”区分开来。样件评估可以覆盖板面平整、边缘状态、涂层外观、热循环、反复取件与不同材料的首层观察。对批量项目而言,还应记录基材批次、表面工艺、检测基准和异常处理方式,让问题能够追溯到具体环节。 使用端也应建立简单的排查顺序:先确认模型底面和切片首层设置,再检查热床实际温度与环境气流;随后清洁板面、观察局部磨损或翘...",
-          "content": "",
-          "score_raw": 0.0,
-          "relevance": 0.64,
-          "relevance_source": "lexical",
-          "symptom_score": 0.333,
-          "authority_level": null,
-          "tier": "low",
-          "tier_label": "低置信",
-          "freshness": 0.925,
-          "rank": 0.5223,
-          "qids": [
-            "Q2",
-            "Q3"
-          ],
-          "covers": [
-            "G2",
-            "G3"
-          ],
-          "replayed": false,
-          "id": "S8"
-        },
-        {
-          "title": "Why 3D Prints Stick Too Firmly to the Build Plate—and How to Prevent Damage",
-          "url": "https://macmyths.com/why-3d-prints-stick-too-firmly-to-the-build-plate-and-how-to-prevent-damage",
-          "site": "MacMyths",
-          "date": "2026/10/17 01:33:24",
-          "passage": "Why 3D Prints Stick Too Firmly to the Build Plate—and How to Prevent Damage MacMyths。Why 3D Prints Stick Too Firmly to the Build Plate—and How to Prevent Damage A stuck 3D print usually points to an over-compressed first layer, excessive bed heat, a strong filament-and-surface bond, or too much adhesive. This guide explains how to diagnose each cause, calibrate Z offset and temperature, and remove finished parts safely from flexible or rigid plates. A print that will not release is usually caused by one of four things: the nozzle has compressed the first layer too far, the bed is hotter than that filament-and-plate combination needs, the material forms an unusually strong bond with the surface, or too much adhesive was applied. The safest fix is not to pull harder. Identify the filament an...",
-          "content": "",
-          "score_raw": 0.0,
-          "relevance": 0.2,
-          "relevance_source": "lexical",
-          "symptom_score": 0.667,
-          "authority_level": null,
-          "tier": "general",
-          "tier_label": "一般网页",
-          "freshness": 1.0,
-          "rank": 0.5022,
-          "qids": [
-            "Q3"
-          ],
-          "covers": [
-            "G2"
           ],
           "replayed": false,
           "id": "S9"
         },
         {
-          "title": "3D Printer First Layer Not Sticking? Here's How to Fix It",
-          "url": "https://www.forgely3d.com/blogs/news/3d-printer-first-layer-not-sticking",
-          "site": "Forgely",
-          "date": "2026/07/23 00:00:00",
-          "passage": "3D Printer First Layer Not Sticking? Here's How to Fix It Forgely。The first layer is everything in FDM printing. If it doesn't stick, nothing else matters. Whether you're seeing warping, peeling corners, a stringy mess that's not adhering to the bed, or the nozzle dragging your print off mid-layer — the fix almost always comes down to one of five root causes. Root Causes of First-Layer Failure Bed not level — the most common cause by far Z offset too high — nozzle is too far from the bed Dirty bed — skin oil prevents bonding Wrong bed temperature — too cold for the material Wrong bed surface for the material — PEI, glass, textured sheets all behave differently Step 1 — Level the Bed Even with auto-leveling (BLTouch, Bambu auto-cal), your Z offset and mesh can drift over time. Run a fresh c...",
+          "title": "3D打印首层不粘平台怎么办?环境温湿度与PEI表面老化深度排查方案",
+          "url": "https://3d.wenqu123.com/article-2354.html",
+          "site": "智绘已来",
+          "date": "2026/06/23 00:00:00",
+          "passage": "3D打印首层不粘平台怎么办?环境温湿度与PEI表面老化深度排查方案 智绘已来。为什么首层附着力如此关键 首层是3D打印的基石。首层粘不住,后面所有的层都白打了。很多新手遇到首层不粘时,第一反应是调高热床温度,但实际根因可能藏在环境湿度、平台表面老化或Z轴补偿偏移中。首层附着力的本质是熔融耗材与平台表面之间的物理和化学结合力,这个结合力受到耗材温度、平台温度、表面粗糙度、环境气流和表面能等因素的综合影响。理解这些因素的相互作用,才能从根源上解决问题。 我们需要记住一个核心原则:首层附着力不是单一参数决定的,而是一个系统性问题。当你改动一个参数(比如提高热床温度)却没有效果时,说明根因在别处。本文提供的排查方案从最常被忽略的环境因素开始,逐步深入到硬件校准和表面处理,确保每一步都能独立验证效果。 第一步:环境温湿度对首层的影响与应对 排查环境温度波动 FDM打印机的工作环境温度直接影响首层冷却速度。当室温低于15°C时,熔融的 🔗PLA耗材 在接触平台后会快速冷却,导致结晶不完全、附着力大幅下降。 🔗PETG 和 🔗ABS 对温度更敏感。理想的打印环境温度是20-28°C,且不应有空调直吹或门窗缝隙带来的气流。你可以用普通温湿度计测量打印机周围的环境温度,记录24小时内的温度波动范围。 如果环境温度偏低,解决方案很简单:给打印机加一个封闭机箱或临时围挡。对于开放式打印机,可以在打印机周围放置一块纸板或亚克力挡板,减少气流扰动。注意不要完全封闭导致散热不足。另一种有效方法是在打印前预热腔室:让热床升温到设定温度并保持10-15分钟,使平台周围形成一个稳定的热场,再开始打印。 湿度对首层附着力影响实测 湿度的影响常被低估。当环境湿度超过65%时,PLA耗材表面会吸附水分,加热时水分汽化产生气泡,破坏首层的均匀附着。PETG的吸湿性更强,在高湿度环境下首层附着失败率会提升40%以上。...",
           "content": "",
           "score_raw": 0.0,
-          "relevance": 0.2,
+          "relevance": 0.936,
           "relevance_source": "lexical",
-          "symptom_score": 0.667,
+          "symptom_score": 0.333,
           "authority_level": null,
           "tier": "general",
           "tier_label": "一般网页",
-          "freshness": 0.817,
-          "rank": 0.468,
+          "freshness": 0.77,
+          "rank": 0.6365,
           "qids": [
-            "Q2"
+            "Q3"
           ],
           "covers": [
-            "G3"
+            "G5"
           ],
           "replayed": false,
           "id": "S10"
@@ -4954,60 +5111,46 @@
           "attribute": "bed_temp",
           "label": "热床温度",
           "value": 55.0,
-          "value_low": 55.0,
-          "value_high": 55.0,
+          "value_low": 50.0,
+          "value_high": 60.0,
           "unit": "℃",
-          "text": "具体原因包括:热床温度偏低(PLA低于55°C)、平台表面油污残留、环境气流导致局部冷却不均。",
-          "date": "2026/07/13 00:00:00",
+          "text": "热床温度不足:PLA 建议 50-60°C",
+          "date": "2026/06/08 00:00:00",
           "tier": "general",
           "official": false,
           "id": "C1"
         },
         {
-          "sid": "S6",
-          "attribute": "bed_temp",
-          "label": "热床温度",
-          "value": 60.0,
-          "value_low": 60.0,
-          "value_high": 60.0,
-          "unit": "℃",
-          "text": "**解决方案:**按顺序执行三步:先用酒精彻底清洁PEI钢板或玻璃平台(不要用手触摸打印区域);将热床温度提升到PLA 60°C/PETG 80°C(前两层可额外+5°C);在切片软件中开启\"筏层\"(Raft)或\"裙边\"(Brim,设置10-15mm宽度)增加附着面积。",
-          "date": "2026/07/13 00:00:00",
-          "tier": "general",
-          "official": false,
-          "id": "C2"
-        },
-        {
           "sid": "S7",
           "attribute": "speed",
           "label": "打印速度",
-          "value": 20.0,
-          "value_low": 20.0,
-          "value_high": 20.0,
+          "value": 25.0,
+          "value_low": 25.0,
+          "value_high": 25.0,
           "unit": "mm/s",
-          "text": "首层速度至15-20mm/s",
-          "date": "",
+          "text": "首层速度:15~25mm/s",
+          "date": "2026/02/27 10:44:28",
           "tier": "general",
           "official": false,
-          "id": "C3"
+          "id": "C2"
         }
       ],
       "conflicts": [],
-      "elapsed_ms": 589
+      "elapsed_ms": 1056
     }
   },
   {
-    "run_id": "20261109-170528-c944",
-    "created_at": "2026-11-09T17:05:29+08:00",
+    "run_id": "20261111-155534-08ca",
+    "created_at": "2026-11-11T15:55:34+08:00",
     "question": "光敏树脂打印机放在卧室里，味道很大，对人有毒吗？需要怎么防护？",
     "mode": "live",
     "credential_kind": "api_key",
     "replayed": false,
-    "elapsed_ms": 286,
+    "elapsed_ms": 487,
     "stages": [
       {
         "name": "问题编译",
-        "ms": 0,
+        "ms": 2,
         "detail": "3 个缺口 / 3 条查询"
       },
       {
@@ -5017,7 +5160,7 @@
       },
       {
         "name": "元宝搜索",
-        "ms": 272,
+        "ms": 470,
         "detail": "3 次调用 / 30 条原始结果"
       },
       {
@@ -5034,9 +5177,14 @@
     "plan": {
       "slots": {
         "raw": "光敏树脂打印机放在卧室里，味道很大，对人有毒吗？需要怎么防护？",
+        "parse_text": "光敏树脂打印机放在卧室里，味道很大，对人有毒吗？需要怎么防护？",
         "model": null,
         "brand": null,
         "material": "光敏树脂",
+        "materials": [
+          "光敏树脂"
+        ],
+        "material_brand": null,
         "symptom": {
           "id": "safety",
           "label": "气味 / 安全边界",
@@ -5049,6 +5197,23 @@
           "query_symptom": "气味 安全 通风",
           "parameter_sensitive": false
         },
+        "symptoms": [
+          {
+            "id": "safety",
+            "label": "气味 / 安全边界",
+            "mechanisms": [
+              "通风",
+              "皮肤接触",
+              "废液处理",
+              "房间选择"
+            ],
+            "query_symptom": "气味 安全 通风",
+            "parameter_sensitive": false
+          }
+        ],
+        "symptom_ids": [
+          "safety"
+        ],
         "tried": [],
         "environment": [
           {
@@ -5060,11 +5225,13 @@
           "freshness": false,
           "safety": true,
           "official": false,
-          "price": false
+          "price": false,
+          "multi_color": false
         },
         "missing": [
           "model"
-        ]
+        ],
+        "confidence": "medium"
       },
       "chips": [
         {
@@ -5212,32 +5379,32 @@
           "relevance": 0.714
         },
         {
+          "id": "note-a1-006",
+          "title": "首层已经翘了，为什么不要继续打",
+          "created_at": "2026-07-08",
+          "stale": false,
+          "relevance": 0.143
+        },
+        {
+          "id": "note-general-002",
+          "title": "堵料排查的安全顺序",
+          "created_at": "2026-05-06",
+          "stale": false,
+          "relevance": 0.143
+        },
+        {
+          "id": "note-a1-003",
+          "title": "A1 单色 PETG 打龟壳堵料：先停打，再通喷嘴",
+          "created_at": "2026-11-11",
+          "stale": false,
+          "relevance": 0.143
+        },
+        {
           "id": "note-p1s-002",
           "title": "P1S 首层偶尔不粘，环境风是隐形变量",
           "created_at": "2026-01-18",
           "stale": false,
           "relevance": 0.05
-        },
-        {
-          "id": "note-general-001",
-          "title": "什么时候该怀疑耗材受潮",
-          "created_at": "2026-06-15",
-          "stale": false,
-          "relevance": 0.0
-        },
-        {
-          "id": "note-p1s-001",
-          "title": "P1S PETG 拉丝，先别急着调回抽",
-          "created_at": "2026-05-20",
-          "stale": false,
-          "relevance": 0.0
-        },
-        {
-          "id": "note-a1m-001",
-          "title": "A1 mini 首层总翘边，最后发现是平台没洗净",
-          "created_at": "2026-03-12",
-          "stale": false,
-          "relevance": 0.0
         }
       ]
     },
@@ -5254,9 +5421,9 @@
           "covers": [
             "G1"
           ],
-          "latency_ms": 261,
+          "latency_ms": 431,
           "pages": 10,
-          "request_id": "7e15b185-afc5-4981-8ac2-640ded089620",
+          "request_id": "5c363b36-9074-444f-999e-f0b633c145d5",
           "version": "lite",
           "error": "",
           "detail": "",
@@ -5274,9 +5441,9 @@
           "covers": [
             "G2"
           ],
-          "latency_ms": 236,
+          "latency_ms": 444,
           "pages": 10,
-          "request_id": "2fc5900f-9f95-4f2a-87e9-ab1af3e37a41",
+          "request_id": "822eccb0-3c13-480b-bbb9-93fe9d0effbe",
           "version": "lite",
           "error": "",
           "detail": "",
@@ -5294,9 +5461,9 @@
           "covers": [
             "G3"
           ],
-          "latency_ms": 179,
+          "latency_ms": 388,
           "pages": 10,
-          "request_id": "5d28c458-2206-4d60-abb8-113b36abb0a6",
+          "request_id": "2daf0eed-aef4-48f4-84c4-041e2d09af2e",
           "version": "lite",
           "error": "",
           "detail": "",
@@ -5315,11 +5482,11 @@
         "conflicts": 0,
         "calls": 3,
         "failed_calls": 0,
-        "latency_ms": 676,
+        "latency_ms": 1263,
         "request_ids": [
-          "7e15b185-afc5-4981-8ac2-640ded089620",
-          "2fc5900f-9f95-4f2a-87e9-ab1af3e37a41",
-          "5d28c458-2206-4d60-abb8-113b36abb0a6"
+          "5c363b36-9074-444f-999e-f0b633c145d5",
+          "822eccb0-3c13-480b-bbb9-93fe9d0effbe",
+          "2daf0eed-aef4-48f4-84c4-041e2d09af2e"
         ],
         "replayed": false
       }
@@ -5339,8 +5506,8 @@
         "authority_level": null,
         "tier": "general",
         "tier_label": "一般网页",
-        "freshness": 0.967,
-        "rank": 0.8751,
+        "freshness": 0.963,
+        "rank": 0.8746,
         "qids": [
           "Q1"
         ],
@@ -5364,8 +5531,8 @@
         "authority_level": null,
         "tier": "general",
         "tier_label": "一般网页",
-        "freshness": 0.919,
-        "rank": 0.8692,
+        "freshness": 0.916,
+        "rank": 0.8688,
         "qids": [
           "Q1"
         ],
@@ -5389,8 +5556,8 @@
         "authority_level": null,
         "tier": "general",
         "tier_label": "一般网页",
-        "freshness": 0.911,
-        "rank": 0.8682,
+        "freshness": 0.908,
+        "rank": 0.8678,
         "qids": [
           "Q1"
         ],
@@ -5414,8 +5581,8 @@
         "authority_level": null,
         "tier": "general",
         "tier_label": "一般网页",
-        "freshness": 0.812,
-        "rank": 0.856,
+        "freshness": 0.809,
+        "rank": 0.8556,
         "qids": [
           "Q1"
         ],
@@ -5439,8 +5606,8 @@
         "authority_level": null,
         "tier": "general",
         "tier_label": "一般网页",
-        "freshness": 0.76,
-        "rank": 0.8495,
+        "freshness": 0.757,
+        "rank": 0.8492,
         "qids": [
           "Q1",
           "Q2"
@@ -5466,8 +5633,8 @@
         "authority_level": null,
         "tier": "general",
         "tier_label": "一般网页",
-        "freshness": 0.539,
-        "rank": 0.8223,
+        "freshness": 0.537,
+        "rank": 0.822,
         "qids": [
           "Q1"
         ],
@@ -5491,8 +5658,8 @@
         "authority_level": null,
         "tier": "general",
         "tier_label": "一般网页",
-        "freshness": 0.686,
-        "rank": 0.8159,
+        "freshness": 0.684,
+        "rank": 0.8156,
         "qids": [
           "Q2"
         ],
@@ -5568,8 +5735,8 @@
         "authority_level": null,
         "tier": "general",
         "tier_label": "一般网页",
-        "freshness": 0.368,
-        "rank": 0.8011,
+        "freshness": 0.367,
+        "rank": 0.801,
         "qids": [
           "Q1"
         ],
@@ -5645,9 +5812,9 @@
             "stale": false
           },
           {
-            "id": "note-p1s-002",
-            "title": "P1S 首层偶尔不粘，环境风是隐形变量",
-            "created_at": "2026-01-18",
+            "id": "note-a1-006",
+            "title": "首层已经翘了，为什么不要继续打",
+            "created_at": "2026-07-08",
             "stale": false
           }
         ]
@@ -5658,15 +5825,15 @@
       "material": "光敏树脂"
     },
     "trace": {
-      "run_id": "20261109-170528-c944",
-      "created_at": "2026-11-09T17:05:29+08:00",
+      "run_id": "20261111-155534-08ca",
+      "created_at": "2026-11-11T15:55:34+08:00",
       "question": "光敏树脂打印机放在卧室里，味道很大，对人有毒吗？需要怎么防护？",
       "mode": "live",
       "credential_kind": "api_key",
       "stages": [
         {
           "name": "问题编译",
-          "ms": 0,
+          "ms": 2,
           "detail": "3 个缺口 / 3 条查询"
         },
         {
@@ -5676,7 +5843,7 @@
         },
         {
           "name": "元宝搜索",
-          "ms": 272,
+          "ms": 470,
           "detail": "3 次调用 / 30 条原始结果"
         },
         {
@@ -5702,9 +5869,9 @@
           "covers": [
             "G1"
           ],
-          "latency_ms": 261,
+          "latency_ms": 431,
           "pages": 10,
-          "request_id": "7e15b185-afc5-4981-8ac2-640ded089620",
+          "request_id": "5c363b36-9074-444f-999e-f0b633c145d5",
           "version": "lite",
           "error": "",
           "detail": "",
@@ -5722,9 +5889,9 @@
           "covers": [
             "G2"
           ],
-          "latency_ms": 236,
+          "latency_ms": 444,
           "pages": 10,
-          "request_id": "2fc5900f-9f95-4f2a-87e9-ab1af3e37a41",
+          "request_id": "822eccb0-3c13-480b-bbb9-93fe9d0effbe",
           "version": "lite",
           "error": "",
           "detail": "",
@@ -5742,9 +5909,9 @@
           "covers": [
             "G3"
           ],
-          "latency_ms": 179,
+          "latency_ms": 388,
           "pages": 10,
-          "request_id": "5d28c458-2206-4d60-abb8-113b36abb0a6",
+          "request_id": "2daf0eed-aef4-48f4-84c4-041e2d09af2e",
           "version": "lite",
           "error": "",
           "detail": "",
@@ -5763,11 +5930,11 @@
         "conflicts": 0,
         "calls": 3,
         "failed_calls": 0,
-        "latency_ms": 676,
+        "latency_ms": 1263,
         "request_ids": [
-          "7e15b185-afc5-4981-8ac2-640ded089620",
-          "2fc5900f-9f95-4f2a-87e9-ab1af3e37a41",
-          "5d28c458-2206-4d60-abb8-113b36abb0a6"
+          "5c363b36-9074-444f-999e-f0b633c145d5",
+          "822eccb0-3c13-480b-bbb9-93fe9d0effbe",
+          "2daf0eed-aef4-48f4-84c4-041e2d09af2e"
         ],
         "replayed": false
       },
@@ -5780,32 +5947,32 @@
           "relevance": 0.714
         },
         {
+          "id": "note-a1-006",
+          "title": "首层已经翘了，为什么不要继续打",
+          "created_at": "2026-07-08",
+          "stale": false,
+          "relevance": 0.143
+        },
+        {
+          "id": "note-general-002",
+          "title": "堵料排查的安全顺序",
+          "created_at": "2026-05-06",
+          "stale": false,
+          "relevance": 0.143
+        },
+        {
+          "id": "note-a1-003",
+          "title": "A1 单色 PETG 打龟壳堵料：先停打，再通喷嘴",
+          "created_at": "2026-11-11",
+          "stale": false,
+          "relevance": 0.143
+        },
+        {
           "id": "note-p1s-002",
           "title": "P1S 首层偶尔不粘，环境风是隐形变量",
           "created_at": "2026-01-18",
           "stale": false,
           "relevance": 0.05
-        },
-        {
-          "id": "note-general-001",
-          "title": "什么时候该怀疑耗材受潮",
-          "created_at": "2026-06-15",
-          "stale": false,
-          "relevance": 0.0
-        },
-        {
-          "id": "note-p1s-001",
-          "title": "P1S PETG 拉丝，先别急着调回抽",
-          "created_at": "2026-05-20",
-          "stale": false,
-          "relevance": 0.0
-        },
-        {
-          "id": "note-a1m-001",
-          "title": "A1 mini 首层总翘边，最后发现是平台没洗净",
-          "created_at": "2026-03-12",
-          "stale": false,
-          "relevance": 0.0
         }
       ],
       "plan": {
@@ -5975,9 +6142,9 @@
               "stale": false
             },
             {
-              "id": "note-p1s-002",
-              "title": "P1S 首层偶尔不粘，环境风是隐形变量",
-              "created_at": "2026-01-18",
+              "id": "note-a1-006",
+              "title": "首层已经翘了，为什么不要继续打",
+              "created_at": "2026-07-08",
               "stale": false
             }
           ]
@@ -6002,8 +6169,8 @@
           "authority_level": null,
           "tier": "general",
           "tier_label": "一般网页",
-          "freshness": 0.967,
-          "rank": 0.8751,
+          "freshness": 0.963,
+          "rank": 0.8746,
           "qids": [
             "Q1"
           ],
@@ -6027,8 +6194,8 @@
           "authority_level": null,
           "tier": "general",
           "tier_label": "一般网页",
-          "freshness": 0.919,
-          "rank": 0.8692,
+          "freshness": 0.916,
+          "rank": 0.8688,
           "qids": [
             "Q1"
           ],
@@ -6052,8 +6219,8 @@
           "authority_level": null,
           "tier": "general",
           "tier_label": "一般网页",
-          "freshness": 0.911,
-          "rank": 0.8682,
+          "freshness": 0.908,
+          "rank": 0.8678,
           "qids": [
             "Q1"
           ],
@@ -6077,8 +6244,8 @@
           "authority_level": null,
           "tier": "general",
           "tier_label": "一般网页",
-          "freshness": 0.812,
-          "rank": 0.856,
+          "freshness": 0.809,
+          "rank": 0.8556,
           "qids": [
             "Q1"
           ],
@@ -6102,8 +6269,8 @@
           "authority_level": null,
           "tier": "general",
           "tier_label": "一般网页",
-          "freshness": 0.76,
-          "rank": 0.8495,
+          "freshness": 0.757,
+          "rank": 0.8492,
           "qids": [
             "Q1",
             "Q2"
@@ -6129,8 +6296,8 @@
           "authority_level": null,
           "tier": "general",
           "tier_label": "一般网页",
-          "freshness": 0.539,
-          "rank": 0.8223,
+          "freshness": 0.537,
+          "rank": 0.822,
           "qids": [
             "Q1"
           ],
@@ -6154,8 +6321,8 @@
           "authority_level": null,
           "tier": "general",
           "tier_label": "一般网页",
-          "freshness": 0.686,
-          "rank": 0.8159,
+          "freshness": 0.684,
+          "rank": 0.8156,
           "qids": [
             "Q2"
           ],
@@ -6231,8 +6398,8 @@
           "authority_level": null,
           "tier": "general",
           "tier_label": "一般网页",
-          "freshness": 0.368,
-          "rank": 0.8011,
+          "freshness": 0.367,
+          "rank": 0.801,
           "qids": [
             "Q1"
           ],
@@ -6245,7 +6412,7 @@
       ],
       "claims": [],
       "conflicts": [],
-      "elapsed_ms": 286
+      "elapsed_ms": 487
     }
   }
 ]
